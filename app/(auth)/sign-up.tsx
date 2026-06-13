@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image } from "react-native";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
 import { useAuth } from "@/src/contexts/AuthContext";
@@ -32,8 +32,7 @@ export default function SignUp() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.logoWrap}>
-          <Icons.CreditCard color={theme.accent} size={48} strokeWidth={1.5} />
-          <Text style={styles.appName}>All My Cards</Text>
+          <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 220, height: 55 }} resizeMode="contain" />
           <Text style={styles.tagline}>Toutes vos cartes, toujours avec vous.</Text>
         </View>
 

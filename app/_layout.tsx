@@ -10,6 +10,7 @@ import { CardsProvider } from "@/src/contexts/CardsContext";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+
   useEffect(() => {
     SplashScreen.hideAsync();
   }, []);

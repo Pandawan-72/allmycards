@@ -15,6 +15,7 @@ export type Card = {
   backImage?: string | null;
   expiresAt?: string | null;
   notes?: string | null;
+  isProtected?: boolean;
   createdAt: string;
   updatedAt: string;
 };

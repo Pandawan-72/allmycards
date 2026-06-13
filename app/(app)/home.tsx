@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
@@ -7,6 +7,8 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import { useCards, Card } from "@/src/contexts/CardsContext";
 import { findCategory } from "@/src/data/categories";
 import { theme } from "@/src/theme";
+import PinLock from "@/src/components/PinLock";
+import { isPINEnabled, verifyPIN } from "@/src/lib/pin";
 
 const FREE_CARD_LIMIT = 5;
 const { width } = Dimensions.get("window");
@@ -43,7 +45,11 @@ function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => v
           />
           {/* Overlay gradient bas */}
           <View style={styles.cardOverlay}>
-            <Text style={styles.cardNameOnPhoto} numberOfLines={1}>{card.name}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              {card.isProtected ? <Icons.Lock color="#FCD34D" size={14} strokeWidth={3} /> : null}
+              <Text style={styles.cardNameOnPhoto} numberOfLines={1}>{card.name}</Text>
+            </View>
+            <Text style={styles.cardCat} numberOfLines={1}>{cat.label}</Text>
           </View>
         </>
       ) : (
@@ -54,20 +60,23 @@ function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => v
           <View style={[styles.deco2, { backgroundColor: "rgba(255,255,255,0.08)" }]} />
           {/* Contenu */}
           <View style={styles.cardColoredTop}>
+            <View />
             <View style={styles.cardIconWrap}>
               <CatIcon name={cat.icon} color="#fff" size={16} />
             </View>
           </View>
-          <View style={styles.cardColoredBottom}>
-            <Text style={styles.cardName} numberOfLines={1}>{card.name}</Text>
+          <View style={styles.cardColoredOverlay}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+              {card.isProtected ? <Icons.Lock color="#FCD34D" size={14} strokeWidth={3} /> : null}
+              <Text style={styles.cardName} numberOfLines={1}>{card.name}</Text>
+            </View>
             <Text style={styles.cardCat} numberOfLines={1}>{cat.label}</Text>
           </View>
-          {/* Indicateur code barre */}
-          {card.barcodeValue ? (
-            <View style={styles.barcodeIndicator}>
-              <Icons.Barcode color="rgba(255,255,255,0.7)" size={12} />
-            </View>
-          ) : null}
+          {/* Indicateurs */}
+          <View style={{ position: "absolute", top: 10, left: 10, flexDirection: "row", gap: 6 }}>
+            
+            {card.barcodeValue ? <Icons.Barcode color="rgba(255,255,255,0.7)" size={12} /> : null}
+          </View>
         </View>
       )}
     </TouchableOpacity>
@@ -79,6 +88,8 @@ export default function Home() {
   const { user } = useAuth();
   const { cards, deleteCard } = useCards();
   const [search, setSearch] = useState("");
+  const [pendingCard, setPendingCard] = useState<Card | null>(null);
+  const [showPin, setShowPin] = useState(false);
 
   const isPro = !!user?.pro?.is_pro;
   const isTrialing = user?.pro?.plan === "trialing";
@@ -109,7 +120,19 @@ export default function Home() {
     router.push({ pathname: "/(app)/display", params: { id: card.id } });
   };
 
-  const onCardLongPress = (card: Card) => {
+  const onCardLongPress = async (card: Card) => {
+    if (card.isProtected) {
+      const enabled = await isPINEnabled();
+      if (enabled) {
+        setPendingCard(card);
+        setShowPin(true);
+        return;
+      }
+    }
+    showCardActions(card);
+  };
+
+  const showCardActions = (card: Card) => {
     Alert.alert(card.name, "Que voulez-vous faire ?", [
       { text: "Modifier", onPress: () => router.push({ pathname: "/(app)/card", params: { id: card.id } }) },
       { text: "Supprimer", style: "destructive", onPress: () => {
@@ -134,9 +157,9 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.appName}>All My Cards</Text>
-          {firstName ? <Text style={styles.greeting}>Bonjour, {firstName} 👋</Text> : null}
+        <View style={{ flex: 1, alignItems: "center" }}>
+          <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 240, height: 60 }} resizeMode="contain" />
+          {firstName ? <Text style={[styles.greeting, { textAlign: "center" }]}>Bonjour, {firstName} 👋</Text> : null}
         </View>
         <TouchableOpacity onPress={() => router.push("/(app)/settings")} style={styles.iconBtn}>
           <Icons.Settings color={theme.text} size={20} strokeWidth={2} />
@@ -165,11 +188,25 @@ export default function Home() {
             ) : null}
 
             <View style={styles.heroCard}>
-              <Text style={styles.heroLabel}>MES CARTES</Text>
-              <Text style={styles.heroCount}>{cards.length}</Text>
-              <Text style={styles.heroSub}>
-                {isPro ? "Accès illimité ✨" : `${cards.length} / ${FREE_CARD_LIMIT} cartes gratuites`}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View>
+                  <Text style={styles.heroLabel}>MES CARTES</Text>
+                  <Text style={styles.heroCount}>{cards.length}</Text>
+                  <Text style={styles.heroSub}>
+                    {isPro ? "Accès illimité ✨" : `${cards.length} / ${FREE_CARD_LIMIT} cartes gratuites`}
+                  </Text>
+                </View>
+                <View style={{ maxWidth: 130, alignSelf: 'center', gap: 6 }}>
+                  <View>
+                    <Text style={{ color: '#FCD34D', fontSize: 13, fontWeight: '900' }}>APPUI COURT</Text>
+                    <Text style={{ color: '#9CA3AF', fontSize: 12, fontWeight: '600' }}>Afficher la carte / code barre</Text>
+                  </View>
+                  <View>
+                    <Text style={{ color: '#FCD34D', fontSize: 13, fontWeight: '900' }}>APPUI LONG</Text>
+                    <Text style={{ color: '#9CA3AF', fontSize: 12, fontWeight: '600' }}>Modifier ou supprimer</Text>
+                  </View>
+                </View>
+              </View>
             </View>
 
             <View style={styles.searchWrap}>
@@ -211,6 +248,15 @@ export default function Home() {
         )}
       />
 
+      {showPin && pendingCard ? (
+        <Modal visible={showPin} transparent={false} animationType="slide">
+          <PinLock
+            onUnlock={() => { setShowPin(false); showCardActions(pendingCard!); }}
+            onClose={() => { setShowPin(false); setPendingCard(null); }}
+          />
+        </Modal>
+      ) : null}
+
       <TouchableOpacity style={styles.fab} onPress={onAdd}>
         <Icons.Plus color="#fff" size={28} strokeWidth={2.5} />
       </TouchableOpacity>
@@ -251,18 +297,15 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cardPhoto: { width: "100%", height: "100%", borderRadius: 12 },
-  cardOverlay: {
-    position: "absolute", bottom: 0, left: 0, right: 0,
-    backgroundColor: "rgba(0,0,0,0.45)", paddingHorizontal: 10, paddingVertical: 8,
-    borderBottomLeftRadius: 12, borderBottomRightRadius: 12,
-  },
+  cardOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.45)", paddingHorizontal: 10, paddingVertical: 8, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 },
   cardNameOnPhoto: { color: "#fff", fontWeight: "800", fontSize: 21 },
   cardColored: { flex: 1, padding: 12, justifyContent: "space-between", borderRadius: 12, overflow: "hidden" },
   deco1: { position: "absolute", width: CARD_W * 0.9, height: CARD_W * 0.9, borderRadius: CARD_W * 0.45, top: -CARD_W * 0.3, right: -CARD_W * 0.3 },
   deco2: { position: "absolute", width: CARD_W * 0.6, height: CARD_W * 0.6, borderRadius: CARD_W * 0.3, bottom: -CARD_W * 0.2, left: -CARD_W * 0.1 },
-  cardColoredTop: { flexDirection: "row", justifyContent: "flex-end" },
+  cardColoredTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardIconWrap: { width: 28, height: 28, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
   cardColoredBottom: { gap: 2 },
+  cardColoredOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.45)", paddingHorizontal: 10, paddingVertical: 8, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 },
   cardName: { color: "#fff", fontWeight: "800", fontSize: 21, letterSpacing: -0.3 },
   cardCat: { color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: "600" },
   barcodeIndicator: { position: "absolute", top: 10, left: 10 },

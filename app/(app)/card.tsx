@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Modal, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import * as Icons from "lucide-react-native";
 import { useCards, Card, BarcodeType } from "@/src/contexts/CardsContext";
+import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPermission } from "@/src/lib/notifications";
+import { useAuth } from "@/src/contexts/AuthContext";
 import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
 import { theme } from "@/src/theme";
 
@@ -13,6 +16,8 @@ export default function CardScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { cards, addCard, updateCard, deleteCard } = useCards();
+  const { user } = useAuth();
+  const isPro = !!user?.pro?.is_pro;
 
   const existing = id ? cards.find((c) => c.id === id) : null;
 
@@ -22,6 +27,21 @@ export default function CardScreen() {
   const [barcodeType, setBarcodeType] = useState<BarcodeType>(existing?.barcodeType || "qr");
   const [barcodeValue, setBarcodeValue] = useState(existing?.barcodeValue || "");
   const [notes, setNotes] = useState(existing?.notes || "");
+  const [expiresAt, setExpiresAt] = useState(existing?.expiresAt || "");
+  const [isProtected, setIsProtected] = useState(existing?.isProtected || false);
+
+  // Recharge les images quand on revient du scanner
+  useFocusEffect(useCallback(() => {
+    if (existing) {
+      const updated = cards.find((c) => c.id === existing.id);
+      if (updated) {
+        setFrontImage(updated.frontImage || null);
+        setBackImage(updated.backImage || null);
+      }
+    }
+  }, [existing?.id, cards]));
+  const [frontImage, setFrontImage] = useState<string | null>(existing?.frontImage || null);
+  const [backImage, setBackImage] = useState<string | null>(existing?.backImage || null);
   const [showCatPicker, setShowCatPicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -37,15 +57,26 @@ export default function CardScreen() {
         color,
         barcodeType,
         barcodeValue: barcodeValue || null,
-        frontImage: existing?.frontImage || null,
-        backImage: existing?.backImage || null,
+        frontImage: frontImage,
+        backImage: backImage,
         notes: notes || null,
-        expiresAt: existing?.expiresAt || null,
+        expiresAt: expiresAt || null,
+        isProtected: isProtected,
       };
+      let savedCard: Card | undefined = existing;
       if (existing) {
         await updateCard(existing.id, data);
       } else {
-        await addCard(data);
+        savedCard = await addCard(data);
+      }
+      // Programmer une alerte si date d'expiration définie (Pro uniquement)
+      if (isPro && expiresAt && savedCard) {
+        const hasPermission = await requestNotificationPermission();
+        if (hasPermission) {
+          await scheduleExpirationAlert(savedCard.id, name.trim(), expiresAt, 30);
+        }
+      } else if (savedCard && !expiresAt) {
+        await cancelExpirationAlert(savedCard.id);
       }
       router.back();
     } finally {
@@ -155,17 +186,61 @@ export default function CardScreen() {
         {/* Scan photo */}
         <Text style={[styles.label, { marginTop: 20 }]}>Photo de la carte (optionnel)</Text>
         <View style={styles.photoRow}>
-          <TouchableOpacity style={styles.photoBtn} onPress={() => onScanPhoto("front")}>
-            <Icons.Camera color={theme.text} size={20} />
-            <Text style={styles.photoBtnText}>Recto</Text>
-            {existing?.frontImage ? <Icons.Check color={theme.accent} size={14} /> : null}
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.photoBtn} onPress={() => onScanPhoto("back")}>
-            <Icons.Camera color={theme.text} size={20} />
-            <Text style={styles.photoBtnText}>Verso</Text>
-            {existing?.backImage ? <Icons.Check color={theme.accent} size={14} /> : null}
-          </TouchableOpacity>
+          <View style={{ flex: 1, gap: 8 }}>
+            <TouchableOpacity style={styles.photoBtn} onPress={() => onScanPhoto("front")}>
+              <Icons.Camera color={theme.text} size={20} />
+              <Text style={styles.photoBtnText}>Recto</Text>
+              {frontImage ? <Icons.Check color={theme.accent} size={14} /> : null}
+            </TouchableOpacity>
+            {frontImage ? (
+              <TouchableOpacity style={styles.removePhotoBtn} onPress={() => setFrontImage(null)}>
+                <Icons.Trash2 color={theme.danger} size={14} />
+                <Text style={styles.removePhotoBtnText}>Supprimer le recto</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+          <View style={{ flex: 1, gap: 8 }}>
+            <TouchableOpacity style={styles.photoBtn} onPress={() => onScanPhoto("back")}>
+              <Icons.Camera color={theme.text} size={20} />
+              <Text style={styles.photoBtnText}>Verso</Text>
+              {backImage ? <Icons.Check color={theme.accent} size={14} /> : null}
+            </TouchableOpacity>
+            {backImage ? (
+              <TouchableOpacity style={styles.removePhotoBtn} onPress={() => setBackImage(null)}>
+                <Icons.Trash2 color={theme.danger} size={14} />
+                <Text style={styles.removePhotoBtnText}>Supprimer le verso</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
+
+        {/* Date d'expiration */}
+        {isPro ? (
+          <>
+            <Text style={[styles.label, { marginTop: 20 }]}>Date d'expiration (optionnel)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="JJ/MM/AAAA"
+              placeholderTextColor={theme.textSubtle}
+              value={expiresAt}
+              onChangeText={(v) => {
+                // Format automatique JJ/MM/AAAA
+                const cleaned = v.replace(/[^0-9]/g, "");
+                let formatted = cleaned;
+                if (cleaned.length >= 3) formatted = cleaned.slice(0, 2) + "/" + cleaned.slice(2);
+                if (cleaned.length >= 5) formatted = cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4) + "/" + cleaned.slice(4, 8);
+                setExpiresAt(formatted);
+              }}
+              keyboardType="numeric"
+              maxLength={10}
+            />
+            {expiresAt ? (
+              <Text style={{ fontSize: 12, color: theme.accent, marginTop: -8, marginBottom: 8 }}>
+                ✅ Une alerte sera envoyée 30 jours avant l'expiration
+              </Text>
+            ) : null}
+          </>
+        ) : null}
 
         {/* Notes */}
         <Text style={[styles.label, { marginTop: 20 }]}>Notes (optionnel)</Text>
@@ -177,6 +252,22 @@ export default function CardScreen() {
           onChangeText={setNotes}
           multiline
         />
+
+        {/* Protection PIN */}
+        {isPro ? (
+          <TouchableOpacity
+            style={styles.protectRow}
+            onPress={() => setIsProtected(!isProtected)}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.protectTitle}>Protéger cette carte</Text>
+              <Text style={styles.protectSub}>Demander le code PIN pour afficher</Text>
+            </View>
+            <View style={[styles.toggle, isProtected && styles.toggleActive]}>
+              <View style={[styles.toggleThumb, isProtected && styles.toggleThumbActive]} />
+            </View>
+          </TouchableOpacity>
+        ) : null}
 
         {/* Supprimer */}
         {existing ? (
@@ -261,6 +352,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: theme.border,
   },
   listRowText: { fontSize: 16, color: theme.text },
+  protectRow: { flexDirection: "row", alignItems: "center", backgroundColor: "#F0FDF4", borderWidth: 1, borderColor: "#10B981", borderRadius: 14, padding: 14, marginTop: 20, gap: 12 },
+  protectTitle: { fontSize: 15, fontWeight: "700", color: "#111827" },
+  protectSub: { fontSize: 12, color: "#6B7280", marginTop: 2 },
+  toggle: { width: 48, height: 28, borderRadius: 14, backgroundColor: "#D1D5DB", padding: 2, justifyContent: "center" },
+  toggleActive: { backgroundColor: "#10B981" },
+  toggleThumb: { width: 24, height: 24, borderRadius: 12, backgroundColor: "#fff", alignSelf: "flex-start" },
+  toggleThumbActive: { alignSelf: "flex-end" },
+  removePhotoBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, padding: 8, borderRadius: 10, borderWidth: 1, borderColor: "#FCA5A5", backgroundColor: "#FEF2F2" },
+  removePhotoBtnText: { fontSize: 12, color: "#EF4444", fontWeight: "600" },
   deleteBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, padding: 16, borderRadius: 14, borderWidth: 1, borderColor: theme.danger, marginTop: 20, marginBottom: 10 },
   deleteBtnText: { color: theme.danger, fontWeight: "700", fontSize: 15 },
   barcodePreview: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: theme.accentSoft, borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: theme.accent },

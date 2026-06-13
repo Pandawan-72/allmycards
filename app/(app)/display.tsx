@@ -4,6 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as Icons from "lucide-react-native";
 import * as Brightness from "expo-brightness";
+import { useState as useStatePin } from "react";
+import { isPINEnabled, isBiometricAvailable, authenticateWithBiometrics, verifyPIN } from "@/src/lib/pin";
+import PinLock from "@/src/components/PinLock";
+import * as Sharing from "expo-sharing";
+import * as FileSystem from "expo-file-system/legacy";
 import * as ScreenOrientation from "expo-screen-orientation";
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
 import { useCards } from "@/src/contexts/CardsContext";
@@ -110,6 +115,7 @@ export default function Display() {
   const { cards } = useCards();
   const card = cards.find((c) => c.id === id);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [pinUnlocked, setPinUnlocked] = useState(false);
   const [dims, setDims] = useState(Dimensions.get("window"));
 
   useEffect(() => {
@@ -137,6 +143,30 @@ export default function Display() {
     };
   }, []);
 
+  const onShareImage = async (uri: string) => {
+    try {
+      // Si c'est une URI locale, on peut partager directement
+      // Si c'est base64 ou data URI, on l'écrit d'abord dans un fichier temp
+      let shareUri = uri;
+      if (uri.startsWith("data:") || !uri.startsWith("file://")) {
+        const filename = `${FileSystem.cacheDirectory}card_${card?.id || "photo"}.jpg`;
+        await FileSystem.writeAsStringAsync(filename, uri.split(",")[1] || uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        shareUri = filename;
+      }
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(shareUri, {
+          mimeType: "image/jpeg",
+          dialogTitle: "Partager la carte",
+          UTI: "public.jpeg",
+        });
+      }
+    } catch (e) {
+      console.error("Share error:", e);
+    }
+  };
+
   if (!card) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -151,13 +181,23 @@ export default function Display() {
   }
 
   const cat = findCategory(card.categoryId);
+  // 3 modes : "front" (defaut), "back", "barcode"
   const showBack = view === "back";
+  const showBarcode = view === "barcode";
+  // Image courante selon le mode
   const currentImage = showBack ? card.backImage : card.frontImage;
   const isQR = card.barcodeType === "qr";
   const isEAN13 = card.barcodeType === "ean13";
+  const hasPhoto = !!(card.frontImage || card.backImage);
+  const hasBarcode = !!card.barcodeValue;
+
+  // Vérification PIN pour cartes protégées
+  if (card?.isProtected && !pinUnlocked) {
+    return <PinLock onUnlock={() => setPinUnlocked(true)} onClose={() => router.back()} />;
+  }
 
   // En paysage : code barre plein écran
-  if (isLandscape && card.barcodeValue && !currentImage) {
+  if (isLandscape && card.barcodeValue && (showBarcode || !hasPhoto)) {
     const paddingV = 130;
     const paddingH = 40;
     const maxH = dims.height - paddingV * 2;
@@ -215,34 +255,62 @@ export default function Display() {
             <Text style={styles.cardBadgeCat}>{cat.label}</Text>
           </View>
 
-          {currentImage ? (
+          {/* Mode barcode */}
+          {showBarcode && hasBarcode ? (
+            <View style={styles.barcodeBox}>
+              {isEAN13 ? (
+                <EAN13Barcode value={card.barcodeValue!} width={280} height={100} />
+              ) : isQR ? (
+                <SimpleQR value={card.barcodeValue!} size={200} />
+              ) : (
+                <GenericBarcode value={card.barcodeValue!} width={280} height={100} />
+              )}
+              <Text style={styles.hint}>Tournez en paysage pour agrandir ↻</Text>
+            </View>
+          ) : hasPhoto ? (
+            /* Mode photo */
             <>
-              <Image source={{ uri: currentImage }} style={styles.cardPhoto} resizeMode="contain" />
-              {(card.frontImage || card.backImage) && (
-                <View style={styles.toggleRow}>
+              <Image source={{ uri: currentImage || card.frontImage! }} style={styles.cardPhoto} resizeMode="contain" />
+              <View style={styles.toggleRow}>
+                {card.frontImage ? (
                   <TouchableOpacity
-                    style={[styles.toggleBtn, !showBack && styles.toggleBtnActive]}
+                    style={[styles.toggleBtn, !showBack && !showBarcode && styles.toggleBtnActive]}
                     onPress={() => router.setParams({ view: "front" })}
                   >
-                    <Text style={[styles.toggleText, !showBack && styles.toggleTextActive]}>Recto</Text>
+                    <Text style={[styles.toggleText, !showBack && !showBarcode && styles.toggleTextActive]}>Recto</Text>
                   </TouchableOpacity>
+                ) : null}
+                {card.backImage ? (
                   <TouchableOpacity
                     style={[styles.toggleBtn, showBack && styles.toggleBtnActive]}
                     onPress={() => router.setParams({ view: "back" })}
                   >
                     <Text style={[styles.toggleText, showBack && styles.toggleTextActive]}>Verso</Text>
                   </TouchableOpacity>
-                </View>
-              )}
+                ) : null}
+                {hasBarcode ? (
+                  <TouchableOpacity
+                    style={[styles.toggleBtn, showBarcode && styles.toggleBtnActive]}
+                    onPress={() => router.setParams({ view: "barcode" })}
+                  >
+                    <Text style={[styles.toggleText, showBarcode && styles.toggleTextActive]}>Code barre</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+              <TouchableOpacity style={styles.shareBtn} onPress={() => onShareImage(currentImage || card.frontImage!)}>
+                <Icons.Share2 color={theme.text} size={18} />
+                <Text style={styles.shareBtnText}>Partager l'image</Text>
+              </TouchableOpacity>
             </>
-          ) : card.barcodeValue ? (
+          ) : hasBarcode ? (
+            /* Mode code barre seul */
             <View style={styles.barcodeBox}>
               {isEAN13 ? (
-                <EAN13Barcode value={card.barcodeValue} width={280} height={100} />
+                <EAN13Barcode value={card.barcodeValue!} width={280} height={100} />
               ) : isQR ? (
-                <SimpleQR value={card.barcodeValue} size={200} />
+                <SimpleQR value={card.barcodeValue!} size={200} />
               ) : (
-                <GenericBarcode value={card.barcodeValue} width={280} height={100} />
+                <GenericBarcode value={card.barcodeValue!} width={280} height={100} />
               )}
               <Text style={styles.hint}>Tournez en paysage pour agrandir ↻</Text>
             </View>
@@ -290,6 +358,8 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: theme.border,
   },
   hint: { fontSize: 12, color: theme.textMuted, textAlign: "center", lineHeight: 18 },
+  shareBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 20, paddingVertical: 12 },
+  shareBtnText: { fontSize: 15, fontWeight: "700", color: theme.text },
   notesBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: theme.surfaceAlt, borderRadius: 14, padding: 14, width: "100%" },
   notesText: { flex: 1, fontSize: 14, color: theme.text, lineHeight: 20 },
 });

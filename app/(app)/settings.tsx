@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -7,6 +7,7 @@ import * as Application from "expo-application";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { useCards } from "@/src/contexts/CardsContext";
 import { restorePurchasesRC, isRevenueCatSupported } from "@/src/lib/revenuecat";
+import { isPINEnabled } from "@/src/lib/pin";
 import { exportBackup, importBackup } from "@/src/lib/backup";
 import { theme } from "@/src/theme";
 
@@ -22,6 +23,11 @@ export default function Settings() {
   const [importing, setImporting] = useState(false);
 
   const isPro = !!user?.pro?.is_pro;
+  const [pinEnabled, setPinEnabled] = useState(false);
+
+  useEffect(() => {
+    isPINEnabled().then(setPinEnabled);
+  }, []);
 
   const proLabel = (() => {
     const p = user?.pro?.plan;
@@ -116,6 +122,20 @@ export default function Settings() {
           </View>
           <Icons.ChevronRight color={theme.textSubtle} size={18} />
         </TouchableOpacity>
+
+        {/* PIN */}
+        {isPro ? (
+          <TouchableOpacity onPress={() => router.push("/(app)/pin-setup")} style={[styles.row, { marginTop: 10 }]}>
+            <View style={[styles.rowIcon, { backgroundColor: "#EFF6FF" }]}>
+              <Icons.Lock color="#3B82F6" size={18} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rowTitle}>Code PIN</Text>
+              <Text style={styles.rowSub}>{pinEnabled ? "Activé 🔒" : "Désactivé"}</Text>
+            </View>
+            <Icons.ChevronRight color={theme.textSubtle} size={18} />
+          </TouchableOpacity>
+        ) : null}
 
         <Text style={[styles.section, { marginTop: 24 }]}>SAUVEGARDE</Text>
 
