@@ -10,31 +10,31 @@ const LEGAL_NL = {
   privacy: {
     intro: "Dit beleid legt uit hoe All My Cards uw gegevens verzamelt, gebruikt en beschermt.",
     sections: [
-      { title: "1. Publisher", body: "All My Cards is published by Retro-Spare. Contact: dev@retro-spare.fr." },
-      { title: "2. Data collected", body: "Name, email (Firebase). If Google Sign-In: name, email, photo. No payment data stored." },
-      { title: "3. Local data", body: "All your cards are stored exclusively on your device and never sent to our servers." },
-      { title: "4. Card photos", body: "Front/back photos are stored locally and never leave your phone except when sharing." },
-      { title: "5. Use of data", body: "We use your data only to create/secure your account, manage Pro access, and respond to support." },
-      { title: "6. Third-party services", body: "All My Cards uses: Firebase (auth), RevenueCat (Pro), Google Play (payments)." },
-      { title: "7. Retention", body: "Firebase account kept while active. Local data deleted on uninstall." },
-      { title: "8. Your rights (GDPR)", body: "Access, rectification, erasure, portability. Contact: dev@retro-spare.fr." },
-      { title: "9. Security", body: "Firebase auth. HTTPS/TLS. Optional biometric PIN protection." },
-      { title: "10. Minors", body: "App not intended for users under 13." },
+      { title: "1. Uitgever", body: "All My Cards wordt uitgegeven door Retro-Spare. Contact: dev@retro-spare.fr." },
+      { title: "2. Verzamelde gegevens", body: "Naam, e-mailadres (Firebase). Met Google Aanmelden: naam, e-mail, foto. Geen betalingsgegevens opgeslagen." },
+      { title: "3. Lokale gegevens", body: "Al uw kaarten worden uitsluitend lokaal op uw apparaat opgeslagen en nooit naar onze servers verzonden." },
+      { title: "4. Kaartfoto's", body: "Voor-/achterkantfoto's worden lokaal opgeslagen en verlaten uw telefoon nooit, behalve bij het delen." },
+      { title: "5. Gebruik van gegevens", body: "We gebruiken uw gegevens alleen voor het aanmaken en beveiligen van uw account, het beheren van Pro-toegang en het beantwoorden van ondersteuningsverzoeken." },
+      { title: "6. Diensten van derden", body: "All My Cards gebruikt: Firebase (authenticatie), RevenueCat (Pro-aankopen), Google Play (betalingen)." },
+      { title: "7. Bewaring", body: "Firebase-account bewaard zolang actief, verwijderd op verzoek. Lokale gegevens verwijderd bij verwijdering." },
+      { title: "8. Uw rechten (AVG)", body: "Toegang, rectificatie, verwijdering, overdraagbaarheid, bezwaar. Contact: dev@retro-spare.fr." },
+      { title: "9. Beveiliging", body: "Authenticatie via Firebase. HTTPS/TLS-versleutelde communicatie. Optionele biometrische PIN-beveiliging." },
+      { title: "10. Minderjarigen", body: "App niet bestemd voor gebruikers onder de 13 jaar." },
       { title: "11. Contact", body: "dev@retro-spare.fr" }
     ]
   },
   terms: {
     intro: "Deze voorwaarden regelen het gebruik van All My Cards.",
     sections: [
-      { title: "1. Acceptance", body: "By using the App, you accept these Terms." },
-      { title: "2. Free and Pro", body: "Gratis: tot 5 kaarten. Pro (€ 5,99 eenmalige aankoop): onbeperkte kaarten, PIN-beveiliging, categoriefilters, verloopmeldingen, back-up en herstel, kaart delen." },
-      { title: "3. 72h free trial", body: "On first login, each user gets a 72-hour free trial with full Pro access." },
-      { title: "4. Pro purchase", body: "Pro access via a one-time purchase of €5.99 on Google Play. No subscription." },
-      { title: "5. Restore", body: "Use Restore Purchases in settings with the same Google Play account." },
-      { title: "6. Refunds", body: "Refunds handled by Google Play according to their policy." },
-      { title: "7. Acceptable use", body: "Do not circumvent limitations or use the App illegally." },
-      { title: "8. Intellectual property", body: "The App and its content are the exclusive property of Retro-Spare." },
-      { title: "9. Liability", body: "App provided as-is. No liability for loss of local data." },
+      { title: "1. Aanvaarding", body: "Door de App te gebruiken, accepteert u deze voorwaarden." },
+      { title: "2. Gratis en Pro-versie", body: "Gratis: tot 5 kaarten. Pro (€ 5,99 eenmalige aankoop): onbeperkte kaarten, PIN-beveiliging, categoriefilters, verloopmeldingen, back-up en herstel, kaart delen." },
+      { title: "3. 72u gratis proefperiode", body: "Bij de eerste aanmelding krijgt elke gebruiker een gratis proefperiode van 72 uur met volledige Pro-toegang." },
+      { title: "4. Pro eenmalige aankoop", body: "Pro-toegang is beschikbaar via een eenmalige aankoop van € 5,99 op Google Play. Geen abonnement, geen terugkerende kosten." },
+      { title: "5. Herstel", body: "Gebruik de knop Aankopen herstellen in de instellingen met hetzelfde Google Play-account." },
+      { title: "6. Terugbetalingen", body: "Terugbetalingen worden afgehandeld door Google Play volgens hun beleid." },
+      { title: "7. Aanvaardbaar gebruik", body: "Geen beperkingen omzeilen, geen reverse engineering of illegaal gebruik van de App." },
+      { title: "8. Intellectueel eigendom", body: "De App en de inhoud zijn het exclusieve eigendom van Retro-Spare." },
+      { title: "9. Beperking van aansprakelijkheid", body: "App geleverd zoals ze is. Geen aansprakelijkheid voor verlies van lokale gegevens." },
       { title: "10. Contact", body: "dev@retro-spare.fr" }
     ]
   }
