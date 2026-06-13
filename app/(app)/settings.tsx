@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, FlatList, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import * as Icons from "lucide-react-native";
 import * as Application from "expo-application";
 import { useAuth } from "@/src/contexts/AuthContext";
+import { useLanguage } from "@/src/contexts/LanguageContext";
+import { SUPPORTED_LANGS, AppLang } from "@/src/i18n";
+import { useTranslation } from "react-i18next";
 import { useCards } from "@/src/contexts/CardsContext";
 import { restorePurchasesRC, isRevenueCatSupported } from "@/src/lib/revenuecat";
 import { isPINEnabled } from "@/src/lib/pin";
@@ -23,6 +26,9 @@ export default function Settings() {
   const [importing, setImporting] = useState(false);
 
   const isPro = !!user?.pro?.is_pro;
+  const { lang, setLang } = useLanguage();
+  const { t } = useTranslation();
+  const [showLang, setShowLang] = useState(false);
   const [pinEnabled, setPinEnabled] = useState(false);
 
   useFocusEffect(useCallback(() => {
@@ -31,10 +37,10 @@ export default function Settings() {
 
   const proLabel = (() => {
     const p = user?.pro?.plan;
-    if (p === "lifetime") return "À vie";
-    if (p === "trialing") return "Essai gratuit";
+    if (p === "lifetime") return t("paywall.once");
+    if (p === "trialing") return t("paywall.trialBanner", {hours: 0});
     if (p === "expired") return "Expiré";
-    return "Version gratuite";
+    return t("home.upgrade");
   })();
 
   const onRestore = async () => {
@@ -62,7 +68,7 @@ export default function Settings() {
   const onImport = async () => {
     if (!isPro) { router.push("/(app)/paywall"); return; }
     if (importing) return;
-    Alert.alert("Restaurer une sauvegarde", "Cette action remplacera toutes vos cartes actuelles. Continuer ?", [
+    Alert.alert(t("settings.backup.importTitle"), "Cette action remplacera toutes vos cartes actuelles. Continuer ?", [
       { text: "Annuler", style: "cancel" },
       {
         text: "Continuer", style: "destructive",
@@ -95,7 +101,7 @@ export default function Settings() {
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
           <Icons.ChevronLeft color={theme.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Paramètres</Text>
+        <Text style={styles.headerTitle}>{t("settings.title")}</Text>
         <View style={styles.headerBtn} />
       </View>
 
@@ -110,15 +116,27 @@ export default function Settings() {
           </View>
         </View>
 
-        <Text style={styles.section}>PRÉFÉRENCES</Text>
+        <Text style={styles.section}>{t("settings.preferences").toUpperCase()}</Text>
 
         <TouchableOpacity onPress={() => router.push("/(app)/paywall")} style={styles.row}>
           <View style={[styles.rowIcon, { backgroundColor: theme.accentSoft }]}>
             <Icons.Crown color={theme.accent} size={18} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.rowTitle}>Abonnement Pro</Text>
+            <Text style={styles.rowTitle}>{t("settings.proPlan")}</Text>
             <Text style={styles.rowSub}>{proLabel}</Text>
+          </View>
+          <Icons.ChevronRight color={theme.textSubtle} size={18} />
+        </TouchableOpacity>
+
+        {/* Langue */}
+        <TouchableOpacity onPress={() => setShowLang(true)} style={[styles.row, { marginTop: 10 }]}>
+          <View style={styles.rowIcon}>
+            <Icons.Languages color={theme.text} size={18} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowTitle}>{t("settings.language")}</Text>
+            <Text style={styles.rowSub}>{t("langs." + lang)}</Text>
           </View>
           <Icons.ChevronRight color={theme.textSubtle} size={18} />
         </TouchableOpacity>
@@ -130,22 +148,22 @@ export default function Settings() {
               <Icons.Lock color="#3B82F6" size={18} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.rowTitle}>Code PIN</Text>
-              <Text style={styles.rowSub}>{pinEnabled ? "Activé 🔒" : "Désactivé"}</Text>
+              <Text style={styles.rowTitle}>{t("settings.pin")}</Text>
+              <Text style={styles.rowSub}>{pinEnabled ? t("settings.pinEnabled") : t("common.disabled")}</Text>
             </View>
             <Icons.ChevronRight color={theme.textSubtle} size={18} />
           </TouchableOpacity>
         ) : null}
 
-        <Text style={[styles.section, { marginTop: 24 }]}>SAUVEGARDE</Text>
+        <Text style={[styles.section, { marginTop: 24 }]}>{t("settings.backup.section")}</Text>
 
         <TouchableOpacity onPress={onExport} disabled={exporting} style={styles.row}>
           <View style={styles.rowIcon}>
             {exporting ? <ActivityIndicator size="small" color={theme.text} /> : <Icons.Download color={isPro ? theme.text : theme.textSubtle} size={18} />}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.rowTitle, !isPro && { color: theme.textMuted }]}>Exporter mes cartes</Text>
-            <Text style={styles.rowSub}>{isPro ? "Sauvegarder vers un fichier" : "Pro requis"}</Text>
+            <Text style={[styles.rowTitle, !isPro && { color: theme.textMuted }]}>{t("settings.backup.exportTitle")}</Text>
+            <Text style={styles.rowSub}>{isPro ? t("settings.backup.exportSub") : t("settings.backup.proRequired")}</Text>
           </View>
           {isPro ? <Icons.ChevronRight color={theme.textSubtle} size={18} /> : <Icons.Lock color={theme.textSubtle} size={16} />}
         </TouchableOpacity>
@@ -155,38 +173,72 @@ export default function Settings() {
             {importing ? <ActivityIndicator size="small" color={theme.text} /> : <Icons.Upload color={isPro ? theme.text : theme.textSubtle} size={18} />}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.rowTitle, !isPro && { color: theme.textMuted }]}>Restaurer une sauvegarde</Text>
-            <Text style={styles.rowSub}>{isPro ? "Importer depuis un fichier" : "Pro requis"}</Text>
+            <Text style={[styles.rowTitle, !isPro && { color: theme.textMuted }]}>{t("settings.backup.importTitle")}</Text>
+            <Text style={styles.rowSub}>{isPro ? t("settings.backup.importSub") : t("settings.backup.proRequired")}</Text>
           </View>
           {isPro ? <Icons.ChevronRight color={theme.textSubtle} size={18} /> : <Icons.Lock color={theme.textSubtle} size={16} />}
         </TouchableOpacity>
 
-        <Text style={[styles.section, { marginTop: 24 }]}>À PROPOS</Text>
-
-        <TouchableOpacity onPress={onRestore} disabled={restoring} style={styles.row}>
-          <View style={styles.rowIcon}>
-            {restoring ? <ActivityIndicator size="small" color={theme.text} /> : <Icons.RotateCcw color={theme.text} size={18} />}
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.rowTitle}>Restaurer mes achats</Text>
-          </View>
+        <Text style={[styles.section, { marginTop: 24 }]}>{t("legal.aboutSection")}</Text>
+        <TouchableOpacity onPress={onRestore} style={[styles.row, { marginTop: 8 }]} disabled={restoring}>
+          <View style={styles.rowIcon}><Icons.RotateCcw color={theme.text} size={18} /></View>
+          <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{t("paywall.restore")}</Text></View>
+          {restoring ? <ActivityIndicator size="small" color={theme.text} /> : <Icons.ChevronRight color={theme.textSubtle} size={18} />}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/(app)/privacy")} style={[styles.row, { marginTop: 10 }]}>
+          <View style={styles.rowIcon}><Icons.Shield color={theme.text} size={18} /></View>
+          <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{t("legal.privacyTitle")}</Text></View>
           <Icons.ChevronRight color={theme.textSubtle} size={18} />
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/(app)/terms")} style={[styles.row, { marginTop: 10 }]}>
+          <View style={styles.rowIcon}><Icons.FileText color={theme.text} size={18} /></View>
+          <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{t("legal.termsTitle")}</Text></View>
+          <Icons.ChevronRight color={theme.textSubtle} size={18} />
+        </TouchableOpacity>
+
+        
 
         <TouchableOpacity onPress={onLogout} style={[styles.row, { marginTop: 20 }]}>
           <View style={[styles.rowIcon, { backgroundColor: "#FEE2E2" }]}>
             <Icons.LogOut color={theme.danger} size={18} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.rowTitle, { color: theme.danger }]}>Se déconnecter</Text>
+            <Text style={[styles.rowTitle, { color: theme.danger }]}>{t("settings.logout")}</Text>
           </View>
         </TouchableOpacity>
+
+
 
         <View style={styles.versionFooter}>
           <Icons.Info color={theme.textSubtle} size={13} strokeWidth={2} />
           <Text style={styles.versionText}>Version {APP_VERSION} ({APP_BUILD})</Text>
         </View>
       </ScrollView>
+      <Modal visible={showLang} animationType="slide" onRequestClose={() => setShowLang(false)}>
+        <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => setShowLang(false)} style={styles.headerBtn}>
+              <Icons.X color={theme.text} size={22} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{t("settings.language")}</Text>
+            <View style={styles.headerBtn} />
+          </View>
+          <FlatList
+            data={SUPPORTED_LANGS as readonly string[]}
+            keyExtractor={(l) => l}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={async () => { await setLang(item as AppLang); setShowLang(false); }}
+                style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: theme.border, gap: 12 }}
+              >
+                <Text style={{ fontWeight: "800", color: theme.text, width: 40 }}>{item.toUpperCase()}</Text>
+                <Text style={{ color: theme.textMuted, flex: 1 }}>{t("langs." + item)}</Text>
+                {lang === item ? <Icons.Check color={theme.accent} size={18} strokeWidth={3} /> : null}
+              </TouchableOpacity>
+            )}
+          />
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }

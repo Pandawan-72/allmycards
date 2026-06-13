@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image } from "react-native";
 import { useRouter } from "expo-router";
-import * as Icons from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { theme } from "@/src/theme";
 
 export default function SignUp() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { register } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -15,14 +16,14 @@ export default function SignUp() {
   const [error, setError] = useState<string | null>(null);
 
   const onRegister = async () => {
-    if (!name || !email || !password) { setError("Veuillez remplir tous les champs."); return; }
-    if (password.length < 6) { setError("Le mot de passe doit contenir au moins 6 caractères."); return; }
+    if (!name || !email || !password) { setError(t("auth.fillAll")); return; }
+    if (password.length < 6) { setError(t("auth.pwdMin")); return; }
     setLoading(true); setError(null);
     try {
       await register(name, email, password);
       router.replace("/(app)/home");
-    } catch (e: any) {
-      setError("Erreur lors de la création du compte.");
+    } catch {
+      setError(t("auth.fillAll"));
     } finally {
       setLoading(false);
     }
@@ -33,21 +34,21 @@ export default function SignUp() {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.logoWrap}>
           <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 220, height: 55 }} resizeMode="contain" />
-          <Text style={styles.tagline}>Toutes vos cartes, toujours avec vous.</Text>
+          <Text style={styles.tagline}>{t("auth.subtitle")}</Text>
         </View>
 
-        <Text style={styles.title}>Créer un compte</Text>
+        <Text style={styles.title}>{t("auth.signUp")}</Text>
 
         <TextInput
           style={styles.input}
-          placeholder="Nom"
+          placeholder={t("auth.name")}
           placeholderTextColor={theme.textSubtle}
           value={name}
           onChangeText={setName}
         />
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t("auth.email")}
           placeholderTextColor={theme.textSubtle}
           value={email}
           onChangeText={setEmail}
@@ -56,7 +57,7 @@ export default function SignUp() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Mot de passe"
+          placeholder={t("auth.password")}
           placeholderTextColor={theme.textSubtle}
           value={password}
           onChangeText={setPassword}
@@ -66,12 +67,12 @@ export default function SignUp() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <TouchableOpacity style={styles.btn} onPress={onRegister} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Créer mon compte</Text>}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t("auth.signUp")}</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")} style={styles.switchRow}>
-          <Text style={styles.switchText}>Déjà un compte ? </Text>
-          <Text style={[styles.switchText, { color: theme.accent, fontWeight: "700" }]}>Se connecter</Text>
+          <Text style={styles.switchText}>{t("auth.haveAccount")} </Text>
+          <Text style={[styles.switchText, { color: theme.accent, fontWeight: "700" }]}>{t("auth.goSignIn")}</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -81,8 +82,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: theme.bg, padding: 24, justifyContent: "center" },
   logoWrap: { alignItems: "center", marginBottom: 40 },
-  appName: { fontSize: 28, fontWeight: "900", color: theme.text, marginTop: 12, letterSpacing: -0.5 },
-  tagline: { fontSize: 14, color: theme.textMuted, marginTop: 6, textAlign: "center" },
+  tagline: { fontSize: 14, color: theme.textMuted, marginTop: 12, textAlign: "center" },
   title: { fontSize: 24, fontWeight: "900", color: theme.text, marginBottom: 24 },
   input: {
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,

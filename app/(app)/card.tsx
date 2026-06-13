@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Modal, Dimensions } from "react-native";
+import { useState, useCallback } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
-import { useCallback } from "react";
 import * as Icons from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { useCards, Card, BarcodeType } from "@/src/contexts/CardsContext";
-import { Linking } from "react-native";
-import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPermission } from "@/src/lib/notifications";
 import { useAuth } from "@/src/contexts/AuthContext";
+import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPermission } from "@/src/lib/notifications";
 import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
 import { theme } from "@/src/theme";
 
@@ -15,6 +14,7 @@ const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC
 
 export default function CardScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { cards, addCard, updateCard, deleteCard } = useCards();
   const { user } = useAuth();
@@ -32,8 +32,11 @@ export default function CardScreen() {
   const [phone, setPhone] = useState(existing?.phone || "");
   const [website, setWebsite] = useState(existing?.website || "");
   const [isProtected, setIsProtected] = useState(existing?.isProtected || false);
+  const [frontImage, setFrontImage] = useState<string | null>(existing?.frontImage || null);
+  const [backImage, setBackImage] = useState<string | null>(existing?.backImage || null);
+  const [showCatPicker, setShowCatPicker] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // Recharge les images quand on revient du scanner
   useFocusEffect(useCallback(() => {
     if (existing) {
       const updated = cards.find((c) => c.id === existing.id);
@@ -43,28 +46,20 @@ export default function CardScreen() {
       }
     }
   }, [existing?.id, cards]));
-  const [frontImage, setFrontImage] = useState<string | null>(existing?.frontImage || null);
-  const [backImage, setBackImage] = useState<string | null>(existing?.backImage || null);
-  const [showCatPicker, setShowCatPicker] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   const cat = findCategory(categoryId);
 
   const onSave = async () => {
-    if (!name.trim()) { Alert.alert("Erreur", "Le nom est requis."); return; }
+    if (!name.trim()) { Alert.alert("Erreur", t("card.name") + " requis."); return; }
     setSaving(true);
     try {
       const data = {
-        name: name.trim(),
-        categoryId,
-        color,
-        barcodeType,
+        name: name.trim(), categoryId, color, barcodeType,
         barcodeValue: barcodeValue || null,
-        frontImage: frontImage,
-        backImage: backImage,
+        frontImage, backImage,
         notes: notes || null,
         expiresAt: expiresAt || null,
-        isProtected: isProtected,
+        isProtected,
         phone: phone || null,
         website: website || null,
       };
@@ -74,12 +69,9 @@ export default function CardScreen() {
       } else {
         savedCard = await addCard(data);
       }
-      // Programmer une alerte si date d'expiration définie (Pro uniquement)
       if (isPro && expiresAt && savedCard) {
         const hasPermission = await requestNotificationPermission();
-        if (hasPermission) {
-          await scheduleExpirationAlert(savedCard.id, name.trim(), expiresAt, 30);
-        }
+        if (hasPermission) await scheduleExpirationAlert(savedCard.id, name.trim(), expiresAt, 30);
       } else if (savedCard && !expiresAt) {
         await cancelExpirationAlert(savedCard.id);
       }
@@ -91,10 +83,9 @@ export default function CardScreen() {
 
   const onDelete = () => {
     if (!existing) return;
-    const { Alert } = require("react-native");
-    Alert.alert("Supprimer la carte", `Supprimer "${existing.name}" ?`, [
-      { text: "Annuler", style: "cancel" },
-      { text: "Supprimer", style: "destructive", onPress: async () => {
+    Alert.alert(t("common.delete"), t("card.deleteConfirm", { name: existing.name }), [
+      { text: t("common.cancel"), style: "cancel" },
+      { text: t("common.delete"), style: "destructive", onPress: async () => {
         await deleteCard(existing.id);
         router.back();
       }},
@@ -115,38 +106,38 @@ export default function CardScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
           <Icons.ChevronLeft color={theme.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{existing ? "Modifier la carte" : "Nouvelle carte"}</Text>
+        <Text style={styles.headerTitle}>{existing ? t("card.editCard") : t("card.newCard")}</Text>
         <TouchableOpacity onPress={onSave} disabled={saving} style={styles.headerBtn}>
           <Icons.Check color={theme.accent} size={24} strokeWidth={3} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-        {/* Preview carte */}
+        {/* Preview */}
         <View style={[styles.cardPreview, { backgroundColor: color }]}>
-          <Text style={styles.cardPreviewName}>{name || "Nom de la carte"}</Text>
-          <Text style={styles.cardPreviewCat}>{cat.label}</Text>
+          <Text style={styles.cardPreviewName}>{name || t("card.namePh")}</Text>
+          <Text style={styles.cardPreviewCat}>{t("categories." + cat.label)}</Text>
         </View>
 
         {/* Nom */}
-        <Text style={styles.label}>Nom de la carte</Text>
+        <Text style={styles.label}>{t("card.name")}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Carrefour, SNCF, Bibliothèque…"
+          placeholder={t("card.namePh")}
           placeholderTextColor={theme.textSubtle}
           value={name}
           onChangeText={setName}
         />
 
         {/* Catégorie */}
-        <Text style={styles.label}>Catégorie</Text>
+        <Text style={styles.label}>{t("card.category")}</Text>
         <TouchableOpacity style={styles.picker} onPress={() => setShowCatPicker(true)}>
-          <Text style={styles.pickerText}>{cat.label}</Text>
+          <Text style={styles.pickerText}>{t("categories." + cat.label)}</Text>
           <Icons.ChevronRight color={theme.textSubtle} size={18} />
         </TouchableOpacity>
 
         {/* Couleur */}
-        <Text style={styles.label}>Couleur</Text>
+        <Text style={styles.label}>{t("card.color")}</Text>
         <View style={styles.colorRow}>
           {COLORS.map((c) => (
             <TouchableOpacity
@@ -158,25 +149,25 @@ export default function CardScreen() {
         </View>
 
         {/* Code barre */}
-        <Text style={styles.label}>Code barre / QR Code</Text>
+        <Text style={styles.label}>{t("card.scanBarcode")}</Text>
         <TouchableOpacity style={styles.scanBtn} onPress={onScan}>
           <Icons.ScanLine color="#fff" size={20} />
-          <Text style={styles.scanBtnText}>Scanner le code barre</Text>
+          <Text style={styles.scanBtnText}>{t("card.scanBarcode")}</Text>
         </TouchableOpacity>
         <TextInput
           style={[styles.input, { marginTop: 10 }]}
-          placeholder="Ou saisir le code manuellement"
+          placeholder={t("card.scanBarcode")}
           placeholderTextColor={theme.textSubtle}
           value={barcodeValue}
           onChangeText={(v) => {
-              setBarcodeValue(v);
-              if (!v) { setBarcodeType("none"); return; }
-              const digits = v.replace(/[^0-9]/g, "");
-              if (digits.length === 13 && v === digits) setBarcodeType("ean13");
-              else if (digits.length === 8 && v === digits) setBarcodeType("ean8");
-              else if (digits.length === 12 && v === digits) setBarcodeType("upc");
-              else setBarcodeType("code128");
-            }}
+            setBarcodeValue(v);
+            if (!v) { setBarcodeType("none"); return; }
+            const digits = v.replace(/[^0-9]/g, "");
+            if (digits.length === 13 && v === digits) setBarcodeType("ean13");
+            else if (digits.length === 8 && v === digits) setBarcodeType("ean8");
+            else if (digits.length === 12 && v === digits) setBarcodeType("upc");
+            else setBarcodeType("code128");
+          }}
         />
         {barcodeValue ? (
           <View style={styles.barcodePreview}>
@@ -188,39 +179,39 @@ export default function CardScreen() {
           </View>
         ) : null}
 
-        {/* Scan photo */}
-        <Text style={[styles.label, { marginTop: 20 }]}>Photo de la carte (optionnel)</Text>
+        {/* Photos */}
+        <Text style={[styles.label, { marginTop: 20 }]}>{t("card.scanPhoto")}</Text>
         <View style={styles.photoRow}>
           <View style={{ flex: 1, gap: 8 }}>
             <TouchableOpacity style={styles.photoBtn} onPress={() => onScanPhoto("front")}>
               <Icons.Camera color={theme.text} size={20} />
-              <Text style={styles.photoBtnText}>Recto</Text>
+              <Text style={styles.photoBtnText}>{t("card.scanFront")}</Text>
               {frontImage ? <Icons.Check color={theme.accent} size={14} /> : null}
             </TouchableOpacity>
             {frontImage ? (
               <TouchableOpacity style={styles.removePhotoBtn} onPress={() => setFrontImage(null)}>
                 <Icons.Trash2 color={theme.danger} size={14} />
-                <Text style={styles.removePhotoBtnText}>Supprimer le recto</Text>
+                <Text style={styles.removePhotoBtnText}>{t("common.delete")} {t("card.scanFront")}</Text>
               </TouchableOpacity>
             ) : null}
           </View>
           <View style={{ flex: 1, gap: 8 }}>
             <TouchableOpacity style={styles.photoBtn} onPress={() => onScanPhoto("back")}>
               <Icons.Camera color={theme.text} size={20} />
-              <Text style={styles.photoBtnText}>Verso</Text>
+              <Text style={styles.photoBtnText}>{t("card.scanBack")}</Text>
               {backImage ? <Icons.Check color={theme.accent} size={14} /> : null}
             </TouchableOpacity>
             {backImage ? (
               <TouchableOpacity style={styles.removePhotoBtn} onPress={() => setBackImage(null)}>
                 <Icons.Trash2 color={theme.danger} size={14} />
-                <Text style={styles.removePhotoBtnText}>Supprimer le verso</Text>
+                <Text style={styles.removePhotoBtnText}>{t("common.delete")} {t("card.scanBack")}</Text>
               </TouchableOpacity>
             ) : null}
           </View>
         </View>
 
-        {/* Téléphone */}
-        <Text style={[styles.label, { marginTop: 20 }]}>Téléphone (optionnel)</Text>
+        {/* Phone */}
+        <Text style={[styles.label, { marginTop: 20 }]}>{t("common.phone")}</Text>
         <TextInput
           style={styles.input}
           placeholder="+33 1 23 45 67 89"
@@ -230,8 +221,8 @@ export default function CardScreen() {
           keyboardType="phone-pad"
         />
 
-        {/* Site web */}
-        <Text style={[styles.label, { marginTop: 4 }]}>Site web (optionnel)</Text>
+        {/* t("common.website") */}
+        <Text style={[styles.label, { marginTop: 4 }]}>{t("common.website")}</Text>
         <TextInput
           style={styles.input}
           placeholder="https://www.exemple.fr"
@@ -242,17 +233,16 @@ export default function CardScreen() {
           autoCapitalize="none"
         />
 
-        {/* Date d'expiration */}
+        {/* Date d'expiration — Pro */}
         {isPro ? (
           <>
-            <Text style={[styles.label, { marginTop: 20 }]}>Date d'expiration (optionnel)</Text>
+            <Text style={[styles.label, { marginTop: 4 }]}>{t("card.expiresAt")}</Text>
             <TextInput
               style={styles.input}
               placeholder="JJ/MM/AAAA"
               placeholderTextColor={theme.textSubtle}
               value={expiresAt}
               onChangeText={(v) => {
-                // Format automatique JJ/MM/AAAA
                 const cleaned = v.replace(/[^0-9]/g, "");
                 let formatted = cleaned;
                 if (cleaned.length >= 3) formatted = cleaned.slice(0, 2) + "/" + cleaned.slice(2);
@@ -264,32 +254,29 @@ export default function CardScreen() {
             />
             {expiresAt ? (
               <Text style={{ fontSize: 12, color: theme.accent, marginTop: -8, marginBottom: 8 }}>
-                ✅ Une alerte sera envoyée 30 jours avant l'expiration
+                ✅ t("card.expiryAlert")
               </Text>
             ) : null}
           </>
         ) : null}
 
         {/* Notes */}
-        <Text style={[styles.label, { marginTop: 20 }]}>Notes (optionnel)</Text>
+        <Text style={[styles.label, { marginTop: 20 }]}>{t("card.notes")}</Text>
         <TextInput
           style={[styles.input, { minHeight: 80, textAlignVertical: "top" }]}
-          placeholder="Numéro de client, remarques…"
+          placeholder={t("card.notesPh")}
           placeholderTextColor={theme.textSubtle}
           value={notes}
           onChangeText={setNotes}
           multiline
         />
 
-        {/* Protection PIN */}
+        {/* Protection PIN — Pro */}
         {isPro ? (
-          <TouchableOpacity
-            style={styles.protectRow}
-            onPress={() => setIsProtected(!isProtected)}
-          >
+          <TouchableOpacity style={styles.protectRow} onPress={() => setIsProtected(!isProtected)}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.protectTitle}>Protéger cette carte</Text>
-              <Text style={styles.protectSub}>Demander le code PIN pour afficher</Text>
+              <Text style={styles.protectTitle}>{t("card.protect")}</Text>
+              <Text style={styles.protectSub}>{t("card.protectSub")}</Text>
             </View>
             <View style={[styles.toggle, isProtected && styles.toggleActive]}>
               <View style={[styles.toggleThumb, isProtected && styles.toggleThumbActive]} />
@@ -301,7 +288,7 @@ export default function CardScreen() {
         {existing ? (
           <TouchableOpacity style={styles.deleteBtn} onPress={onDelete}>
             <Icons.Trash2 color={theme.danger} size={18} />
-            <Text style={styles.deleteBtnText}>Supprimer cette carte</Text>
+            <Text style={styles.deleteBtnText}>{t("common.delete")}</Text>
           </TouchableOpacity>
         ) : null}
       </ScrollView>
@@ -313,7 +300,7 @@ export default function CardScreen() {
             <TouchableOpacity onPress={() => setShowCatPicker(false)} style={styles.headerBtn}>
               <Icons.X color={theme.text} size={22} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Catégorie</Text>
+            <Text style={styles.headerTitle}>{t("card.category")}</Text>
             <View style={styles.headerBtn} />
           </View>
           {DEFAULT_CATEGORIES.map((c) => (
@@ -322,13 +309,12 @@ export default function CardScreen() {
               style={styles.listRow}
               onPress={() => { setCategoryId(c.id); setShowCatPicker(false); }}
             >
-              <Text style={styles.listRowText}>{c.label}</Text>
+              <Text style={styles.listRowText}>{t("categories." + c.label)}</Text>
               {categoryId === c.id ? <Icons.Check color={theme.accent} size={18} strokeWidth={3} /> : null}
             </TouchableOpacity>
           ))}
         </SafeAreaView>
       </Modal>
-
     </SafeAreaView>
   );
 }
@@ -342,10 +328,7 @@ const styles = StyleSheet.create({
   },
   headerBtn: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 16, fontWeight: "800", color: theme.text },
-  cardPreview: {
-    borderRadius: 20, padding: 24, marginBottom: 24, minHeight: 100,
-    justifyContent: "flex-end",
-  },
+  cardPreview: { borderRadius: 20, padding: 24, marginBottom: 24, minHeight: 100, justifyContent: "flex-end" },
   cardPreviewName: { fontSize: 22, fontWeight: "900", color: "#fff" },
   cardPreviewCat: { fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 },
   label: { fontSize: 12, color: theme.textMuted, fontWeight: "700", letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" },
@@ -367,19 +350,13 @@ const styles = StyleSheet.create({
     backgroundColor: theme.primary, borderRadius: 14, padding: 14, marginBottom: 12,
   },
   scanBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  barcodePreview: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: theme.accentSoft, borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: theme.accent },
+  barcodePreviewText: { flex: 1, fontSize: 14, color: theme.text, fontWeight: "600" },
   photoRow: { flexDirection: "row", gap: 12, marginBottom: 12 },
-  photoBtn: {
-    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
-    borderRadius: 14, padding: 14,
-  },
+  photoBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, padding: 14 },
   photoBtnText: { fontSize: 15, color: theme.text, fontWeight: "600" },
-  listRow: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 20, paddingVertical: 16,
-    borderBottomWidth: 1, borderBottomColor: theme.border,
-  },
-  listRowText: { fontSize: 16, color: theme.text },
+  removePhotoBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, padding: 8, borderRadius: 10, borderWidth: 1, borderColor: "#FCA5A5", backgroundColor: "#FEF2F2" },
+  removePhotoBtnText: { fontSize: 12, color: "#EF4444", fontWeight: "600" },
   protectRow: { flexDirection: "row", alignItems: "center", backgroundColor: "#F0FDF4", borderWidth: 1, borderColor: "#10B981", borderRadius: 14, padding: 14, marginTop: 20, gap: 12 },
   protectTitle: { fontSize: 15, fontWeight: "700", color: "#111827" },
   protectSub: { fontSize: 12, color: "#6B7280", marginTop: 2 },
@@ -387,10 +364,8 @@ const styles = StyleSheet.create({
   toggleActive: { backgroundColor: "#10B981" },
   toggleThumb: { width: 24, height: 24, borderRadius: 12, backgroundColor: "#fff", alignSelf: "flex-start" },
   toggleThumbActive: { alignSelf: "flex-end" },
-  removePhotoBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, padding: 8, borderRadius: 10, borderWidth: 1, borderColor: "#FCA5A5", backgroundColor: "#FEF2F2" },
-  removePhotoBtnText: { fontSize: 12, color: "#EF4444", fontWeight: "600" },
   deleteBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, padding: 16, borderRadius: 14, borderWidth: 1, borderColor: theme.danger, marginTop: 20, marginBottom: 10 },
   deleteBtnText: { color: theme.danger, fontWeight: "700", fontSize: 15 },
-  barcodePreview: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: theme.accentSoft, borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: theme.accent },
-  barcodePreviewText: { flex: 1, fontSize: 14, color: theme.text, fontWeight: "600" },
+  listRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: theme.border },
+  listRowText: { fontSize: 16, color: theme.text },
 });

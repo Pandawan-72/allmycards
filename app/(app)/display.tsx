@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as Icons from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import * as Brightness from "expo-brightness";
 import { isPINEnabled, isBiometricAvailable, authenticateWithBiometrics, verifyPIN } from "@/src/lib/pin";
 import PinLock from "@/src/components/PinLock";
@@ -112,6 +113,7 @@ function SimpleQR({ value, size }: { value: string; size: number }) {
 
 export default function Display() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { id, view } = useLocalSearchParams<{ id: string; view?: string }>();
   const { cards } = useCards();
   const { user } = useAuth();
@@ -308,7 +310,7 @@ export default function Display() {
         <ScrollView contentContainerStyle={{ padding: 20, alignItems: "center", gap: 20 }}>
           <View style={[styles.cardBadge, { backgroundColor: card.color || cat.color }]}>
             <Text style={styles.cardBadgeName}>{card.name}</Text>
-            <Text style={styles.cardBadgeCat}>{cat.label}</Text>
+            <Text style={styles.cardBadgeCat}>{t("categories." + cat.label)}</Text>
           </View>
 
           {showBarcode && hasBarcode ? (

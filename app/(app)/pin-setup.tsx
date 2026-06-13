@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Modal, Text
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { setPIN, disablePIN, isPINEnabled, verifyPIN } from "@/src/lib/pin";
 import { useCards } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
@@ -13,6 +14,7 @@ type Step = "choice" | "verify_current" | "enter_new" | "confirm_new";
 
 export default function PinSetup() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { cards, updateCard } = useCards();
   const { user } = useAuth();
   const [pinEnabled, setPinEnabledState] = useState(false);
@@ -60,7 +62,7 @@ export default function PinSetup() {
         } else {
           Vibration.vibrate(400);
           setError(true);
-          setErrorMsg("Code incorrect");
+          setErrorMsg(t("settings.pinWrong"));
           setTimeout(() => { reset(); }, 800);
         }
       } else if (step === "enter_new") {
@@ -75,7 +77,7 @@ export default function PinSetup() {
         } else {
           Vibration.vibrate(400);
           setError(true);
-          setErrorMsg("Codes différents, recommencez");
+          setErrorMsg(t("settings.pinMismatch"));
           setTimeout(() => { reset(); setStep("enter_new"); }, 900);
         }
       }
@@ -116,7 +118,7 @@ export default function PinSetup() {
   const dots = [0, 1, 2, 3];
 
   const getTitle = () => {
-    if (step === "verify_current") return "Entrez votre PIN actuel";
+    if (step === "verify_current") return t("settings.pinCurrent");
     if (step === "enter_new") return "Nouveau code PIN";
     if (step === "confirm_new") return "Confirmer le nouveau PIN";
     return "Code PIN";
@@ -130,7 +132,7 @@ export default function PinSetup() {
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
             <Icons.ChevronLeft color={theme.text} size={24} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Code PIN</Text>
+          <Text style={styles.headerTitle}>{t("settings.pin")}</Text>
           <View style={styles.headerBtn} />
         </View>
         <View style={styles.container}>
@@ -148,13 +150,13 @@ export default function PinSetup() {
           {!pinEnabled ? (
             <TouchableOpacity style={styles.btn} onPress={() => { setAction("create"); setStep("enter_new"); }}>
               <Icons.Lock color="#fff" size={18} />
-              <Text style={styles.btnText}>Définir un code PIN</Text>
+              <Text style={styles.btnText}>{t("settings.pinSet")}</Text>
             </TouchableOpacity>
           ) : (
             <>
               <TouchableOpacity style={styles.btn} onPress={() => { setAction("change"); setStep("verify_current"); }}>
                 <Icons.RefreshCw color="#fff" size={18} />
-                <Text style={styles.btnText}>Changer le code PIN</Text>
+                <Text style={styles.btnText}>{t("settings.pinChange")}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.btnOutline} onPress={() => { setAction("disable"); setStep("verify_current"); }}>
                 <Icons.LockOpen color={theme.danger} size={18} />
