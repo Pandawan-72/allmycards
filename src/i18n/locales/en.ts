@@ -58,7 +58,7 @@ const EN = {
     newCard: "New card",
     editCard: "Edit card",
     name: "Card name",
-    namePh: "Supermarket, Library, Gym…",
+    namePh: "Supermarket, Education & Library, Gym…",
     category: "Category",
     color: "Color",
     barcodeType: "Code type",
@@ -85,7 +85,7 @@ const EN = {
     health: "Health",
     identity: "Identity",
     bank: "Bank",
-    library: "Library",
+    library: "Education & Library",
     other: "Other",
   },
   settings: {

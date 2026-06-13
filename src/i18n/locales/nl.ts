@@ -58,7 +58,7 @@ const NL = {
     newCard: "Nieuwe kaart",
     editCard: "Kaart bewerken",
     name: "Kaartnaam",
-    namePh: "Supermarkt, Bibliotheek, Sportschool…",
+    namePh: "Supermarkt, Onderwijs & Bibliotheek, Sportschool…",
     category: "Categorie",
     color: "Kleur",
     barcodeType: "Codetype",
@@ -85,7 +85,7 @@ const NL = {
     health: "Gezondheid",
     identity: "Identiteit",
     bank: "Bank",
-    library: "Bibliotheek",
+    library: "Onderwijs & Bibliotheek",
     other: "Overig",
   },
   settings: {

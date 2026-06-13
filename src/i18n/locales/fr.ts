@@ -58,7 +58,7 @@ const FR = {
     newCard: "Nouvelle carte",
     editCard: "Modifier la carte",
     name: "Nom de la carte",
-    namePh: "Carrefour, SNCF, Bibliothèque…",
+    namePh: "Carrefour, SNCF, Éducation & Bibliothèque…",
     category: "Catégorie",
     color: "Couleur",
     barcodeType: "Type de code",
@@ -85,7 +85,7 @@ const FR = {
     health: "Santé",
     identity: "Identité",
     bank: "Banque",
-    library: "Bibliothèque",
+    library: "Éducation & Bibliothèque",
     other: "Autre",
   },
   settings: {
