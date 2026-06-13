@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import * as Icons from "lucide-react-native";
 import * as Application from "expo-application";
 import { useAuth } from "@/src/contexts/AuthContext";
@@ -25,9 +25,9 @@ export default function Settings() {
   const isPro = !!user?.pro?.is_pro;
   const [pinEnabled, setPinEnabled] = useState(false);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     isPINEnabled().then(setPinEnabled);
-  }, []);
+  }, []));
 
   const proLabel = (() => {
     const p = user?.pro?.plan;
