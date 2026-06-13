@@ -1,23 +1,82 @@
 import { useState, useMemo } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
 import { useAuth } from "@/src/contexts/AuthContext";
-import { useCards } from "@/src/contexts/CardsContext";
+import { useCards, Card } from "@/src/contexts/CardsContext";
 import { findCategory } from "@/src/data/categories";
 import { theme } from "@/src/theme";
 
 const FREE_CARD_LIMIT = 5;
+const { width } = Dimensions.get("window");
+
+// Proportions CR-80 (carte bancaire standard) : 85.6 x 54mm = ratio 1.586
+const CARD_GAP = 12;
+const CARD_W = (width - 40 - CARD_GAP) / 2;
+const CARD_H = Math.round(CARD_W / 1.586);
 
 function CatIcon({ name, color, size = 20 }: { name: string; color: string; size?: number }) {
   const Cmp = (Icons as any)[name] || (Icons as any).Tag;
   return <Cmp color={color} size={size} strokeWidth={2} />;
 }
 
+function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => void; onLongPress: () => void }) {
+  const cat = findCategory(card.categoryId);
+  const hasPhoto = !!card.frontImage;
+
+  return (
+    <TouchableOpacity
+      style={styles.cardItem}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={500}
+      activeOpacity={0.85}
+    >
+      {hasPhoto ? (
+        // Mode photo — image en fond plein
+        <>
+          <Image
+            source={{ uri: card.frontImage! }}
+            style={styles.cardPhoto}
+            resizeMode="cover"
+          />
+          {/* Overlay gradient bas */}
+          <View style={styles.cardOverlay}>
+            <Text style={styles.cardNameOnPhoto} numberOfLines={1}>{card.name}</Text>
+          </View>
+        </>
+      ) : (
+        // Mode couleur — fond coloré avec icône et nom
+        <View style={[styles.cardColored, { backgroundColor: card.color || cat.color }]}>
+          {/* Cercles décoratifs */}
+          <View style={[styles.deco1, { backgroundColor: "rgba(255,255,255,0.12)" }]} />
+          <View style={[styles.deco2, { backgroundColor: "rgba(255,255,255,0.08)" }]} />
+          {/* Contenu */}
+          <View style={styles.cardColoredTop}>
+            <View style={styles.cardIconWrap}>
+              <CatIcon name={cat.icon} color="#fff" size={16} />
+            </View>
+          </View>
+          <View style={styles.cardColoredBottom}>
+            <Text style={styles.cardName} numberOfLines={1}>{card.name}</Text>
+            <Text style={styles.cardCat} numberOfLines={1}>{cat.label}</Text>
+          </View>
+          {/* Indicateur code barre */}
+          {card.barcodeValue ? (
+            <View style={styles.barcodeIndicator}>
+              <Icons.Barcode color="rgba(255,255,255,0.7)" size={12} />
+            </View>
+          ) : null}
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { cards, deleteCard } = useCards();
   const [search, setSearch] = useState("");
 
@@ -46,42 +105,31 @@ export default function Home() {
     router.push("/(app)/card");
   };
 
-  const onDelete = (id: string, name: string) => {
-    Alert.alert("Supprimer", `Supprimer "${name}" ?`, [
+  const onCardPress = (card: Card) => {
+    router.push({ pathname: "/(app)/display", params: { id: card.id } });
+  };
+
+  const onCardLongPress = (card: Card) => {
+    Alert.alert(card.name, "Que voulez-vous faire ?", [
+      { text: "Modifier", onPress: () => router.push({ pathname: "/(app)/card", params: { id: card.id } }) },
+      { text: "Supprimer", style: "destructive", onPress: () => {
+        Alert.alert("Supprimer", `Supprimer "${card.name}" ?`, [
+          { text: "Annuler", style: "cancel" },
+          { text: "Supprimer", style: "destructive", onPress: () => deleteCard(card.id) },
+        ]);
+      }},
       { text: "Annuler", style: "cancel" },
-      { text: "Supprimer", style: "destructive", onPress: () => deleteCard(id) },
     ]);
   };
 
-  const renderItem = ({ item }: any) => {
-    const cat = findCategory(item.categoryId);
-    return (
-      <TouchableOpacity
-        style={[styles.cardItem, { borderLeftColor: item.color || cat.color }]}
-        onPress={() => router.push({ pathname: "/(app)/display", params: { id: item.id } })}
-        onLongPress={() => router.push({ pathname: "/(app)/card", params: { id: item.id } })}
-        delayLongPress={500}
-        activeOpacity={0.7}
-      >
-        <View style={[styles.cardIcon, { backgroundColor: (item.color || cat.color) + "22" }]}>
-          <CatIcon name={cat.icon} color={item.color || cat.color} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-          <Text style={styles.cardCat}>{cat.label}</Text>
-        </View>
-        <View style={styles.cardRight}>
-          {item.barcodeValue
-            ? <Icons.Barcode color={theme.textSubtle} size={16} />
-            : item.frontImage
-            ? <Icons.Image color={theme.textSubtle} size={16} />
-            : null
-          }
-          <Icons.ChevronRight color={theme.textSubtle} size={16} />
-        </View>
-      </TouchableOpacity>
-    );
-  };
+  // Grouper par paires pour la grille 2 colonnes
+  const rows = useMemo(() => {
+    const result: (Card | null)[][] = [];
+    for (let i = 0; i < filtered.length; i += 2) {
+      result.push([filtered[i], filtered[i + 1] || null]);
+    }
+    return result;
+  }, [filtered]);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -96,9 +144,8 @@ export default function Home() {
       </View>
 
       <FlatList
-        data={filtered}
-        keyExtractor={(c) => c.id}
-        renderItem={renderItem}
+        data={rows}
+        keyExtractor={(_, i) => String(i)}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}
         ListHeaderComponent={
           <View>
@@ -112,7 +159,7 @@ export default function Home() {
             {trialExpired ? (
               <TouchableOpacity onPress={() => router.push("/(app)/paywall")} style={[styles.trialBanner, { backgroundColor: "#FEF2F2", borderColor: theme.danger }]}>
                 <Icons.AlertCircle color={theme.danger} size={16} />
-                <Text style={[styles.trialBannerText, { color: theme.danger }]}>Essai terminé — Passez Pro pour continuer</Text>
+                <Text style={[styles.trialBannerText, { color: theme.danger }]}>Essai terminé — Passez Pro</Text>
                 <Text style={{ color: theme.danger, fontWeight: "800" }}>5,99 €</Text>
               </TouchableOpacity>
             ) : null}
@@ -141,14 +188,27 @@ export default function Home() {
               ) : null}
             </View>
 
-            <Text style={styles.sectionTitle}>
-              {search ? `Résultats (${filtered.length})` : "Toutes mes cartes"}
-            </Text>
             {filtered.length === 0 && !search ? (
               <Text style={styles.empty}>Aucune carte pour l'instant.{"\n"}Appuyez sur + pour en ajouter une.</Text>
             ) : null}
           </View>
         }
+        renderItem={({ item: row }) => (
+          <View style={styles.row}>
+            {row.map((card, i) =>
+              card ? (
+                <CardItem
+                  key={card.id}
+                  card={card}
+                  onPress={() => onCardPress(card)}
+                  onLongPress={() => onCardLongPress(card)}
+                />
+              ) : (
+                <View key={i} style={{ width: CARD_W }} />
+              )
+            )}
+          </View>
+        )}
       />
 
       <TouchableOpacity style={styles.fab} onPress={onAdd}>
@@ -183,21 +243,29 @@ const styles = StyleSheet.create({
     borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 16,
   },
   searchInput: { flex: 1, fontSize: 15, color: theme.text },
-  sectionTitle: {
-    fontSize: 11, color: theme.textMuted, fontWeight: "700",
-    letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8,
-  },
   empty: { color: theme.textMuted, textAlign: "center", paddingVertical: 40, lineHeight: 22 },
+  row: { flexDirection: "row", gap: CARD_GAP, marginBottom: CARD_GAP },
   cardItem: {
-    flexDirection: "row", alignItems: "center", gap: 14,
-    backgroundColor: theme.surface, borderRadius: 16, padding: 14,
-    marginBottom: 10, borderWidth: 1, borderColor: theme.border,
-    borderLeftWidth: 4,
+    width: CARD_W, height: CARD_H, borderRadius: 12, overflow: "hidden",
+    shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
-  cardIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  cardName: { fontSize: 16, fontWeight: "700", color: theme.text },
-  cardCat: { fontSize: 13, color: theme.textMuted, marginTop: 2 },
-  cardRight: { flexDirection: "row", alignItems: "center", gap: 6 },
+  cardPhoto: { width: "100%", height: "100%", borderRadius: 12 },
+  cardOverlay: {
+    position: "absolute", bottom: 0, left: 0, right: 0,
+    backgroundColor: "rgba(0,0,0,0.45)", paddingHorizontal: 10, paddingVertical: 8,
+    borderBottomLeftRadius: 12, borderBottomRightRadius: 12,
+  },
+  cardNameOnPhoto: { color: "#fff", fontWeight: "800", fontSize: 21 },
+  cardColored: { flex: 1, padding: 12, justifyContent: "space-between", borderRadius: 12, overflow: "hidden" },
+  deco1: { position: "absolute", width: CARD_W * 0.9, height: CARD_W * 0.9, borderRadius: CARD_W * 0.45, top: -CARD_W * 0.3, right: -CARD_W * 0.3 },
+  deco2: { position: "absolute", width: CARD_W * 0.6, height: CARD_W * 0.6, borderRadius: CARD_W * 0.3, bottom: -CARD_W * 0.2, left: -CARD_W * 0.1 },
+  cardColoredTop: { flexDirection: "row", justifyContent: "flex-end" },
+  cardIconWrap: { width: 28, height: 28, borderRadius: 8, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
+  cardColoredBottom: { gap: 2 },
+  cardName: { color: "#fff", fontWeight: "800", fontSize: 21, letterSpacing: -0.3 },
+  cardCat: { color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: "600" },
+  barcodeIndicator: { position: "absolute", top: 10, left: 10 },
   trialBanner: {
     flexDirection: "row", alignItems: "center", gap: 8,
     backgroundColor: theme.accentSoft, borderColor: theme.accent, borderWidth: 1,
