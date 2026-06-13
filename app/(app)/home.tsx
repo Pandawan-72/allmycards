@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { useCards, Card } from "@/src/contexts/CardsContext";
-import { findCategory } from "@/src/data/categories";
+import { findCategory, DEFAULT_CATEGORIES } from "@/src/data/categories";
 import { theme } from "@/src/theme";
 import PinLock from "@/src/components/PinLock";
 import { isPINEnabled, verifyPIN } from "@/src/lib/pin";
@@ -88,6 +88,7 @@ export default function Home() {
   const { user } = useAuth();
   const { cards, deleteCard } = useCards();
   const [search, setSearch] = useState("");
+  const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [pendingCard, setPendingCard] = useState<Card | null>(null);
   const [showPin, setShowPin] = useState(false);
 
@@ -102,9 +103,11 @@ export default function Home() {
   })();
 
   const filtered = useMemo(() => {
-    if (!search) return cards;
-    return cards.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
-  }, [cards, search]);
+    let result = cards;
+    if (selectedCat) result = result.filter((c) => c.categoryId === selectedCat);
+    if (search) result = result.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+    return result;
+  }, [cards, search, selectedCat]);
 
   const firstName = (user?.name || "").trim().split(/\s+/)[0] || "";
 
@@ -209,6 +212,26 @@ export default function Home() {
               </View>
             </View>
 
+            {/* Filtres catégories — Pro uniquement */}
+            {isPro ? (
+              <View style={styles.catFilterWrap}>
+                {DEFAULT_CATEGORIES.map((cat) => {
+                  const isActive = selectedCat === cat.id;
+                  const CatCmp = (Icons as any)[cat.icon] || (Icons as any).Tag;
+                  return (
+                    <TouchableOpacity
+                      key={cat.id}
+                      style={[styles.catFilterBtn, isActive && { borderColor: cat.color, borderWidth: 3 }]}
+                      onPress={() => setSelectedCat(isActive ? null : cat.id)}
+                    >
+                      <Text style={[styles.catFilterLabel, isActive && { color: "#6B7280" }]} numberOfLines={2}>{cat.label}</Text>
+                      <CatCmp color={cat.color} size={26} strokeWidth={2} />
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ) : null}
+
             <View style={styles.searchWrap}>
               <Icons.Search color={theme.textSubtle} size={16} />
               <TextInput
@@ -309,6 +332,9 @@ const styles = StyleSheet.create({
   cardName: { color: "#fff", fontWeight: "800", fontSize: 21, letterSpacing: -0.3 },
   cardCat: { color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: "600" },
   barcodeIndicator: { position: "absolute", top: 10, left: 10 },
+  catFilterWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 12 },
+  catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: "#E5E7EB", flexDirection: "column" },
+  catFilterLabel: { fontSize: 11, fontWeight: "700", color: "#6B7280", textAlign: "center", lineHeight: 14, flexShrink: 1 },
   trialBanner: {
     flexDirection: "row", alignItems: "center", gap: 8,
     backgroundColor: theme.accentSoft, borderColor: theme.accent, borderWidth: 1,

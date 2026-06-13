@@ -5,6 +5,7 @@ import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 import * as Icons from "lucide-react-native";
 import { useCards, Card, BarcodeType } from "@/src/contexts/CardsContext";
+import { Linking } from "react-native";
 import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPermission } from "@/src/lib/notifications";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
@@ -28,6 +29,8 @@ export default function CardScreen() {
   const [barcodeValue, setBarcodeValue] = useState(existing?.barcodeValue || "");
   const [notes, setNotes] = useState(existing?.notes || "");
   const [expiresAt, setExpiresAt] = useState(existing?.expiresAt || "");
+  const [phone, setPhone] = useState(existing?.phone || "");
+  const [website, setWebsite] = useState(existing?.website || "");
   const [isProtected, setIsProtected] = useState(existing?.isProtected || false);
 
   // Recharge les images quand on revient du scanner
@@ -62,6 +65,8 @@ export default function CardScreen() {
         notes: notes || null,
         expiresAt: expiresAt || null,
         isProtected: isProtected,
+        phone: phone || null,
+        website: website || null,
       };
       let savedCard: Card | undefined = existing;
       if (existing) {
@@ -213,6 +218,29 @@ export default function CardScreen() {
             ) : null}
           </View>
         </View>
+
+        {/* Téléphone */}
+        <Text style={[styles.label, { marginTop: 20 }]}>Téléphone (optionnel)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="+33 1 23 45 67 89"
+          placeholderTextColor={theme.textSubtle}
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+        />
+
+        {/* Site web */}
+        <Text style={[styles.label, { marginTop: 4 }]}>Site web (optionnel)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="https://www.exemple.fr"
+          placeholderTextColor={theme.textSubtle}
+          value={website}
+          onChangeText={setWebsite}
+          keyboardType="url"
+          autoCapitalize="none"
+        />
 
         {/* Date d'expiration */}
         {isPro ? (

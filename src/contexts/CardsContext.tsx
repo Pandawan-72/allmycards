@@ -16,6 +16,8 @@ export type Card = {
   expiresAt?: string | null;
   notes?: string | null;
   isProtected?: boolean;
+  phone?: string | null;
+  website?: string | null;
   createdAt: string;
   updatedAt: string;
 };

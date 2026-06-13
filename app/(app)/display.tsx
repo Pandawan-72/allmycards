@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from "react-native";
+import { useEffect, useState, useRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as Icons from "lucide-react-native";
 import * as Brightness from "expo-brightness";
-import { useState as useStatePin } from "react";
 import { isPINEnabled, isBiometricAvailable, authenticateWithBiometrics, verifyPIN } from "@/src/lib/pin";
 import PinLock from "@/src/components/PinLock";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import * as ScreenOrientation from "expo-screen-orientation";
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
+import { captureRef } from "react-native-view-shot";
 import { useCards } from "@/src/contexts/CardsContext";
+import { useAuth } from "@/src/contexts/AuthContext";
 import { findCategory } from "@/src/data/categories";
 import { theme } from "@/src/theme";
 
@@ -113,10 +114,13 @@ export default function Display() {
   const router = useRouter();
   const { id, view } = useLocalSearchParams<{ id: string; view?: string }>();
   const { cards } = useCards();
+  const { user } = useAuth();
   const card = cards.find((c) => c.id === id);
   const [isLandscape, setIsLandscape] = useState(false);
   const [pinUnlocked, setPinUnlocked] = useState(false);
   const [dims, setDims] = useState(Dimensions.get("window"));
+  const cardShareRef = useRef<View>(null);
+  const isPro = !!user?.pro?.is_pro;
 
   useEffect(() => {
     let originalBrightness = 1;
@@ -145,8 +149,6 @@ export default function Display() {
 
   const onShareImage = async (uri: string) => {
     try {
-      // Si c'est une URI locale, on peut partager directement
-      // Si c'est base64 ou data URI, on l'écrit d'abord dans un fichier temp
       let shareUri = uri;
       if (uri.startsWith("data:") || !uri.startsWith("file://")) {
         const filename = `${FileSystem.cacheDirectory}card_${card?.id || "photo"}.jpg`;
@@ -167,6 +169,27 @@ export default function Display() {
     }
   };
 
+  // Capture le composant carte et le partage en JPEG
+  const onShareCard = async () => {
+    if (!cardShareRef.current) return;
+    try {
+      const uri = await captureRef(cardShareRef, {
+        format: "jpg",
+        quality: 1,
+        result: "tmpfile",
+      });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "image/jpeg",
+          dialogTitle: `Carte ${card?.name}`,
+          UTI: "public.jpeg",
+        });
+      }
+    } catch (e) {
+      console.error("Share card error:", e);
+    }
+  };
+
   if (!card) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -181,28 +204,23 @@ export default function Display() {
   }
 
   const cat = findCategory(card.categoryId);
-  // 3 modes : "front" (defaut), "back", "barcode"
   const showBack = view === "back";
   const showBarcode = view === "barcode";
-  // Image courante selon le mode
   const currentImage = showBack ? card.backImage : card.frontImage;
   const isQR = card.barcodeType === "qr";
   const isEAN13 = card.barcodeType === "ean13";
   const hasPhoto = !!(card.frontImage || card.backImage);
   const hasBarcode = !!card.barcodeValue;
 
-  // Vérification PIN pour cartes protégées
   if (card?.isProtected && !pinUnlocked) {
     return <PinLock onUnlock={() => setPinUnlocked(true)} onClose={() => router.back()} />;
   }
 
-  // En paysage : code barre plein écran
   if (isLandscape && card.barcodeValue && (showBarcode || !hasPhoto)) {
     const paddingV = 130;
     const paddingH = 40;
     const maxH = dims.height - paddingV * 2;
     const maxW = dims.width - paddingH * 2;
-    // Aspect ratio : code barre linéaire ~3:1, QR ~1:1
     const aspectRatio = isQR ? 1 : 3;
     let barcodeW = maxW;
     let barcodeH = Math.round(barcodeW / aspectRatio);
@@ -232,9 +250,47 @@ export default function Display() {
     );
   }
 
-  // Mode portrait normal
   return (
     <View style={[styles.fullscreen, { backgroundColor: "#fff" }]}>
+      {/* Vue cachée pour la capture JPEG — format carte bancaire 340x214 */}
+      <View
+        ref={cardShareRef}
+        style={styles.cardShareView}
+        collapsable={false}
+      >
+        {/* Fond : photo recto si disponible, sinon couleur */}
+        <View style={[styles.cardShareBg, { backgroundColor: card.color || cat.color, overflow: "hidden" }]}>
+          {card.frontImage ? (
+            <Image source={{ uri: card.frontImage }} style={{ position: "absolute", top: 0, left: 0, width: 340, height: 214 }} resizeMode="cover" />
+          ) : (
+            <>
+              <View style={{ position: "absolute", width: 200, height: 200, borderRadius: 100, backgroundColor: "rgba(255,255,255,0.1)", top: -60, right: -40 }} />
+              <View style={{ position: "absolute", width: 130, height: 130, borderRadius: 65, backgroundColor: "rgba(255,255,255,0.07)", bottom: -30, left: -20 }} />
+            </>
+          )}
+          {/* Code barre en bas */}
+          <View style={{ flex: 1, justifyContent: "flex-end", gap: 8 }}>
+            {card.barcodeValue ? (
+              <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center" }}>
+                {isEAN13 ? (
+                  <EAN13Barcode value={card.barcodeValue} width={280} height={55} />
+                ) : (
+                  <GenericBarcode value={card.barcodeValue} width={280} height={55} />
+                )}
+              </View>
+            ) : null}
+            {/* Overlay bas avec nom */}
+            <View style={{ backgroundColor: "rgba(0,0,0,0.45)", borderBottomLeftRadius: 20, borderBottomRightRadius: 20, paddingHorizontal: 14, paddingVertical: 8, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ color: "#fff", fontSize: 16, fontWeight: "800" }}>{card.name}</Text>
+              <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 5, paddingHorizontal: 5, paddingVertical: 2, flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 70, height: 18 }} resizeMode="contain" />
+                <Text style={{ color: theme.textMuted, fontSize: 11, fontWeight: "700" }}>· {(user?.name || "").split(" ")[0]}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
@@ -255,7 +311,6 @@ export default function Display() {
             <Text style={styles.cardBadgeCat}>{cat.label}</Text>
           </View>
 
-          {/* Mode barcode */}
           {showBarcode && hasBarcode ? (
             <View style={styles.barcodeBox}>
               {isEAN13 ? (
@@ -268,7 +323,6 @@ export default function Display() {
               <Text style={styles.hint}>Tournez en paysage pour agrandir ↻</Text>
             </View>
           ) : hasPhoto ? (
-            /* Mode photo */
             <>
               <Image source={{ uri: currentImage || card.frontImage! }} style={styles.cardPhoto} resizeMode="contain" />
               <View style={styles.toggleRow}>
@@ -303,7 +357,6 @@ export default function Display() {
               </TouchableOpacity>
             </>
           ) : hasBarcode ? (
-            /* Mode code barre seul */
             <View style={styles.barcodeBox}>
               {isEAN13 ? (
                 <EAN13Barcode value={card.barcodeValue!} width={280} height={100} />
@@ -327,6 +380,32 @@ export default function Display() {
               <Text style={styles.notesText}>{card.notes}</Text>
             </View>
           ) : null}
+
+          {/* Téléphone */}
+          {card.phone ? (
+            <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL(`tel:${card.phone}`)}>
+              <Icons.Phone color={theme.accent} size={18} />
+              <Text style={styles.contactBtnText}>{card.phone}</Text>
+              <Icons.ChevronRight color={theme.textSubtle} size={16} />
+            </TouchableOpacity>
+          ) : null}
+
+          {/* Site web */}
+          {card.website ? (
+            <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL(card.website!.startsWith("http") ? card.website! : `https://${card.website}`)}>
+              <Icons.Globe color={theme.accent} size={18} />
+              <Text style={styles.contactBtnText} numberOfLines={1}>{card.website}</Text>
+              <Icons.ChevronRight color={theme.textSubtle} size={16} />
+            </TouchableOpacity>
+          ) : null}
+
+          {/* Partager la carte comme JPEG — Pro uniquement */}
+          {isPro ? (
+            <TouchableOpacity style={styles.shareCardBtn} onPress={onShareCard}>
+              <Icons.Share2 color={theme.accent} size={18} />
+              <Text style={styles.shareCardBtnText}>Partager cette carte</Text>
+            </TouchableOpacity>
+          ) : null}
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -336,6 +415,22 @@ export default function Display() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
   fullscreen: { flex: 1 },
+  // Vue cachée pour capture JPEG
+  cardShareView: {
+    position: "absolute",
+    top: -1000,
+    left: 0,
+    width: 340,
+    height: 214,
+    overflow: "hidden",
+  },
+  cardShareBg: {
+    width: 340,
+    height: 214,
+    borderRadius: 20,
+    padding: 20,
+    overflow: "hidden",
+  },
   header: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
     paddingHorizontal: 12, paddingVertical: 8,
@@ -360,6 +455,10 @@ const styles = StyleSheet.create({
   hint: { fontSize: 12, color: theme.textMuted, textAlign: "center", lineHeight: 18 },
   shareBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 20, paddingVertical: 12 },
   shareBtnText: { fontSize: 15, fontWeight: "700", color: theme.text },
+  shareCardBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: theme.accentSoft, borderWidth: 1, borderColor: theme.accent, borderRadius: 14, paddingHorizontal: 20, paddingVertical: 12, width: "100%" },
+  shareCardBtnText: { fontSize: 15, fontWeight: "700", color: theme.accent },
   notesBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: theme.surfaceAlt, borderRadius: 14, padding: 14, width: "100%" },
   notesText: { flex: 1, fontSize: 14, color: theme.text, lineHeight: 20 },
+  contactBtn: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, width: "100%" },
+  contactBtnText: { flex: 1, fontSize: 15, fontWeight: "600", color: theme.text },
 });
