@@ -90,7 +90,7 @@ export default function SignIn() {
           {googleLoading
             ? <ActivityIndicator color={theme.text} />
             : <>
-                <Icons.Chrome color={theme.text} size={20} />
+                <Icons.Globe color={theme.text} size={20} />
                 <Text style={styles.googleBtnText}>Continuer avec Google</Text>
               </>
           }

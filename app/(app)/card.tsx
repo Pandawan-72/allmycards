@@ -8,20 +8,11 @@ import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
 import { theme } from "@/src/theme";
 
 const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316"];
-const BARCODE_TYPES: { value: BarcodeType; label: string }[] = [
-  { value: "qr", label: "QR Code" },
-  { value: "ean13", label: "EAN-13" },
-  { value: "ean8", label: "EAN-8" },
-  { value: "code128", label: "Code 128" },
-  { value: "code39", label: "Code 39" },
-  { value: "upc", label: "UPC" },
-  { value: "none", label: "Pas de code barre" },
-];
 
 export default function CardScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const { cards, addCard, updateCard } = useCards();
+  const { cards, addCard, updateCard, deleteCard } = useCards();
 
   const existing = id ? cards.find((c) => c.id === id) : null;
 
@@ -32,7 +23,6 @@ export default function CardScreen() {
   const [barcodeValue, setBarcodeValue] = useState(existing?.barcodeValue || "");
   const [notes, setNotes] = useState(existing?.notes || "");
   const [showCatPicker, setShowCatPicker] = useState(false);
-  const [showTypePicker, setShowTypePicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const cat = findCategory(categoryId);
@@ -61,6 +51,18 @@ export default function CardScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const onDelete = () => {
+    if (!existing) return;
+    const { Alert } = require("react-native");
+    Alert.alert("Supprimer la carte", `Supprimer "${existing.name}" ?`, [
+      { text: "Annuler", style: "cancel" },
+      { text: "Supprimer", style: "destructive", onPress: async () => {
+        await deleteCard(existing.id);
+        router.back();
+      }},
+    ]);
   };
 
   const onScan = () => {
@@ -121,26 +123,34 @@ export default function CardScreen() {
 
         {/* Code barre */}
         <Text style={styles.label}>Code barre / QR Code</Text>
-        <TouchableOpacity style={styles.picker} onPress={() => setShowTypePicker(true)}>
-          <Text style={styles.pickerText}>{BARCODE_TYPES.find((t) => t.value === barcodeType)?.label}</Text>
-          <Icons.ChevronRight color={theme.textSubtle} size={18} />
+        <TouchableOpacity style={styles.scanBtn} onPress={onScan}>
+          <Icons.ScanLine color="#fff" size={20} />
+          <Text style={styles.scanBtnText}>Scanner le code barre</Text>
         </TouchableOpacity>
-
-        {barcodeType !== "none" && (
-          <>
-            <TextInput
-              style={[styles.input, { marginTop: 10 }]}
-              placeholder="Valeur du code barre"
-              placeholderTextColor={theme.textSubtle}
-              value={barcodeValue}
-              onChangeText={setBarcodeValue}
-            />
-            <TouchableOpacity style={styles.scanBtn} onPress={onScan}>
-              <Icons.ScanLine color="#fff" size={20} />
-              <Text style={styles.scanBtnText}>Scanner le code barre</Text>
+        <TextInput
+          style={[styles.input, { marginTop: 10 }]}
+          placeholder="Ou saisir le code manuellement"
+          placeholderTextColor={theme.textSubtle}
+          value={barcodeValue}
+          onChangeText={(v) => {
+              setBarcodeValue(v);
+              if (!v) { setBarcodeType("none"); return; }
+              const digits = v.replace(/[^0-9]/g, "");
+              if (digits.length === 13 && v === digits) setBarcodeType("ean13");
+              else if (digits.length === 8 && v === digits) setBarcodeType("ean8");
+              else if (digits.length === 12 && v === digits) setBarcodeType("upc");
+              else setBarcodeType("code128");
+            }}
+        />
+        {barcodeValue ? (
+          <View style={styles.barcodePreview}>
+            <Icons.CheckCircle color={theme.accent} size={18} />
+            <Text style={styles.barcodePreviewText} numberOfLines={1}>{barcodeValue}</Text>
+            <TouchableOpacity onPress={() => { setBarcodeValue(""); setBarcodeType("none"); }}>
+              <Icons.X color={theme.danger} size={18} />
             </TouchableOpacity>
-          </>
-        )}
+          </View>
+        ) : null}
 
         {/* Scan photo */}
         <Text style={[styles.label, { marginTop: 20 }]}>Photo de la carte (optionnel)</Text>
@@ -167,6 +177,14 @@ export default function CardScreen() {
           onChangeText={setNotes}
           multiline
         />
+
+        {/* Supprimer */}
+        {existing ? (
+          <TouchableOpacity style={styles.deleteBtn} onPress={onDelete}>
+            <Icons.Trash2 color={theme.danger} size={18} />
+            <Text style={styles.deleteBtnText}>Supprimer cette carte</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
 
       {/* Catégorie picker */}
@@ -192,28 +210,6 @@ export default function CardScreen() {
         </SafeAreaView>
       </Modal>
 
-      {/* Type code barre picker */}
-      <Modal visible={showTypePicker} animationType="slide" onRequestClose={() => setShowTypePicker(false)}>
-        <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => setShowTypePicker(false)} style={styles.headerBtn}>
-              <Icons.X color={theme.text} size={22} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Type de code</Text>
-            <View style={styles.headerBtn} />
-          </View>
-          {BARCODE_TYPES.map((t) => (
-            <TouchableOpacity
-              key={t.value}
-              style={styles.listRow}
-              onPress={() => { setBarcodeType(t.value); setShowTypePicker(false); }}
-            >
-              <Text style={styles.listRowText}>{t.label}</Text>
-              {barcodeType === t.value ? <Icons.Check color={theme.accent} size={18} strokeWidth={3} /> : null}
-            </TouchableOpacity>
-          ))}
-        </SafeAreaView>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -265,4 +261,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: theme.border,
   },
   listRowText: { fontSize: 16, color: theme.text },
+  deleteBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, padding: 16, borderRadius: 14, borderWidth: 1, borderColor: theme.danger, marginTop: 20, marginBottom: 10 },
+  deleteBtnText: { color: theme.danger, fontWeight: "700", fontSize: 15 },
+  barcodePreview: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: theme.accentSoft, borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: theme.accent },
+  barcodePreviewText: { flex: 1, fontSize: 14, color: theme.text, fontWeight: "600" },
 });

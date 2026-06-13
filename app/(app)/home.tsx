@@ -58,8 +58,9 @@ export default function Home() {
     return (
       <TouchableOpacity
         style={[styles.cardItem, { borderLeftColor: item.color || cat.color }]}
-        onPress={() => router.push({ pathname: "/(app)/card", params: { id: item.id } })}
-        onLongPress={() => onDelete(item.id, item.name)}
+        onPress={() => router.push({ pathname: "/(app)/display", params: { id: item.id } })}
+        onLongPress={() => router.push({ pathname: "/(app)/card", params: { id: item.id } })}
+        delayLongPress={500}
         activeOpacity={0.7}
       >
         <View style={[styles.cardIcon, { backgroundColor: (item.color || cat.color) + "22" }]}>

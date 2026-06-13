@@ -30,7 +30,6 @@
       "expo-font",
       "expo-localization",
       "expo-camera",
-      "expo-barcode-scanner",
       [
         "expo-splash-screen",
         {
@@ -45,7 +44,8 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.PLACEHOLDER"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

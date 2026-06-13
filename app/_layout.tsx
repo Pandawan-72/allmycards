@@ -1,11 +1,11 @@
-import { useEffect } from "react";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import "@/src/i18n";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import { CardsProvider } from "@/src/contexts/CardsContext";
-import "@/src/i18n";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -15,16 +15,13 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <SafeAreaProvider>
       <AuthProvider>
         <CardsProvider>
           <StatusBar style="dark" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(app)" />
-          </Stack>
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#F9FAFB" } }} />
         </CardsProvider>
       </AuthProvider>
-    </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
