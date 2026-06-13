@@ -48,10 +48,11 @@ const EN = {
     allCards: "All cards",
     upgrade: "Go Pro",
 
-    tapShort: "SHORT TAP",
+    tapShort: "SHORT TAP ON THE CARD",
     tapShortDesc: "Show card / barcode",
-    tapLong: "LONG TAP",
+    tapLong: "LONG TAP ON THE CARD",
     tapLongDesc: "Edit or delete",
+    proUnlocked: "PRO version unlocked",
     freeLimit: "You've reached the 5-card free limit.",
   },
   card: {

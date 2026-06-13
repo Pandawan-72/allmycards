@@ -48,10 +48,11 @@ const DE = {
     allCards: "Alle Karten",
     upgrade: "Pro werden",
 
-    tapShort: "KURZ TIPPEN",
+    tapShort: "KURZ AUF DIE KARTE TIPPEN",
     tapShortDesc: "Karte / Barcode anzeigen",
-    tapLong: "LANG TIPPEN",
+    tapLong: "LANG AUF DIE KARTE TIPPEN",
     tapLongDesc: "Bearbeiten oder löschen",
+    proUnlocked: "PRO-Version freigeschaltet",
     freeLimit: "Sie haben das Limit von 5 kostenlosen Karten erreicht.",
   },
   card: {

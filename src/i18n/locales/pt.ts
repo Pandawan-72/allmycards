@@ -48,10 +48,11 @@ const PT = {
     allCards: "Todos os cartões",
     upgrade: "Tornar-se Pro",
 
-    tapShort: "TOQUE CURTO",
+    tapShort: "TOQUE CURTO NO CARTÃO",
     tapShortDesc: "Mostrar cartão / código de barras",
-    tapLong: "TOQUE LONGO",
+    tapLong: "TOQUE LONGO NO CARTÃO",
     tapLongDesc: "Editar ou eliminar",
+    proUnlocked: "Versão PRO desbloqueada",
     freeLimit: "Atingiu o limite de 5 cartões gratuitos.",
   },
   card: {

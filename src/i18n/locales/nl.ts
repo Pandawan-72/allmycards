@@ -48,10 +48,11 @@ const NL = {
     allCards: "Alle kaarten",
     upgrade: "Pro worden",
 
-    tapShort: "KORT TIKKEN",
+    tapShort: "KORT TIKKEN OP DE KAART",
     tapShortDesc: "Kaart / streepjescode tonen",
-    tapLong: "LANG TIKKEN",
+    tapLong: "LANG TIKKEN OP DE KAART",
     tapLongDesc: "Bewerken of verwijderen",
+    proUnlocked: "PRO-versie ontgrendeld",
     freeLimit: "U heeft het limiet van 5 gratis kaarten bereikt.",
   },
   card: {

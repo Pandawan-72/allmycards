@@ -80,8 +80,8 @@ function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => v
             <Text style={styles.cardCat} numberOfLines={1}>{t("categories." + cat.label)}</Text>
           </View>
           {card.barcodeValue ? (
-            <View style={{ position: "absolute", top: 10, right: 10 }}>
-              <Icons.Barcode color="rgba(255,255,255,0.7)" size={12} />
+            <View style={{ position: "absolute", top: 10, left: 10 }}>
+              <Icons.Barcode color="rgba(255,255,255,0.85)" size={18} />
             </View>
           ) : null}
         </View>
@@ -89,13 +89,13 @@ function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => v
     </TouchableOpacity>
   );
 }
-
 export default function Home() {
   const router = useRouter();
   const { t } = useTranslation();
   const { user } = useAuth();
   const { cards, deleteCard } = useCards();
   const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [pendingCard, setPendingCard] = useState<Card | null>(null);
   const [showPin, setShowPin] = useState(false);
@@ -201,19 +201,39 @@ export default function Home() {
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                 <View>
                   <Text style={styles.heroLabel}>{t("home.title").toUpperCase()}</Text>
-                  <Text style={styles.heroCount}>{cards.length}</Text>
-                  <Text style={styles.heroSub}>
-                    {isPro ? t("paywall.once") : `${cards.length} / ${FREE_CARD_LIMIT}`}
-                  </Text>
-                </View>
-                <View style={{ maxWidth: 130, gap: 6 }}>
-                  <View>
-                    <Text style={{ color: "#FCD34D", fontSize: 13, fontWeight: "900" }}>{t("home.tapShort")}</Text>
-                    <Text style={{ color: "#9CA3AF", fontSize: 12, fontWeight: "600" }}>{t("home.tapShortDesc")}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+                    <Text style={styles.heroCount}>{cards.length}</Text>
+                    <TouchableOpacity onPress={() => setShowSearch(true)} style={styles.heroSearchBtn}>
+                      <Icons.Search color="#9CA3AF" size={28} />
+                    </TouchableOpacity>
                   </View>
-                  <View>
-                    <Text style={{ color: "#FCD34D", fontSize: 13, fontWeight: "900" }}>{t("home.tapLong")}</Text>
-                    <Text style={{ color: "#9CA3AF", fontSize: 12, fontWeight: "600" }}>{t("home.tapLongDesc")}</Text>
+                  {isPro ? (
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      <Icons.BadgeCheck color="#FCD34D" size={18} />
+                      <Text style={[styles.heroSub, { fontWeight: "700" }]}>{t("home.proUnlocked")}</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.heroSub}>{`${cards.length} / ${FREE_CARD_LIMIT}`}</Text>
+                  )}
+                </View>
+                <View style={[styles.tapCardBox, { width: 170, gap: 8 }]}>
+                  <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 8 }}>
+                    <View style={styles.tapIconBadge}>
+                      <Icons.MousePointerClick color="#FCD34D" size={14} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: "#FCD34D", fontSize: 11, fontWeight: "900" }}>{t("home.tapShort")}</Text>
+                      <Text style={{ color: "#9CA3AF", fontSize: 10, fontWeight: "600" }}>{t("home.tapShortDesc")}</Text>
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 8 }}>
+                    <View style={styles.tapIconBadge}>
+                      <Icons.Hand color="#FCD34D" size={14} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: "#FCD34D", fontSize: 11, fontWeight: "900" }}>{t("home.tapLong")}</Text>
+                      <Text style={{ color: "#9CA3AF", fontSize: 10, fontWeight: "600" }}>{t("home.tapLongDesc")}</Text>
+                    </View>
                   </View>
                 </View>
               </View>
@@ -228,7 +248,7 @@ export default function Home() {
                     <TouchableOpacity
                       key={cat.id}
                       style={[styles.catFilterBtn, isActive && { borderColor: cat.color, borderWidth: 3 }]}
-                      onPress={() => setSelectedCat(isActive ? null : cat.id)}
+                      onPress={() => { setSelectedCat(isActive ? null : cat.id); setSearch(""); }}
                     >
                       <Text style={styles.catFilterLabel} numberOfLines={2}>{t("categories." + cat.label)}</Text>
                       <CatCmp color={cat.color} size={26} strokeWidth={2} />
@@ -238,21 +258,7 @@ export default function Home() {
               </View>
             ) : null}
 
-            <View style={styles.searchWrap}>
-              <Icons.Search color={theme.textSubtle} size={16} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder={t("home.search")}
-                placeholderTextColor={theme.textSubtle}
-                value={search}
-                onChangeText={setSearch}
-              />
-              {search ? (
-                <TouchableOpacity onPress={() => setSearch("")}>
-                  <Icons.X color={theme.textSubtle} size={16} />
-                </TouchableOpacity>
-              ) : null}
-            </View>
+
 
             {filtered.length === 0 && !search ? (
               <Text style={styles.empty}>{t("home.empty")}</Text>
@@ -276,6 +282,33 @@ export default function Home() {
           </View>
         )}
       />
+
+      {/* Modal recherche */}
+      <Modal visible={showSearch} transparent animationType="fade" onRequestClose={() => setShowSearch(false)}>
+        <View style={styles.searchModalOverlay}>
+          <View style={styles.searchModalContent}>
+            <View style={styles.searchWrap}>
+              <Icons.Search color={theme.textSubtle} size={16} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t("home.search")}
+                placeholderTextColor={theme.textSubtle}
+                value={search}
+                onChangeText={setSearch}
+                autoFocus
+              />
+              {search ? (
+                <TouchableOpacity onPress={() => setSearch("")}>
+                  <Icons.X color={theme.textSubtle} size={16} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+            <TouchableOpacity onPress={() => setShowSearch(false)} style={styles.searchModalClose}>
+              <Text style={styles.searchModalCloseText}>{t("common.close")}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {showPin && pendingCard ? (
         <Modal visible={showPin} transparent={false} animationType="slide">
@@ -311,6 +344,13 @@ const styles = StyleSheet.create({
   catFilterWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 12 },
   catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: "#E5E7EB", flexDirection: "column" },
   catFilterLabel: { fontSize: 11, fontWeight: "700", color: "#6B7280", textAlign: "center", lineHeight: 14, flexShrink: 1 },
+  tapCardBox: { borderWidth: 0.5, borderColor: "#9CA3AF", borderRadius: 10, padding: 8 },
+  tapIconBadge: { width: 24, height: 24, borderRadius: 8, backgroundColor: "rgba(252,211,77,0.15)", alignItems: "center", justifyContent: "center", marginTop: 1 },
+  heroSearchBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.1)", alignItems: "center", justifyContent: "center" },
+  searchModalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-start", paddingTop: 100, paddingHorizontal: 20 },
+  searchModalContent: { backgroundColor: theme.bg, borderRadius: 20, padding: 16, gap: 12 },
+  searchModalClose: { alignItems: "center", paddingVertical: 10 },
+  searchModalCloseText: { color: theme.accent, fontWeight: "700", fontSize: 14 },
   searchWrap: {
     flexDirection: "row", alignItems: "center", gap: 10,
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,

@@ -48,10 +48,11 @@ const FR = {
     allCards: "Toutes les cartes",
     upgrade: "Passer Pro",
 
-    tapShort: "APPUI COURT",
+    tapShort: "APPUI COURT SUR LA CARTE",
     tapShortDesc: "Afficher la carte / code barre",
-    tapLong: "APPUI LONG",
+    tapLong: "APPUI LONG SUR LA CARTE",
     tapLongDesc: "Modifier ou supprimer",
+    proUnlocked: "Version PRO débloquée",
     freeLimit: "Vous avez atteint la limite de 5 cartes en version gratuite.",
   },
   card: {
