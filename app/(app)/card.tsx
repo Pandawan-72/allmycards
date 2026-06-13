@@ -8,6 +8,7 @@ import { useCards, Card, BarcodeType } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPermission } from "@/src/lib/notifications";
 import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
+import { findBrandColor } from "@/src/data/brands";
 import { theme } from "@/src/theme";
 
 const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316"];
@@ -25,6 +26,7 @@ export default function CardScreen() {
   const [name, setName] = useState(existing?.name || "");
   const [categoryId, setCategoryId] = useState(existing?.categoryId || "loyalty");
   const [color, setColor] = useState(existing?.color || "#10B981");
+  const [colorManual, setColorManual] = useState(!!existing);
   const [barcodeType, setBarcodeType] = useState<BarcodeType>(existing?.barcodeType || "qr");
   const [barcodeValue, setBarcodeValue] = useState(existing?.barcodeValue || "");
   const [notes, setNotes] = useState(existing?.notes || "");
@@ -126,7 +128,7 @@ export default function CardScreen() {
           placeholder={t("card.namePh")}
           placeholderTextColor={theme.textSubtle}
           value={name}
-          onChangeText={setName}
+          onChangeText={(v) => { setName(v); if (!colorManual) { const bc = findBrandColor(v); if (bc) setColor(bc); } }}
         />
 
         {/* Catégorie */}
@@ -143,7 +145,7 @@ export default function CardScreen() {
             <TouchableOpacity
               key={c}
               style={[styles.colorDot, { backgroundColor: c }, color === c && styles.colorDotSelected]}
-              onPress={() => setColor(c)}
+              onPress={() => { setColor(c); setColorManual(true); }}
             />
           ))}
         </View>
