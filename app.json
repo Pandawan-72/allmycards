@@ -20,7 +20,11 @@
       "edgeToEdgeEnabled": true,
       "package": "com.allmycards.cards",
       "resizeableActivity": true,
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -50,6 +54,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a52194a7-30ba-40d4-8799-78c1363319a4"
+      }
+    },
+    "owner": "pandawan-72"
   }
 }
