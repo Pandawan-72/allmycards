@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as Icons from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import * as Brightness from "expo-brightness";
@@ -125,29 +125,40 @@ export default function Display() {
   const isPro = !!user?.pro?.is_pro;
 
   useEffect(() => {
-    let originalBrightness = 1;
-    (async () => {
-      try {
-        const { status } = await Brightness.requestPermissionsAsync();
-        if (status === "granted") {
-          originalBrightness = await Brightness.getBrightnessAsync();
-          await Brightness.setBrightnessAsync(1);
-        }
-        await ScreenOrientation.unlockAsync();
-      } catch {}
-    })();
-
     const sub = Dimensions.addEventListener("change", ({ window }) => {
       setDims(window);
       setIsLandscape(window.width > window.height);
     });
-
-    return () => {
-      sub.remove();
-      Brightness.setBrightnessAsync(originalBrightness).catch(() => {});
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
-    };
+    return () => sub.remove();
   }, []);
+
+  // useFocusEffect : la fonction de nettoyage s'exécute aussi quand l'écran
+  // perd le focus (bouton retour natif Android, navigation vers l'édition…),
+  // pas seulement au démontage complet.
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          const { status } = await Brightness.requestPermissionsAsync();
+          if (status === "granted") {
+            await Brightness.setBrightnessAsync(1);
+          }
+          await ScreenOrientation.unlockAsync();
+        } catch {}
+      })();
+
+      return () => {
+        // Rend le contrôle de la luminosité au système (plus fiable que de
+        // restaurer une valeur numérique capturée précédemment).
+        Brightness.useSystemBrightnessAsync().catch(() => {});
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+      };
+    }, [])
+  );
+
+  const restoreBrightness = () => {
+    Brightness.useSystemBrightnessAsync().catch(() => {});
+  };
 
   const onShareImage = async (uri: string) => {
     try {
@@ -237,7 +248,7 @@ export default function Display() {
       <View style={[styles.fullscreen, { backgroundColor: "#fff" }]}>
         <TouchableOpacity
           style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: paddingH, paddingVertical: paddingV }}
-          onPress={() => router.back()}
+          onPress={() => { restoreBrightness(); router.back(); }}
           activeOpacity={1}
         >
           {isEAN13 ? (
@@ -298,12 +309,12 @@ export default function Display() {
 
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+          <TouchableOpacity onPress={() => { restoreBrightness(); router.back(); }} style={styles.headerBtn}>
             <Icons.X color={theme.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle} numberOfLines={1}>{card.name}</Text>
           <TouchableOpacity
-            onPress={() => router.push({ pathname: "/(app)/card", params: { id: card.id } })}
+            onPress={() => { restoreBrightness(); router.push({ pathname: "/(app)/card", params: { id: card.id } }); }}
             style={styles.headerBtn}
           >
             <Icons.Pencil color={theme.text} size={20} />

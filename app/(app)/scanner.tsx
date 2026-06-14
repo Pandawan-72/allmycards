@@ -14,15 +14,23 @@ const { width } = Dimensions.get("window");
 
 // Format standard d'une carte bancaire (largeur / hauteur)
 const CARD_RATIO = 1.586;
+// Le cadre affiché à l'écran ne couvre qu'une partie de l'image capturée
+// (≈ 85% de la dimension de référence) : on applique la même réduction
+// pour resserrer le recadrage autour de la carte.
+const FRAME_SCALE = 0.80;
 
 async function cropToCardRatio(uri: string, w: number, h: number): Promise<string> {
-  let cropW = w;
-  let cropH = h;
+  let baseW: number;
+  let baseH: number;
   if (w / h > CARD_RATIO) {
-    cropW = Math.round(h * CARD_RATIO);
+    baseH = h;
+    baseW = Math.round(h * CARD_RATIO);
   } else {
-    cropH = Math.round(w / CARD_RATIO);
+    baseW = w;
+    baseH = Math.round(w / CARD_RATIO);
   }
+  const cropW = Math.round(baseW * FRAME_SCALE);
+  const cropH = Math.round(cropW / CARD_RATIO);
   const originX = Math.max(0, Math.round((w - cropW) / 2));
   const originY = Math.max(0, Math.round((h - cropH) / 2));
   try {
