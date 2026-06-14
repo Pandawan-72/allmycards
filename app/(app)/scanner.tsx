@@ -14,10 +14,6 @@ const { width } = Dimensions.get("window");
 
 // Format standard d'une carte bancaire (largeur / hauteur)
 const CARD_RATIO = 1.586;
-// Le cadre affiché à l'écran ne couvre qu'une partie de l'image capturée
-// (≈ 85% de la dimension de référence) : on applique la même réduction
-// pour resserrer le recadrage autour de la carte.
-const FRAME_SCALE = 0.80;
 
 function getImageSize(uri: string): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
@@ -39,19 +35,19 @@ async function cropToCardRatio(uri: string): Promise<string> {
     // 2) Mesurer les dimensions réelles (post-rotation) de l'image normalisée
     const { width: w, height: h } = await getImageSize(normalized.uri);
 
-    // 3) Calculer la zone de recadrage au format carte bancaire (1.586),
-    //    resserrée à FRAME_SCALE pour coller au cadre affiché à l'écran.
-    let baseW: number;
-    let baseH: number;
+    // 3) Calculer la zone de recadrage au format carte bancaire (1.586).
+    // L'aperçu (CameraView) affiche la photo en "cover" dans un cadre au
+    // format carte bancaire : un centre-crop plein format vers CARD_RATIO
+    // reproduit donc exactement la zone visible à l'écran.
+    let cropW: number;
+    let cropH: number;
     if (w / h > CARD_RATIO) {
-      baseH = h;
-      baseW = Math.round(h * CARD_RATIO);
+      cropH = h;
+      cropW = Math.round(h * CARD_RATIO);
     } else {
-      baseW = w;
-      baseH = Math.round(w / CARD_RATIO);
+      cropW = w;
+      cropH = Math.round(w / CARD_RATIO);
     }
-    const cropW = Math.round(baseW * FRAME_SCALE);
-    const cropH = Math.round(cropW / CARD_RATIO);
     const originX = Math.max(0, Math.round((w - cropW) / 2));
     const originY = Math.max(0, Math.round((h - cropH) / 2));
 
@@ -177,69 +173,77 @@ export default function Scanner() {
     );
   }
 
-  return (
-    <View style={{ flex: 1, backgroundColor: "#000" }}>
-      <CameraView
-        ref={cameraRef}
-        style={{ flex: 1 }}
-        facing="back"
-        barcodeScannerSettings={mode === "barcode" ? {
-          barcodeTypes: ["qr", "ean13", "ean8", "code128", "code39", "upc-a", "aztec", "pdf417"],
-        } : undefined}
-        onBarcodeScanned={mode === "barcode" ? onBarcodeScanned : undefined}
-      >
+  // Mode photo : la caméra elle-même est cadrée au format carte bancaire,
+  // ce qui garantit que la zone visible correspond exactement à ce qui sera
+  // recadré sur la photo capturée (centre-crop plein format vers CARD_RATIO).
+  if (mode === "photo") {
+    return (
+      <View style={{ flex: 1, backgroundColor: "#000" }}>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
               <Icons.X color="#fff" size={24} />
             </TouchableOpacity>
             <Text style={[styles.headerTitle, { color: "#fff" }]}>
-              {mode === "barcode" ? "Scanner le code barre" : `Photo — ${side === "back" ? "Verso" : "Recto"}`}
+              {`Photo — ${side === "back" ? "Verso" : "Recto"}`}
             </Text>
             <View style={styles.headerBtn} />
           </View>
 
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            {mode === "barcode" ? (
-              <View style={styles.scanFrame}>
-                <View style={[styles.corner, styles.cornerTL]} />
-                <View style={[styles.corner, styles.cornerTR]} />
-                <View style={[styles.corner, styles.cornerBL]} />
-                <View style={[styles.corner, styles.cornerBR]} />
-                <Text style={styles.scanHint}>Pointez vers le code barre</Text>
-              </View>
-            ) : (
-              <>
-                <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-                  <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
-                  <View style={{ height: width * 0.55, flexDirection: "row" }}>
-                    <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
-                    <View style={{ width: width * 0.85 }} />
-                    <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
-                  </View>
-                  <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
-                </View>
-                <View style={styles.photoFrame}>
-                  <Text style={styles.scanHint}>Cadrez la carte et prenez la photo</Text>
-                </View>
-              </>
-            )}
+            <View style={styles.cardCameraBox}>
+              <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back" />
+            </View>
+            <Text style={[styles.scanHint, { marginTop: 16 }]}>Cadrez la carte dans le cadre</Text>
           </View>
 
-          {mode === "photo" ? (
-            <View style={styles.photoActions}>
-              <TouchableOpacity style={styles.photoActionBtn} onPress={onPickFromGallery}>
-                <Icons.Image color={theme.text} size={20} />
-                <Text style={styles.photoActionText}>Galerie</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.captureBtn]} onPress={onTakePhoto}>
-                <View style={styles.captureBtnInner} />
-              </TouchableOpacity>
-              <View style={{ width: 80 }} />
-            </View>
-          ) : null}
+          <View style={styles.photoActions}>
+            <TouchableOpacity style={styles.photoActionBtn} onPress={onPickFromGallery}>
+              <Icons.Image color={theme.text} size={20} />
+              <Text style={styles.photoActionText}>Galerie</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.captureBtn]} onPress={onTakePhoto}>
+              <View style={styles.captureBtnInner} />
+            </TouchableOpacity>
+            <View style={{ width: 80 }} />
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
 
-          {scanned && mode === "barcode" ? (
+  // Mode code barre : caméra plein écran avec cadre de visée superposé.
+  return (
+    <View style={{ flex: 1, backgroundColor: "#000" }}>
+      <CameraView
+        ref={cameraRef}
+        style={{ flex: 1 }}
+        facing="back"
+        barcodeScannerSettings={{
+          barcodeTypes: ["qr", "ean13", "ean8", "code128", "code39", "upc-a", "aztec", "pdf417"],
+        }}
+        onBarcodeScanned={onBarcodeScanned}
+      >
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+              <Icons.X color="#fff" size={24} />
+            </TouchableOpacity>
+            <Text style={[styles.headerTitle, { color: "#fff" }]}>Scanner le code barre</Text>
+            <View style={styles.headerBtn} />
+          </View>
+
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+            <View style={styles.scanFrame}>
+              <View style={[styles.corner, styles.cornerTL]} />
+              <View style={[styles.corner, styles.cornerTR]} />
+              <View style={[styles.corner, styles.cornerBL]} />
+              <View style={[styles.corner, styles.cornerBR]} />
+              <Text style={styles.scanHint}>Pointez vers le code barre</Text>
+            </View>
+          </View>
+
+          {scanned ? (
             <TouchableOpacity
               style={[styles.btn, { margin: 20 }]}
               onPress={() => setScanned(false)}
@@ -266,10 +270,14 @@ const styles = StyleSheet.create({
     borderRadius: 12, position: "relative",
     alignItems: "center", justifyContent: "flex-end", paddingBottom: 12,
   },
-  photoFrame: {
-    width: width * 0.85, height: width * 0.55,
-    borderRadius: 12, borderWidth: 2, borderColor: "rgba(255,255,255,0.5)",
-    alignItems: "center", justifyContent: "flex-end", paddingBottom: 12,
+  cardCameraBox: {
+    width: width * 0.9,
+    height: (width * 0.9) / CARD_RATIO,
+    borderRadius: 14,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.6)",
+    backgroundColor: "#000",
   },
   corner: { position: "absolute", width: 24, height: 24, borderColor: "#fff", borderWidth: 3 },
   cornerTL: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 8 },
