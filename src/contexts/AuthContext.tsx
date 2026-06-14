@@ -43,9 +43,9 @@ const DEV_USER: AuthUser = {
   provider: "dev",
   picture: null,
   pro: {
-    plan: "lifetime",
+    plan: "trialing",
     is_pro: true,
-    trial_end: null,
+    trial_end: new Date(Date.now() + 2 * 24 * 3600000).toISOString(),
     current_period_end: null,
     has_used_trial: true,
   },

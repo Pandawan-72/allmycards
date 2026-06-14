@@ -5,7 +5,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TRIAL_KEY = "amc.trial_start";
-const TRIAL_DURATION_MS = 72 * 60 * 60 * 1000; // 72 heures
+const TRIAL_DURATION_MS = 5 * 24 * 60 * 60 * 1000; // 5 jours
 
 // Démarre le trial si ce n'est pas déjà fait (appelé au login)
 export async function startTrialIfNeeded(): Promise<void> {

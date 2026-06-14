@@ -1,5 +1,6 @@
 const NL = {
   common: {
+    later: "Later",
     cancel: "Annuleren",
     save: "Opslaan",
     add: "Toevoegen",
@@ -42,6 +43,9 @@ const NL = {
     welcomeName: "Hallo, {{name}} 👋",
   },
   home: {
+    trialDaysLeft_one: "Nog {{count}} dag met PRO ontgrendeld",
+    trialDaysLeft_other: "Nog {{count}} dagen met PRO ontgrendeld",
+    lockedCard: "Pro om te ontgrendelen",
     title: "Mijn kaarten",
     empty: "Nog geen kaarten. Tik op + om er een toe te voegen.",
     search: "Zoek een kaart…",
@@ -126,6 +130,9 @@ const NL = {
     },
   },
   paywall: {
+    trialEndingTitle: "Je Pro-proefperiode loopt binnenkort af",
+    trialEndingBody: "Vanaf de 6e kaart worden extra kaarten vergrendeld als je niet naar Pro overstapt.",
+    goProNow: "Nu naar Pro",
     title: "Word Pro.",
     subtitle: "Al uw kaarten, zonder limieten.",
     feature1: "Onbeperkte kaarten",
@@ -133,6 +140,9 @@ const NL = {
     feature3: "Startscherm-widget",
     feature4: "Verloopmeldingen",
     feature5: "Back-up en herstel",
+    feature6: "Categoriefilters",
+    feature7: "Kaart delen",
+    freeCards: "5 kaarten",
     buyLifetime: "Kopen — € 5,99",
     restore: "Aankopen herstellen",
     once: "Eenmalige aankoop, levenslange toegang",

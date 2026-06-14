@@ -88,18 +88,22 @@ export default function Paywall() {
         <View style={styles.compareCard}>
           <View style={styles.compareCol}>
             <Text style={styles.compareTitle}>Gratuit</Text>
-            <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>5 {t("home.title").toLowerCase()}</Text></View>
+            <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.freeCards")}</Text></View>
             <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature2")}</Text></View>
+            <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature6")}</Text></View>
             <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature4")}</Text></View>
             <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature5")}</Text></View>
+            <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature7")}</Text></View>
           </View>
           <View style={styles.compareDivider} />
           <View style={styles.compareCol}>
             <Text style={[styles.compareTitle, { color: theme.accent }]}>Pro ✨</Text>
             <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature1")}</Text></View>
             <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature2")}</Text></View>
+            <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature6")}</Text></View>
             <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature4")}</Text></View>
             <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature5")}</Text></View>
+            <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature7")}</Text></View>
           </View>
         </View>
 

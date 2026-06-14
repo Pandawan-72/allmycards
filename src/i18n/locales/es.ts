@@ -1,5 +1,6 @@
 const ES = {
   common: {
+    later: "Más tarde",
     cancel: "Cancelar",
     save: "Guardar",
     add: "Añadir",
@@ -42,6 +43,9 @@ const ES = {
     welcomeName: "Hola, {{name}} 👋",
   },
   home: {
+    trialDaysLeft_one: "{{count}} día restante con PRO desbloqueado",
+    trialDaysLeft_other: "{{count}} días restantes con PRO desbloqueado",
+    lockedCard: "Pro para desbloquear",
     title: "Mis Tarjetas",
     empty: "Sin tarjetas aún. Toca + para añadir una.",
     search: "Buscar una tarjeta…",
@@ -126,6 +130,9 @@ const ES = {
     },
   },
   paywall: {
+    trialEndingTitle: "Tu prueba Pro termina pronto",
+    trialEndingBody: "A partir de la 6.ª tarjeta, las tarjetas adicionales se bloquearán si no pasas a Pro.",
+    goProNow: "Pasar a Pro ahora",
     title: "Hazte Pro.",
     subtitle: "Todas tus tarjetas, sin límites.",
     feature1: "Tarjetas ilimitadas",
@@ -133,6 +140,9 @@ const ES = {
     feature3: "Widget de pantalla de inicio",
     feature4: "Alertas de caducidad",
     feature5: "Copia de seguridad y restauración",
+    feature6: "Filtros de categoría",
+    feature7: "Compartir tarjeta",
+    freeCards: "5 tarjetas",
     buyLifetime: "Comprar — 5,99 €",
     restore: "Restaurar compras",
     once: "Compra única, acceso de por vida",

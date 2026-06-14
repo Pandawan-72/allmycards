@@ -1,5 +1,6 @@
 const EN = {
   common: {
+    later: "Later",
     cancel: "Cancel",
     save: "Save",
     add: "Add",
@@ -42,6 +43,9 @@ const EN = {
     welcomeName: "Hello, {{name}} 👋",
   },
   home: {
+    trialDaysLeft_one: "{{count}} day left with PRO unlocked",
+    trialDaysLeft_other: "{{count}} days left with PRO unlocked",
+    lockedCard: "Pro to unlock",
     title: "My Cards",
     empty: "No cards yet. Tap + to add one.",
     search: "Search a card…",
@@ -126,6 +130,9 @@ const EN = {
     },
   },
   paywall: {
+    trialEndingTitle: "Your Pro trial is ending soon",
+    trialEndingBody: "Beyond 5 cards, extra cards will be locked unless you upgrade to Pro.",
+    goProNow: "Go Pro Now",
     title: "Go Pro.",
     subtitle: "All your cards, without limits.",
     feature1: "Unlimited cards",
@@ -133,6 +140,9 @@ const EN = {
     feature3: "Home screen widget",
     feature4: "Expiration alerts",
     feature5: "Backup & restore",
+    feature6: "Category filters",
+    feature7: "Card sharing",
+    freeCards: "5 cards",
     buyLifetime: "Buy — €5.99",
     restore: "Restore purchases",
     once: "One-time purchase, lifetime access",

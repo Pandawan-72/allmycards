@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -24,7 +24,7 @@ function CatIcon({ name, color, size = 20 }: { name: string; color: string; size
   return <Cmp color={color} size={size} strokeWidth={2} />;
 }
 
-function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => void; onLongPress: () => void }) {
+function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?: boolean; onPress: () => void; onLongPress: () => void }) {
   const { t } = useTranslation();
   const cat = findCategory(card.categoryId);
   const hasPhoto = !!card.frontImage;
@@ -37,9 +37,21 @@ function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => v
       delayLongPress={500}
       activeOpacity={0.85}
     >
+      <View style={{ flex: 1, opacity: locked ? 0.45 : 1 }}>
       {hasPhoto ? (
         <>
           <Image source={{ uri: card.frontImage! }} style={styles.cardPhoto} resizeMode="cover" />
+          <View style={[styles.cardColoredTop, { position: "absolute", top: 10, left: 10, right: 10 }]}>
+            <View />
+            <View style={styles.cardIconWrap}>
+              <CatIcon name={cat.icon} color="#fff" size={16} />
+            </View>
+          </View>
+          {card.barcodeValue ? (
+            <View style={{ position: "absolute", top: 10, left: 10 }}>
+              <Icons.Barcode color="rgba(255,255,255,0.85)" size={18} />
+            </View>
+          ) : null}
           {card.isProtected ? (
             <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center" }}>
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(0,0,0,0.4)", alignItems: "center", justifyContent: "center" }}>
@@ -86,6 +98,13 @@ function CardItem({ card, onPress, onLongPress }: { card: Card; onPress: () => v
           ) : null}
         </View>
       )}
+      </View>
+      {locked ? (
+        <View style={styles.lockedOverlay}>
+          <Icons.Lock color="#fff" size={22} strokeWidth={2.5} />
+          <Text style={styles.lockedText}>{t("home.lockedCard")}</Text>
+        </View>
+      ) : null}
     </TouchableOpacity>
   );
 }
@@ -110,6 +129,27 @@ export default function Home() {
     return Math.max(0, Math.ceil((new Date(te).getTime() - Date.now()) / 3600000));
   })();
 
+  const trialDaysLeft = Math.ceil(trialHoursLeft / 24);
+
+  const lockedCardIds = useMemo(() => {
+    if (isPro) return new Set<string>();
+    return new Set(cards.slice(FREE_CARD_LIMIT).map((c) => c.id));
+  }, [cards, isPro]);
+
+  useEffect(() => {
+    if (isTrialing && trialDaysLeft <= 2 && trialDaysLeft > 0) {
+      Alert.alert(
+        t("paywall.trialEndingTitle"),
+        t("paywall.trialEndingBody"),
+        [
+          { text: t("common.later"), style: "cancel" },
+          { text: t("paywall.goProNow"), onPress: () => router.push("/(app)/paywall") },
+        ]
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const filtered = useMemo(() => {
     let result = cards;
     if (selectedCat) result = result.filter((c) => c.categoryId === selectedCat);
@@ -128,6 +168,10 @@ export default function Home() {
   };
 
   const onCardPress = (card: Card) => {
+    if (lockedCardIds.has(card.id)) {
+      router.push("/(app)/paywall");
+      return;
+    }
     router.push({ pathname: "/(app)/display", params: { id: card.id } });
   };
 
@@ -145,6 +189,10 @@ export default function Home() {
   };
 
   const onCardLongPress = async (card: Card) => {
+    if (lockedCardIds.has(card.id)) {
+      router.push("/(app)/paywall");
+      return;
+    }
     if (card.isProtected) {
       const enabled = await isPINEnabled();
       if (enabled) {
@@ -185,7 +233,7 @@ export default function Home() {
             {isTrialing && trialHoursLeft > 0 ? (
               <TouchableOpacity onPress={() => router.push("/(app)/paywall")} style={styles.trialBanner}>
                 <Icons.Sparkles color={theme.accent} size={16} />
-                <Text style={styles.trialBannerText}>{t("paywall.trialBanner", { hours: trialHoursLeft })}</Text>
+                <Text style={styles.trialBannerText}>{t("home.trialDaysLeft", { count: trialDaysLeft })}</Text>
                 <Icons.ChevronRight color={theme.accent} size={16} />
               </TouchableOpacity>
             ) : null}
@@ -272,6 +320,7 @@ export default function Home() {
                 <CardItem
                   key={card.id}
                   card={card}
+                  locked={lockedCardIds.has(card.id)}
                   onPress={() => onCardPress(card)}
                   onLongPress={() => onCardLongPress(card)}
                 />
@@ -385,6 +434,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, marginBottom: 12,
   },
   trialBannerText: { flex: 1, fontSize: 13, fontWeight: "700", color: theme.accent },
+  lockedOverlay: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(107,114,128,0.75)", borderRadius: 12,
+    alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 10,
+  },
+  lockedText: { color: "#fff", fontSize: 12, fontWeight: "800", textAlign: "center" },
   fab: {
     position: "absolute", right: 20, bottom: 24, width: 60, height: 60,
     borderRadius: 30, backgroundColor: theme.primary, alignItems: "center",

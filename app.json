@@ -19,7 +19,8 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.allmycards.app",
-      "resizeableActivity": true
+      "resizeableActivity": true,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

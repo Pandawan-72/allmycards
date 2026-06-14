@@ -1,5 +1,6 @@
 const PT = {
   common: {
+    later: "Mais tarde",
     cancel: "Cancelar",
     save: "Guardar",
     add: "Adicionar",
@@ -42,6 +43,9 @@ const PT = {
     welcomeName: "Olá, {{name}} 👋",
   },
   home: {
+    trialDaysLeft_one: "{{count}} dia restante com PRO desbloqueado",
+    trialDaysLeft_other: "{{count}} dias restantes com PRO desbloqueado",
+    lockedCard: "Pro para desbloquear",
     title: "Os meus cartões",
     empty: "Sem cartões ainda. Toque em + para adicionar um.",
     search: "Procurar um cartão…",
@@ -126,6 +130,9 @@ const PT = {
     },
   },
   paywall: {
+    trialEndingTitle: "O seu período de teste Pro está a terminar",
+    trialEndingBody: "Acima de 5 cartões, os cartões adicionais ficarão bloqueados se não passar para Pro.",
+    goProNow: "Passar a Pro agora",
     title: "Tornar-se Pro.",
     subtitle: "Todos os seus cartões, sem limites.",
     feature1: "Cartões ilimitados",
@@ -133,6 +140,9 @@ const PT = {
     feature3: "Widget do ecrã inicial",
     feature4: "Alertas de expiração",
     feature5: "Cópia de segurança e restauro",
+    feature6: "Filtros de categoria",
+    feature7: "Partilha de cartão",
+    freeCards: "5 cartões",
     buyLifetime: "Comprar — 5,99 €",
     restore: "Restaurar compras",
     once: "Compra única, acesso vitalício",

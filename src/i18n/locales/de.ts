@@ -1,5 +1,6 @@
 const DE = {
   common: {
+    later: "Später",
     cancel: "Abbrechen",
     save: "Speichern",
     add: "Hinzufügen",
@@ -42,6 +43,9 @@ const DE = {
     welcomeName: "Hallo, {{name}} 👋",
   },
   home: {
+    trialDaysLeft_one: "Noch {{count}} Tag mit PRO freigeschaltet",
+    trialDaysLeft_other: "Noch {{count}} Tage mit PRO freigeschaltet",
+    lockedCard: "Pro zum Freischalten",
     title: "Meine Karten",
     empty: "Noch keine Karten. Tippen Sie auf +, um eine hinzuzufügen.",
     search: "Karte suchen…",
@@ -126,6 +130,9 @@ const DE = {
     },
   },
   paywall: {
+    trialEndingTitle: "Ihre Pro-Testphase endet bald",
+    trialEndingBody: "Ab der 6. Karte werden zusätzliche Karten gesperrt, wenn Sie nicht auf Pro upgraden.",
+    goProNow: "Jetzt Pro werden",
     title: "Pro werden.",
     subtitle: "Alle Ihre Karten, ohne Limit.",
     feature1: "Unbegrenzte Karten",
@@ -133,6 +140,9 @@ const DE = {
     feature3: "Startbildschirm-Widget",
     feature4: "Ablaufbenachrichtigungen",
     feature5: "Sicherung & Wiederherstellung",
+    feature6: "Kategoriefilter",
+    feature7: "Karte teilen",
+    freeCards: "5 Karten",
     buyLifetime: "Kaufen — 5,99 €",
     restore: "Käufe wiederherstellen",
     once: "Einmaliger Kauf, lebenslanger Zugang",
