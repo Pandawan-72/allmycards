@@ -245,6 +245,13 @@ export default function Home() {
               </TouchableOpacity>
             ) : null}
 
+            {isPro && !isTrialing && !trialExpired ? (
+              <View style={[styles.trialBanner, styles.proActivatedBanner]}>
+                <Icons.BadgeCheck color={theme.accent} size={16} />
+                <Text style={styles.proActivatedBannerText}>{t("home.proUnlocked")}</Text>
+              </View>
+            ) : null}
+
             <View style={styles.heroCard}>
               <View style={styles.heroLeft}>
                 <Icons.CreditCard color={theme.accent} size={20} strokeWidth={2} />
@@ -252,14 +259,9 @@ export default function Home() {
                 <Text style={styles.heroCount}>{cards.length}</Text>
               </View>
               <View style={styles.heroRight}>
-                {isPro ? (
-                  <View style={styles.proBadge}>
-                    <Icons.BadgeCheck color="#FCD34D" size={14} />
-                    <Text style={styles.proBadgeText} numberOfLines={1}>{t("home.proUnlocked")}</Text>
-                  </View>
-                ) : (
+                {!isPro ? (
                   <Text style={styles.heroSub}>{`${cards.length}/${FREE_CARD_LIMIT}`}</Text>
-                )}
+                ) : null}
                 <TouchableOpacity onPress={() => setShowSearch(true)} style={styles.heroSearchBtn}>
                   <Icons.Search color="#9CA3AF" size={18} />
                 </TouchableOpacity>
@@ -378,8 +380,6 @@ const styles = StyleSheet.create({
   heroLabel: { color: "#9CA3AF", fontSize: 12, letterSpacing: 1.5, fontWeight: "800" },
   heroCount: { color: theme.accent, fontSize: 22, fontWeight: "900", letterSpacing: -0.5 },
   heroSub: { color: "#9CA3AF", fontSize: 13, fontWeight: "700" },
-  proBadge: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(252,211,77,0.12)", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 1 },
-  proBadgeText: { color: "#FCD34D", fontSize: 12, fontWeight: "800" },
   catFilterWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 12 },
   catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: "#E9EBEF", alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: "#D6D9DE", flexDirection: "column" },
   catFilterLabel: { fontSize: 11, fontWeight: "700", color: "#6B7280", textAlign: "center", lineHeight: 14, flexShrink: 1 },
@@ -424,6 +424,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, marginBottom: 12,
   },
   trialBannerText: { flex: 1, fontSize: 13, fontWeight: "700", color: theme.accent },
+  proActivatedBanner: { alignSelf: "center" },
+  proActivatedBannerText: { fontSize: 13, fontWeight: "700", color: theme.accent },
   lockedOverlay: {
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: "rgba(107,114,128,0.75)", borderRadius: 12,

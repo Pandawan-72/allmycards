@@ -57,7 +57,7 @@ const RU = {
     tapShortDesc: "Показать карту / штрихкод",
     tapLong: "ДЛИННОЕ НАЖАТИЕ НА КАРТУ",
     tapLongDesc: "Изменить или удалить",
-    proUnlocked: "PRO-версия разблокирована",
+    proUnlocked: "PRO-версия активирована",
     freeLimit: "Вы достигли лимита в 5 бесплатных карт.",
   },
   card: {

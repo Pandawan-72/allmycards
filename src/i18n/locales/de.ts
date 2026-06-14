@@ -57,7 +57,7 @@ const DE = {
     tapShortDesc: "Karte / Barcode anzeigen",
     tapLong: "LANG AUF DIE KARTE TIPPEN",
     tapLongDesc: "Bearbeiten oder löschen",
-    proUnlocked: "PRO-Version freigeschaltet",
+    proUnlocked: "PRO-Version aktiviert",
     freeLimit: "Sie haben das Limit von 5 kostenlosen Karten erreicht.",
   },
   card: {

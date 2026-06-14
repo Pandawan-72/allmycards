@@ -57,7 +57,7 @@ const EN = {
     tapShortDesc: "Show card / barcode",
     tapLong: "LONG TAP ON THE CARD",
     tapLongDesc: "Edit or delete",
-    proUnlocked: "PRO version unlocked",
+    proUnlocked: "PRO version activated",
     freeLimit: "You've reached the 5-card free limit.",
   },
   card: {

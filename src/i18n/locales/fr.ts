@@ -57,7 +57,7 @@ const FR = {
     tapShortDesc: "Afficher la carte / code barre",
     tapLong: "APPUI LONG SUR LA CARTE",
     tapLongDesc: "Modifier ou supprimer",
-    proUnlocked: "Version PRO débloquée",
+    proUnlocked: "Version PRO activée",
     freeLimit: "Vous avez atteint la limite de 5 cartes en version gratuite.",
   },
   card: {

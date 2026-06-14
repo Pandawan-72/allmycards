@@ -57,7 +57,7 @@ const NL = {
     tapShortDesc: "Kaart / streepjescode tonen",
     tapLong: "LANG TIKKEN OP DE KAART",
     tapLongDesc: "Bewerken of verwijderen",
-    proUnlocked: "PRO-versie ontgrendeld",
+    proUnlocked: "PRO-versie geactiveerd",
     freeLimit: "U heeft het limiet van 5 gratis kaarten bereikt.",
   },
   card: {
