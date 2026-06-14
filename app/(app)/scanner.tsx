@@ -19,23 +19,44 @@ const CARD_RATIO = 1.586;
 // pour resserrer le recadrage autour de la carte.
 const FRAME_SCALE = 0.80;
 
-async function cropToCardRatio(uri: string, w: number, h: number): Promise<string> {
-  let baseW: number;
-  let baseH: number;
-  if (w / h > CARD_RATIO) {
-    baseH = h;
-    baseW = Math.round(h * CARD_RATIO);
-  } else {
-    baseW = w;
-    baseH = Math.round(w / CARD_RATIO);
-  }
-  const cropW = Math.round(baseW * FRAME_SCALE);
-  const cropH = Math.round(cropW / CARD_RATIO);
-  const originX = Math.max(0, Math.round((w - cropW) / 2));
-  const originY = Math.max(0, Math.round((h - cropH) / 2));
+function getImageSize(uri: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
+  });
+}
+
+async function cropToCardRatio(uri: string): Promise<string> {
   try {
-    const result = await ImageManipulator.manipulateAsync(
+    // 1) Normaliser l'orientation EXIF : ré-encoder l'image "applique" la
+    //    rotation EXIF dans les pixels, pour que largeur/hauteur correspondent
+    //    bien à ce qui est affiché à l'écran.
+    const normalized = await ImageManipulator.manipulateAsync(
       uri,
+      [],
+      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+    );
+
+    // 2) Mesurer les dimensions réelles (post-rotation) de l'image normalisée
+    const { width: w, height: h } = await getImageSize(normalized.uri);
+
+    // 3) Calculer la zone de recadrage au format carte bancaire (1.586),
+    //    resserrée à FRAME_SCALE pour coller au cadre affiché à l'écran.
+    let baseW: number;
+    let baseH: number;
+    if (w / h > CARD_RATIO) {
+      baseH = h;
+      baseW = Math.round(h * CARD_RATIO);
+    } else {
+      baseW = w;
+      baseH = Math.round(w / CARD_RATIO);
+    }
+    const cropW = Math.round(baseW * FRAME_SCALE);
+    const cropH = Math.round(cropW / CARD_RATIO);
+    const originX = Math.max(0, Math.round((w - cropW) / 2));
+    const originY = Math.max(0, Math.round((h - cropH) / 2));
+
+    const result = await ImageManipulator.manipulateAsync(
+      normalized.uri,
       [{ crop: { originX, originY, width: cropW, height: cropH } }],
       { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
     );
@@ -78,8 +99,8 @@ export default function Scanner() {
     try {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
       let uri = photo.uri;
-      if (mode === "photo" && photo.width && photo.height) {
-        uri = await cropToCardRatio(uri, photo.width, photo.height);
+      if (mode === "photo") {
+        uri = await cropToCardRatio(uri);
       }
       setPhoto(uri);
     } catch (e) {
@@ -105,10 +126,7 @@ export default function Scanner() {
     });
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
-      let uri = asset.uri;
-      if (asset.width && asset.height) {
-        uri = await cropToCardRatio(uri, asset.width, asset.height);
-      }
+      const uri = await cropToCardRatio(asset.uri);
       setPhoto(uri);
     }
   };
@@ -191,9 +209,20 @@ export default function Scanner() {
                 <Text style={styles.scanHint}>Pointez vers le code barre</Text>
               </View>
             ) : (
-              <View style={styles.photoFrame}>
-                <Text style={styles.scanHint}>Cadrez la carte et prenez la photo</Text>
-              </View>
+              <>
+                <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+                  <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
+                  <View style={{ height: width * 0.55, flexDirection: "row" }}>
+                    <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
+                    <View style={{ width: width * 0.85 }} />
+                    <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
+                  </View>
+                  <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.7)" }} />
+                </View>
+                <View style={styles.photoFrame}>
+                  <Text style={styles.scanHint}>Cadrez la carte et prenez la photo</Text>
+                </View>
+              </>
             )}
           </View>
 
