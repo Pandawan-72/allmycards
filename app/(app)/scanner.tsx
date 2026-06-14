@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Dimensions, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
 import * as Icons from "lucide-react-native";
 import { useCards } from "@/src/contexts/CardsContext";
 import { setPendingScanResult } from "@/src/lib/scannerBridge";
@@ -12,68 +11,32 @@ import { theme } from "@/src/theme";
 
 const { width } = Dimensions.get("window");
 
-// Format standard d'une carte bancaire (largeur / hauteur)
-const CARD_RATIO = 1.586;
-
-function getImageSize(uri: string): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
-  });
-}
-
-async function cropToCardRatio(uri: string): Promise<string> {
-  try {
-    // 1) Normaliser l'orientation EXIF : ré-encoder l'image "applique" la
-    //    rotation EXIF dans les pixels, pour que largeur/hauteur correspondent
-    //    bien à ce qui est affiché à l'écran.
-    const normalized = await ImageManipulator.manipulateAsync(
-      uri,
-      [{ resize: { width: 1600 } }],
-      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
-    );
-
-    // 2) Mesurer les dimensions réelles (post-rotation) de l'image normalisée
-    const { width: w, height: h } = await getImageSize(normalized.uri);
-
-    // 3) Calculer la zone de recadrage au format carte bancaire (1.586).
-    // L'aperçu (CameraView) affiche la photo en "cover" dans un cadre au
-    // format carte bancaire : un centre-crop plein format vers CARD_RATIO
-    // reproduit donc exactement la zone visible à l'écran.
-    let cropW: number;
-    let cropH: number;
-    if (w / h > CARD_RATIO) {
-      cropH = h;
-      cropW = Math.round(h * CARD_RATIO);
-    } else {
-      cropW = w;
-      cropH = Math.round(w / CARD_RATIO);
-    }
-    const originX = Math.max(0, Math.round((w - cropW) / 2));
-    const originY = Math.max(0, Math.round((h - cropH) / 2));
-
-    const result = await ImageManipulator.manipulateAsync(
-      normalized.uri,
-      [{ crop: { originX, originY, width: cropW, height: cropH } }],
-      { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
-    );
-    return result.uri;
-  } catch (e) {
-    console.warn("[scanner] crop failed, using original photo", e);
-    return uri;
-  }
-}
+// Format standard d'une carte bancaire (largeur / hauteur), utilisé comme
+// ratio de recadrage dans l'éditeur natif (fiable sur tous les appareils).
+const CARD_ASPECT: [number, number] = [1586, 1000];
+const CARD_RATIO = CARD_ASPECT[0] / CARD_ASPECT[1];
 
 export default function Scanner() {
   const router = useRouter();
   const { cardId, mode, side } = useLocalSearchParams<{ cardId: string; mode: string; side?: string }>();
-  const { cards, updateCard, addCard } = useCards();
+  const { updateCard } = useCards();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const cameraRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!permission?.granted) requestPermission();
+    if (mode === "barcode" && !permission?.granted) requestPermission();
+  }, []);
+
+  // Mode photo : on ouvre directement l'appareil photo natif avec recadrage
+  // interactif au format carte bancaire (UI système, fiable partout —
+  // plus aucun calcul de crop maison).
+  useEffect(() => {
+    if (mode === "photo" && !photo) {
+      onTakePhoto();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onBarcodeScanned = async ({ type, data }: { type: string; data: string }) => {
@@ -91,16 +54,26 @@ export default function Scanner() {
   };
 
   const onTakePhoto = async () => {
-    if (!cameraRef.current) return;
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
-      let uri = photo.uri;
-      if (mode === "photo") {
-        uri = await cropToCardRatio(uri);
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert("Erreur", "Accès à la caméra refusé.");
+        router.back();
+        return;
       }
-      setPhoto(uri);
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: CARD_ASPECT,
+        quality: 0.9,
+      });
+      if (result.canceled) {
+        router.back();
+        return;
+      }
+      setPhoto(result.assets[0].uri);
     } catch (e) {
       Alert.alert("Erreur", "Impossible de prendre la photo.");
+      router.back();
     }
   };
 
@@ -118,15 +91,61 @@ export default function Scanner() {
   const onPickFromGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: CARD_ASPECT,
       quality: 0.9,
     });
     if (!result.canceled && result.assets[0]) {
-      const asset = result.assets[0];
-      const uri = await cropToCardRatio(asset.uri);
-      setPhoto(uri);
+      setPhoto(result.assets[0].uri);
     }
   };
 
+  // ─── Mode photo ──────────────────────────────────────────────────────────
+  if (mode === "photo") {
+    if (!photo) {
+      // En attente du retour de l'appareil photo natif (lancé automatiquement)
+      return (
+        <SafeAreaView style={styles.safe}>
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+            <ActivityIndicator color={theme.accent} size="large" />
+          </View>
+        </SafeAreaView>
+      );
+    }
+
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+            <Icons.ChevronLeft color={theme.text} size={24} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>
+            {side === "back" ? "Verso de la carte" : "Recto de la carte"}
+          </Text>
+          <View style={styles.headerBtn} />
+        </View>
+        <View style={{ flex: 1, backgroundColor: "#000", alignItems: "center", justifyContent: "center" }}>
+          <Image source={{ uri: photo }} style={{ width: width, height: width / CARD_RATIO }} resizeMode="contain" />
+        </View>
+        <View style={styles.photoActions}>
+          <TouchableOpacity style={styles.photoActionBtn} onPress={() => { setPhoto(null); onTakePhoto(); }}>
+            <Icons.RotateCcw color={theme.text} size={20} />
+            <Text style={styles.photoActionText}>Reprendre</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.photoActionBtn} onPress={onPickFromGallery}>
+            <Icons.Image color={theme.text} size={20} />
+            <Text style={styles.photoActionText}>Galerie</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.photoActionBtn, { backgroundColor: theme.accent }]} onPress={onConfirmPhoto}>
+            <Icons.Check color="#fff" size={20} />
+            <Text style={[styles.photoActionText, { color: "#fff" }]}>Utiliser</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // ─── Mode code barre ─────────────────────────────────────────────────────
   if (!permission?.granted) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -143,76 +162,6 @@ export default function Scanner() {
     );
   }
 
-  // Mode photo avec aperçu
-  if (mode === "photo" && photo) {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => setPhoto(null)} style={styles.headerBtn}>
-            <Icons.ChevronLeft color="#fff" size={24} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: "#fff" }]}>
-            {side === "back" ? "Verso de la carte" : "Recto de la carte"}
-          </Text>
-          <View style={styles.headerBtn} />
-        </View>
-        <View style={{ flex: 1, backgroundColor: "#000", alignItems: "center", justifyContent: "center" }}>
-          <Image source={{ uri: photo }} style={{ width: width, height: width * 0.63 }} resizeMode="contain" />
-        </View>
-        <View style={styles.photoActions}>
-          <TouchableOpacity style={styles.photoActionBtn} onPress={() => setPhoto(null)}>
-            <Icons.X color={theme.text} size={20} />
-            <Text style={styles.photoActionText}>Reprendre</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.photoActionBtn, { backgroundColor: theme.accent }]} onPress={onConfirmPhoto}>
-            <Icons.Check color="#fff" size={20} />
-            <Text style={[styles.photoActionText, { color: "#fff" }]}>Utiliser</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // Mode photo : la caméra elle-même est cadrée au format carte bancaire,
-  // ce qui garantit que la zone visible correspond exactement à ce qui sera
-  // recadré sur la photo capturée (centre-crop plein format vers CARD_RATIO).
-  if (mode === "photo") {
-    return (
-      <View style={{ flex: 1, backgroundColor: "#000" }}>
-        <SafeAreaView style={{ flex: 1 }}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-              <Icons.X color="#fff" size={24} />
-            </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: "#fff" }]}>
-              {`Photo — ${side === "back" ? "Verso" : "Recto"}`}
-            </Text>
-            <View style={styles.headerBtn} />
-          </View>
-
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            <View style={styles.cardCameraBox}>
-              <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back" />
-            </View>
-            <Text style={[styles.scanHint, { marginTop: 16 }]}>Cadrez la carte dans le cadre</Text>
-          </View>
-
-          <View style={styles.photoActions}>
-            <TouchableOpacity style={styles.photoActionBtn} onPress={onPickFromGallery}>
-              <Icons.Image color={theme.text} size={20} />
-              <Text style={styles.photoActionText}>Galerie</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.captureBtn]} onPress={onTakePhoto}>
-              <View style={styles.captureBtnInner} />
-            </TouchableOpacity>
-            <View style={{ width: 80 }} />
-          </View>
-        </SafeAreaView>
-      </View>
-    );
-  }
-
-  // Mode code barre : caméra plein écran avec cadre de visée superposé.
   return (
     <View style={{ flex: 1, backgroundColor: "#000" }}>
       <CameraView
@@ -270,15 +219,6 @@ const styles = StyleSheet.create({
     borderRadius: 12, position: "relative",
     alignItems: "center", justifyContent: "flex-end", paddingBottom: 12,
   },
-  cardCameraBox: {
-    width: width * 0.9,
-    height: (width * 0.9) / CARD_RATIO,
-    borderRadius: 14,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.6)",
-    backgroundColor: "#000",
-  },
   corner: { position: "absolute", width: 24, height: 24, borderColor: "#fff", borderWidth: 3 },
   cornerTL: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 8 },
   cornerTR: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 8 },
@@ -287,19 +227,13 @@ const styles = StyleSheet.create({
   scanHint: { color: "rgba(255,255,255,0.8)", fontSize: 13, textAlign: "center" },
   photoActions: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    padding: 20, backgroundColor: theme.surface,
+    padding: 20, backgroundColor: theme.surface, gap: 10,
   },
   photoActionBtn: {
-    width: 80, alignItems: "center", justifyContent: "center", gap: 4,
+    flex: 1, alignItems: "center", justifyContent: "center", gap: 4,
     backgroundColor: theme.surfaceAlt, borderRadius: 12, padding: 12,
   },
   photoActionText: { fontSize: 12, fontWeight: "600", color: theme.text },
-  captureBtn: {
-    width: 72, height: 72, borderRadius: 36,
-    borderWidth: 4, borderColor: theme.text,
-    alignItems: "center", justifyContent: "center",
-  },
-  captureBtnInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: "#fff" },
   btn: { backgroundColor: theme.primary, borderRadius: 14, padding: 16, alignItems: "center" },
   btnText: { color: "#fff", fontWeight: "800", fontSize: 15 },
 });
