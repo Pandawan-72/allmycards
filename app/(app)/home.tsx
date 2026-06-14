@@ -246,22 +246,23 @@ export default function Home() {
             ) : null}
 
             <View style={styles.heroCard}>
-              <View>
+              <View style={styles.heroLeft}>
+                <Icons.CreditCard color={theme.accent} size={20} strokeWidth={2} />
                 <Text style={styles.heroLabel}>{t("home.title").toUpperCase()}</Text>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
-                  <Text style={styles.heroCount}>{cards.length}</Text>
-                  <TouchableOpacity onPress={() => setShowSearch(true)} style={styles.heroSearchBtn}>
-                    <Icons.Search color="#9CA3AF" size={28} />
-                  </TouchableOpacity>
-                </View>
+                <Text style={styles.heroCount}>{cards.length}</Text>
+              </View>
+              <View style={styles.heroRight}>
                 {isPro ? (
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                    <Icons.BadgeCheck color="#FCD34D" size={18} />
-                    <Text style={[styles.heroSub, { fontWeight: "700" }]}>{t("home.proUnlocked")}</Text>
+                  <View style={styles.proBadge}>
+                    <Icons.BadgeCheck color="#FCD34D" size={14} />
+                    <Text style={styles.proBadgeText} numberOfLines={1}>{t("home.proUnlocked")}</Text>
                   </View>
                 ) : (
-                  <Text style={styles.heroSub}>{`${cards.length} / ${FREE_CARD_LIMIT}`}</Text>
+                  <Text style={styles.heroSub}>{`${cards.length}/${FREE_CARD_LIMIT}`}</Text>
                 )}
+                <TouchableOpacity onPress={() => setShowSearch(true)} style={styles.heroSearchBtn}>
+                  <Icons.Search color="#9CA3AF" size={18} />
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -288,8 +289,6 @@ export default function Home() {
                 })}
               </View>
             ) : null}
-
-
 
             {filtered.length === 0 && !search ? (
               <Text style={styles.empty}>{t("home.empty")}</Text>
@@ -362,23 +361,31 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   header: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-    paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12,
+    paddingHorizontal: 20, paddingTop: 4, paddingBottom: 6,
   },
   greeting: { fontSize: 13, color: theme.textMuted, marginTop: 2, textAlign: "center" },
   iconBtn: {
     width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center",
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
   },
-  heroCard: { backgroundColor: theme.primary, borderRadius: 24, padding: 24, marginTop: 8, marginBottom: 16 },
-  heroLabel: { color: "#9CA3AF", fontSize: 11, letterSpacing: 2, fontWeight: "700" },
-  heroCount: { color: theme.accent, fontSize: 56, fontWeight: "900", letterSpacing: -2, marginTop: 4 },
-  heroSub: { color: "#9CA3AF", fontSize: 13, marginTop: 4 },
+  heroCard: {
+    backgroundColor: theme.primary, borderRadius: 18,
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: 18, paddingVertical: 12, marginTop: 6, marginBottom: 14, gap: 10,
+  },
+  heroLeft: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 1 },
+  heroRight: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 0 },
+  heroLabel: { color: "#9CA3AF", fontSize: 12, letterSpacing: 1.5, fontWeight: "800" },
+  heroCount: { color: theme.accent, fontSize: 22, fontWeight: "900", letterSpacing: -0.5 },
+  heroSub: { color: "#9CA3AF", fontSize: 13, fontWeight: "700" },
+  proBadge: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(252,211,77,0.12)", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, flexShrink: 1 },
+  proBadgeText: { color: "#FCD34D", fontSize: 12, fontWeight: "800" },
   catFilterWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 12 },
-  catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: "#E5E7EB", flexDirection: "column" },
+  catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: "#E9EBEF", alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: "#D6D9DE", flexDirection: "column" },
   catFilterLabel: { fontSize: 11, fontWeight: "700", color: "#6B7280", textAlign: "center", lineHeight: 14, flexShrink: 1 },
   longPressHintWrap: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 10 },
   longPressHintText: { fontSize: 12, color: theme.textMuted, fontWeight: "800", textAlign: "center" },
-  heroSearchBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.1)", alignItems: "center", justifyContent: "center" },
+  heroSearchBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.1)", alignItems: "center", justifyContent: "center" },
   searchModalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-start", paddingTop: 100, paddingHorizontal: 20 },
   searchModalContent: { backgroundColor: theme.bg, borderRadius: 20, padding: 16, gap: 12 },
   searchModalClose: { alignItems: "center", paddingVertical: 10 },
