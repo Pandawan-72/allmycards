@@ -43,6 +43,7 @@ const RU = {
     welcomeName: "Привет, {{name}} 👋",
   },
   home: {
+    longPressHint: "Удерживайте карту для редактирования или удаления",
     trialDaysLeft_one: "Остался {{count}} день с разблокированным PRO",
     trialDaysLeft_other: "Осталось {{count}} дней с разблокированным PRO",
     lockedCard: "Pro для разблокировки",
@@ -94,6 +95,8 @@ const RU = {
     other: "Другое",
   },
   settings: {
+    biometric: "Биометрическая разблокировка",
+    biometricDesc: "Используйте отпечаток пальца или Face ID в дополнение к PIN-коду",
     pin: "PIN-код",
     pinTitle: "Защитите свои карты",
     pinDesc: "Установите 4-значный PIN для защиты ваших карт.",

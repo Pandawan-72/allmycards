@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Icons from "lucide-react-native";
-import { verifyPIN, isBiometricAvailable, authenticateWithBiometrics } from "@/src/lib/pin";
+import { verifyPIN, isBiometricAvailable, authenticateWithBiometrics, isBiometricEnabled } from "@/src/lib/pin";
 import { theme } from "@/src/theme";
 
 type Props = {
@@ -17,7 +17,9 @@ export default function PinLock({ onUnlock, onClose }: Props) {
 
   useEffect(() => {
     (async () => {
-      const available = await isBiometricAvailable();
+      const hwAvailable = await isBiometricAvailable();
+      const userEnabled = await isBiometricEnabled();
+      const available = hwAvailable && userEnabled;
       setBiometricAvailable(available);
       if (available) {
         tryBiometric();

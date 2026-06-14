@@ -206,13 +206,16 @@ export default function Display() {
   }
 
   const cat = findCategory(card.categoryId);
-  const showBack = view === "back";
-  const showBarcode = view === "barcode";
-  const currentImage = showBack ? card.backImage : card.frontImage;
   const isQR = card.barcodeType === "qr";
   const isEAN13 = card.barcodeType === "ean13";
   const hasPhoto = !!(card.frontImage || card.backImage);
   const hasBarcode = !!card.barcodeValue;
+  // Par défaut : le code barre est prioritaire s'il existe, sinon le recto de la photo.
+  const effectiveView = view || (hasBarcode ? "barcode" : "front");
+  const showBack = effectiveView === "back";
+  const showBarcode = effectiveView === "barcode";
+  const currentImage = showBack ? card.backImage : card.frontImage;
+  const viewOptionsCount = (hasBarcode ? 1 : 0) + (card.frontImage ? 1 : 0) + (card.backImage ? 1 : 0);
 
   if (card?.isProtected && !pinUnlocked) {
     return <PinLock onUnlock={() => setPinUnlocked(true)} onClose={() => router.back()} />;
@@ -325,56 +328,49 @@ export default function Display() {
               <Text style={styles.hint}>Tournez en paysage pour agrandir ↻</Text>
             </View>
           ) : hasPhoto ? (
-            <>
-              <Image source={{ uri: currentImage || card.frontImage! }} style={styles.cardPhoto} resizeMode="contain" />
-              <View style={styles.toggleRow}>
-                {card.frontImage ? (
-                  <TouchableOpacity
-                    style={[styles.toggleBtn, !showBack && !showBarcode && styles.toggleBtnActive]}
-                    onPress={() => router.setParams({ view: "front" })}
-                  >
-                    <Text style={[styles.toggleText, !showBack && !showBarcode && styles.toggleTextActive]}>Recto</Text>
-                  </TouchableOpacity>
-                ) : null}
-                {card.backImage ? (
-                  <TouchableOpacity
-                    style={[styles.toggleBtn, showBack && styles.toggleBtnActive]}
-                    onPress={() => router.setParams({ view: "back" })}
-                  >
-                    <Text style={[styles.toggleText, showBack && styles.toggleTextActive]}>Verso</Text>
-                  </TouchableOpacity>
-                ) : null}
-                {hasBarcode ? (
-                  <TouchableOpacity
-                    style={[styles.toggleBtn, showBarcode && styles.toggleBtnActive]}
-                    onPress={() => router.setParams({ view: "barcode" })}
-                  >
-                    <Text style={[styles.toggleText, showBarcode && styles.toggleTextActive]}>Code barre</Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-              <TouchableOpacity style={styles.shareBtn} onPress={() => onShareImage(currentImage || card.frontImage!)}>
-                <Icons.Share2 color={theme.text} size={18} />
-                <Text style={styles.shareBtnText}>Partager l'image</Text>
-              </TouchableOpacity>
-            </>
-          ) : hasBarcode ? (
-            <View style={styles.barcodeBox}>
-              {isEAN13 ? (
-                <EAN13Barcode value={card.barcodeValue!} width={280} height={100} />
-              ) : isQR ? (
-                <SimpleQR value={card.barcodeValue!} size={200} />
-              ) : (
-                <GenericBarcode value={card.barcodeValue!} width={280} height={100} />
-              )}
-              <Text style={styles.hint}>Tournez en paysage pour agrandir ↻</Text>
-            </View>
+            <Image source={{ uri: currentImage || card.frontImage! }} style={styles.cardPhoto} resizeMode="contain" />
           ) : (
             <View style={{ alignItems: "center", gap: 12 }}>
               <Icons.CreditCard color={theme.textSubtle} size={60} strokeWidth={1} />
               <Text style={styles.hint}>Aucun code barre ni photo.</Text>
             </View>
           )}
+
+          {viewOptionsCount > 1 ? (
+            <View style={styles.toggleRow}>
+              {hasBarcode ? (
+                <TouchableOpacity
+                  style={[styles.toggleBtn, showBarcode && styles.toggleBtnActive]}
+                  onPress={() => router.setParams({ view: "barcode" })}
+                >
+                  <Text style={[styles.toggleText, showBarcode && styles.toggleTextActive]}>Code barre</Text>
+                </TouchableOpacity>
+              ) : null}
+              {card.frontImage ? (
+                <TouchableOpacity
+                  style={[styles.toggleBtn, !showBack && !showBarcode && styles.toggleBtnActive]}
+                  onPress={() => router.setParams({ view: "front" })}
+                >
+                  <Text style={[styles.toggleText, !showBack && !showBarcode && styles.toggleTextActive]}>Recto</Text>
+                </TouchableOpacity>
+              ) : null}
+              {card.backImage ? (
+                <TouchableOpacity
+                  style={[styles.toggleBtn, showBack && styles.toggleBtnActive]}
+                  onPress={() => router.setParams({ view: "back" })}
+                >
+                  <Text style={[styles.toggleText, showBack && styles.toggleTextActive]}>Verso</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          ) : null}
+
+          {hasPhoto && !showBarcode ? (
+            <TouchableOpacity style={styles.shareBtn} onPress={() => onShareImage(currentImage || card.frontImage!)}>
+              <Icons.Share2 color={theme.text} size={18} />
+              <Text style={styles.shareBtnText}>Partager l'image</Text>
+            </TouchableOpacity>
+          ) : null}
 
           {card.notes ? (
             <View style={styles.notesBox}>

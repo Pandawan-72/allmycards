@@ -43,6 +43,7 @@ const IT = {
     welcomeName: "Ciao, {{name}} 👋",
   },
   home: {
+    longPressHint: "Tieni premuto per modificare o eliminare una carta",
     trialDaysLeft_one: "{{count}} giorno rimanente con PRO sbloccato",
     trialDaysLeft_other: "{{count}} giorni rimanenti con PRO sbloccato",
     lockedCard: "Pro per sbloccare",
@@ -94,6 +95,8 @@ const IT = {
     other: "Altro",
   },
   settings: {
+    biometric: "Sblocco biometrico",
+    biometricDesc: "Usa l'impronta digitale o Face ID in aggiunta al codice PIN",
     pin: "Codice PIN",
     pinTitle: "Proteggi le tue carte",
     pinDesc: "Imposta un PIN a 4 cifre per proteggere le tue carte sensibili.",

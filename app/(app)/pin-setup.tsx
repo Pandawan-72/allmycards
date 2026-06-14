@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Modal, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Modal, TextInput, ActivityIndicator, Switch } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { setPIN, disablePIN, isPINEnabled, verifyPIN } from "@/src/lib/pin";
+import { setPIN, disablePIN, isPINEnabled, verifyPIN, isBiometricAvailable, isBiometricEnabled, setBiometricEnabled } from "@/src/lib/pin";
 import { useCards } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { firebaseLogin } from "@/src/lib/firebaseAuth";
@@ -18,6 +18,8 @@ export default function PinSetup() {
   const { cards, updateCard } = useCards();
   const { user } = useAuth();
   const [pinEnabled, setPinEnabledState] = useState(false);
+  const [biometricHwAvailable, setBiometricHwAvailable] = useState(false);
+  const [biometricEnabled, setBiometricEnabledState] = useState(true);
   const [step, setStep] = useState<Step>("choice");
   const [action, setAction] = useState<"change" | "disable" | "create">("create");
   const [firstPin, setFirstPin] = useState("");
@@ -30,7 +32,14 @@ export default function PinSetup() {
 
   useEffect(() => {
     isPINEnabled().then(setPinEnabledState);
+    isBiometricAvailable().then(setBiometricHwAvailable);
+    isBiometricEnabled().then(setBiometricEnabledState);
   }, []);
+
+  const onToggleBiometric = async (value: boolean) => {
+    setBiometricEnabledState(value);
+    await setBiometricEnabled(value);
+  };
 
   const reset = () => { setInput(""); setFirstPin(""); setError(false); setErrorMsg(""); };
 
@@ -147,6 +156,24 @@ export default function PinSetup() {
             }
           </Text>
 
+          {pinEnabled && biometricHwAvailable ? (
+            <View style={styles.biometricRow}>
+              <View style={styles.biometricIconWrap}>
+                <Icons.Fingerprint color={theme.accent} size={22} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.biometricTitle}>{t("settings.biometric")}</Text>
+                <Text style={styles.biometricSub}>{t("settings.biometricDesc")}</Text>
+              </View>
+              <Switch
+                value={biometricEnabled}
+                onValueChange={onToggleBiometric}
+                trackColor={{ false: theme.border, true: theme.accent }}
+                thumbColor="#fff"
+              />
+            </View>
+          ) : null}
+
           {!pinEnabled ? (
             <TouchableOpacity style={styles.btn} onPress={() => { setAction("create"); setStep("enter_new"); }}>
               <Icons.Lock color="#fff" size={18} />
@@ -255,6 +282,10 @@ const styles = StyleSheet.create({
   btnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
   btnOutline: { borderWidth: 1, borderColor: theme.danger, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 24, width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 10 },
   btnOutlineText: { color: theme.danger, fontWeight: "700", fontSize: 15 },
+  biometricRow: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, padding: 14, width: "100%" },
+  biometricIconWrap: { width: 40, height: 40, borderRadius: 12, backgroundColor: theme.accentSoft, alignItems: "center", justifyContent: "center" },
+  biometricTitle: { fontSize: 15, fontWeight: "700", color: theme.text },
+  biometricSub: { fontSize: 12, color: theme.textMuted, marginTop: 2, lineHeight: 16 },
   dotsRow: { flexDirection: "row", gap: 20 },
   dot: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: theme.border },
   dotFilled: { backgroundColor: theme.accent, borderColor: theme.accent },

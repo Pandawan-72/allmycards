@@ -246,45 +246,28 @@ export default function Home() {
             ) : null}
 
             <View style={styles.heroCard}>
-              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                <View>
-                  <Text style={styles.heroLabel}>{t("home.title").toUpperCase()}</Text>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
-                    <Text style={styles.heroCount}>{cards.length}</Text>
-                    <TouchableOpacity onPress={() => setShowSearch(true)} style={styles.heroSearchBtn}>
-                      <Icons.Search color="#9CA3AF" size={28} />
-                    </TouchableOpacity>
-                  </View>
-                  {isPro ? (
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                      <Icons.BadgeCheck color="#FCD34D" size={18} />
-                      <Text style={[styles.heroSub, { fontWeight: "700" }]}>{t("home.proUnlocked")}</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.heroSub}>{`${cards.length} / ${FREE_CARD_LIMIT}`}</Text>
-                  )}
+              <View>
+                <Text style={styles.heroLabel}>{t("home.title").toUpperCase()}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+                  <Text style={styles.heroCount}>{cards.length}</Text>
+                  <TouchableOpacity onPress={() => setShowSearch(true)} style={styles.heroSearchBtn}>
+                    <Icons.Search color="#9CA3AF" size={28} />
+                  </TouchableOpacity>
                 </View>
-                <View style={[styles.tapCardBox, { width: 170, gap: 8 }]}>
-                  <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 8 }}>
-                    <View style={styles.tapIconBadge}>
-                      <Icons.MousePointerClick color="#FCD34D" size={14} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: "#FCD34D", fontSize: 11, fontWeight: "900" }}>{t("home.tapShort")}</Text>
-                      <Text style={{ color: "#9CA3AF", fontSize: 10, fontWeight: "600" }}>{t("home.tapShortDesc")}</Text>
-                    </View>
+                {isPro ? (
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Icons.BadgeCheck color="#FCD34D" size={18} />
+                    <Text style={[styles.heroSub, { fontWeight: "700" }]}>{t("home.proUnlocked")}</Text>
                   </View>
-                  <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 8 }}>
-                    <View style={styles.tapIconBadge}>
-                      <Icons.Hand color="#FCD34D" size={14} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: "#FCD34D", fontSize: 11, fontWeight: "900" }}>{t("home.tapLong")}</Text>
-                      <Text style={{ color: "#9CA3AF", fontSize: 10, fontWeight: "600" }}>{t("home.tapLongDesc")}</Text>
-                    </View>
-                  </View>
-                </View>
+                ) : (
+                  <Text style={styles.heroSub}>{`${cards.length} / ${FREE_CARD_LIMIT}`}</Text>
+                )}
               </View>
+            </View>
+
+            <View style={styles.longPressHintWrap}>
+              <Icons.Hand color={theme.textMuted} size={14} />
+              <Text style={styles.longPressHintText}>{t("home.longPressHint").toUpperCase()}</Text>
             </View>
 
             {isPro ? (
@@ -393,8 +376,8 @@ const styles = StyleSheet.create({
   catFilterWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 12 },
   catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: "#E5E7EB", flexDirection: "column" },
   catFilterLabel: { fontSize: 11, fontWeight: "700", color: "#6B7280", textAlign: "center", lineHeight: 14, flexShrink: 1 },
-  tapCardBox: { borderWidth: 0.5, borderColor: "#9CA3AF", borderRadius: 10, padding: 8 },
-  tapIconBadge: { width: 24, height: 24, borderRadius: 8, backgroundColor: "rgba(252,211,77,0.15)", alignItems: "center", justifyContent: "center", marginTop: 1 },
+  longPressHintWrap: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 10 },
+  longPressHintText: { fontSize: 12, color: theme.textMuted, fontWeight: "800", textAlign: "center" },
   heroSearchBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.1)", alignItems: "center", justifyContent: "center" },
   searchModalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-start", paddingTop: 100, paddingHorizontal: 20 },
   searchModalContent: { backgroundColor: theme.bg, borderRadius: 20, padding: 16, gap: 12 },

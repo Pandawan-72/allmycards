@@ -4,11 +4,39 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as Icons from "lucide-react-native";
 import { useCards } from "@/src/contexts/CardsContext";
+import { setPendingScanResult } from "@/src/lib/scannerBridge";
 import { theme } from "@/src/theme";
 
 const { width } = Dimensions.get("window");
+
+// Format standard d'une carte bancaire (largeur / hauteur)
+const CARD_RATIO = 1.586;
+
+async function cropToCardRatio(uri: string, w: number, h: number): Promise<string> {
+  let cropW = w;
+  let cropH = h;
+  if (w / h > CARD_RATIO) {
+    cropW = Math.round(h * CARD_RATIO);
+  } else {
+    cropH = Math.round(w / CARD_RATIO);
+  }
+  const originX = Math.max(0, Math.round((w - cropW) / 2));
+  const originY = Math.max(0, Math.round((h - cropH) / 2));
+  try {
+    const result = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ crop: { originX, originY, width: cropW, height: cropH } }],
+      { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    return result.uri;
+  } catch (e) {
+    console.warn("[scanner] crop failed, using original photo", e);
+    return uri;
+  }
+}
 
 export default function Scanner() {
   const router = useRouter();
@@ -29,28 +57,36 @@ export default function Scanner() {
 
     if (cardId) {
       await updateCard(cardId, { barcodeValue: data, barcodeType: type as any });
-      Alert.alert("✅ Code scanné", `Valeur : ${data}`, [
-        { text: "OK", onPress: () => router.back() }
-      ]);
     } else {
-      router.back();
+      setPendingScanResult({ type: "barcode", value: data, barcodeType: type });
     }
+    Alert.alert("✅ Code scanné", `Valeur : ${data}`, [
+      { text: "OK", onPress: () => router.back() }
+    ]);
   };
 
   const onTakePhoto = async () => {
     if (!cameraRef.current) return;
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9, base64: true });
-      setPhoto(photo.uri);
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
+      let uri = photo.uri;
+      if (mode === "photo" && photo.width && photo.height) {
+        uri = await cropToCardRatio(uri, photo.width, photo.height);
+      }
+      setPhoto(uri);
     } catch (e) {
       Alert.alert("Erreur", "Impossible de prendre la photo.");
     }
   };
 
   const onConfirmPhoto = async () => {
-    if (!photo || !cardId) return;
+    if (!photo) return;
     const field = side === "back" ? "backImage" : "frontImage";
-    await updateCard(cardId, { [field]: photo });
+    if (cardId) {
+      await updateCard(cardId, { [field]: photo });
+    } else {
+      setPendingScanResult({ type: "photo", side: (side === "back" ? "back" : "front"), uri: photo });
+    }
     router.back();
   };
 
@@ -58,10 +94,14 @@ export default function Scanner() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       quality: 0.9,
-      base64: true,
     });
     if (!result.canceled && result.assets[0]) {
-      setPhoto(result.assets[0].uri);
+      const asset = result.assets[0];
+      let uri = asset.uri;
+      if (asset.width && asset.height) {
+        uri = await cropToCardRatio(uri, asset.width, asset.height);
+      }
+      setPhoto(uri);
     }
   };
 

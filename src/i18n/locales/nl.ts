@@ -43,6 +43,7 @@ const NL = {
     welcomeName: "Hallo, {{name}} 👋",
   },
   home: {
+    longPressHint: "Lang indrukken om een kaart te bewerken of te verwijderen",
     trialDaysLeft_one: "Nog {{count}} dag met PRO ontgrendeld",
     trialDaysLeft_other: "Nog {{count}} dagen met PRO ontgrendeld",
     lockedCard: "Pro om te ontgrendelen",
@@ -94,6 +95,8 @@ const NL = {
     other: "Overig",
   },
   settings: {
+    biometric: "Biometrisch ontgrendelen",
+    biometricDesc: "Gebruik vingerafdruk of Face ID naast je pincode",
     pin: "PIN-code",
     pinTitle: "Beveilig uw kaarten",
     pinDesc: "Stel een 4-cijferige PIN in om uw gevoelige kaarten te beveiligen.",

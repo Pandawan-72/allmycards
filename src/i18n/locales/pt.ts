@@ -43,6 +43,7 @@ const PT = {
     welcomeName: "Olá, {{name}} 👋",
   },
   home: {
+    longPressHint: "Mantenha pressionado para editar ou excluir um cartão",
     trialDaysLeft_one: "{{count}} dia restante com PRO desbloqueado",
     trialDaysLeft_other: "{{count}} dias restantes com PRO desbloqueado",
     lockedCard: "Pro para desbloquear",
@@ -94,6 +95,8 @@ const PT = {
     other: "Outro",
   },
   settings: {
+    biometric: "Desbloqueio biométrico",
+    biometricDesc: "Use a impressão digital ou Face ID além do código PIN",
     pin: "Código PIN",
     pinTitle: "Proteja os seus cartões",
     pinDesc: "Defina um PIN de 4 dígitos para proteger os seus cartões.",

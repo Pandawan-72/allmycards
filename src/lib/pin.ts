@@ -48,3 +48,18 @@ export async function authenticateWithBiometrics(): Promise<boolean> {
   });
   return result.success;
 }
+
+// ─── Préférence utilisateur : biométrie activée à la place du PIN ──────────
+
+const BIOMETRIC_ENABLED_KEY = "amc2.biometric.enabled";
+
+// Par défaut activée (si le matériel est disponible) pour la meilleure UX :
+// l'utilisateur peut la désactiver pour ne se fier qu'au code PIN.
+export async function isBiometricEnabled(): Promise<boolean> {
+  const val = await SecureStore.getItemAsync(BIOMETRIC_ENABLED_KEY);
+  return val !== "false";
+}
+
+export async function setBiometricEnabled(enabled: boolean): Promise<void> {
+  await SecureStore.setItemAsync(BIOMETRIC_ENABLED_KEY, enabled ? "true" : "false");
+}

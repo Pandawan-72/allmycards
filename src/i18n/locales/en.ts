@@ -43,6 +43,7 @@ const EN = {
     welcomeName: "Hello, {{name}} 👋",
   },
   home: {
+    longPressHint: "Long press to edit or delete a card",
     trialDaysLeft_one: "{{count}} day left with PRO unlocked",
     trialDaysLeft_other: "{{count}} days left with PRO unlocked",
     lockedCard: "Pro to unlock",
@@ -94,6 +95,8 @@ const EN = {
     other: "Other",
   },
   settings: {
+    biometric: "Biometric unlock",
+    biometricDesc: "Use fingerprint or Face ID in addition to your PIN code",
     pin: "PIN Code",
     pinTitle: "Protect your cards",
     pinDesc: "Set a 4-digit PIN to secure your sensitive cards.",

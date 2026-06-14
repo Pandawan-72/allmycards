@@ -9,6 +9,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPermission } from "@/src/lib/notifications";
 import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
 import { findBrandColor } from "@/src/data/brands";
+import { consumePendingScanResult } from "@/src/lib/scannerBridge";
 import { theme } from "@/src/theme";
 
 const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316"];
@@ -45,6 +46,20 @@ export default function CardScreen() {
       if (updated) {
         setFrontImage(updated.frontImage || null);
         setBackImage(updated.backImage || null);
+        setBarcodeValue(updated.barcodeValue || "");
+        if (updated.barcodeType) setBarcodeType(updated.barcodeType);
+      }
+    }
+
+    // Carte pas encore enregistrée : récupère le résultat du scanner via le bridge
+    const pending = consumePendingScanResult();
+    if (pending) {
+      if (pending.type === "barcode") {
+        setBarcodeValue(pending.value);
+        setBarcodeType(pending.barcodeType as BarcodeType);
+      } else if (pending.type === "photo") {
+        if (pending.side === "back") setBackImage(pending.uri);
+        else setFrontImage(pending.uri);
       }
     }
   }, [existing?.id, cards]));
