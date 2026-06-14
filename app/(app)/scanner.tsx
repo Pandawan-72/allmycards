@@ -32,7 +32,7 @@ async function cropToCardRatio(uri: string): Promise<string> {
     //    bien à ce qui est affiché à l'écran.
     const normalized = await ImageManipulator.manipulateAsync(
       uri,
-      [],
+      [{ resize: { width: 1600 } }],
       { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
     );
 
