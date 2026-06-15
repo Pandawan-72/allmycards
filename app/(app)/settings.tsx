@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useCards } from "@/src/contexts/CardsContext";
 import { restorePurchasesRC, isRevenueCatSupported } from "@/src/lib/revenuecat";
 import { isPINEnabled } from "@/src/lib/pin";
-import { exportBackup, importBackup } from "@/src/lib/backup";
+import { exportBackup, importBackup, applyBackupSettings } from "@/src/lib/backup";
 import { theme } from "@/src/theme";
 
 const APP_VERSION = Application.nativeApplicationVersion || "1.0.0";
@@ -20,7 +20,7 @@ const APP_BUILD = Application.nativeBuildVersion || "—";
 export default function Settings() {
   const router = useRouter();
   const { user, logout, refreshUser } = useAuth();
-  const { cards, addCard, addCustomCategory } = useCards();
+  const { cards, addCard, deleteCard } = useCards();
   const [restoring, setRestoring] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -59,7 +59,7 @@ export default function Settings() {
     if (exporting) return;
     setExporting(true);
     try {
-      await exportBackup({ subscriptions: cards, customCategories: [], baseCurrency: "EUR", monthlyIncome: 0 });
+      await exportBackup(cards);
     } finally {
       setExporting(false);
     }
@@ -68,7 +68,7 @@ export default function Settings() {
   const onImport = async () => {
     if (!isPro) { router.push("/(app)/paywall"); return; }
     if (importing) return;
-    Alert.alert(t("settings.backup.importTitle"), "Cette action remplacera toutes vos cartes actuelles. Continuer ?", [
+    Alert.alert(t("settings.backup.importTitle"), "Cette action remplacera toutes vos cartes actuelles (y compris les photos) ainsi que votre code PIN. Continuer ?", [
       { text: "Annuler", style: "cancel" },
       {
         text: "Continuer", style: "destructive",
@@ -77,11 +77,21 @@ export default function Settings() {
           try {
             const backup = await importBackup();
             if (!backup) return;
-            for (const card of backup.subscriptions || []) {
+
+            // Remplace proprement les cartes actuelles (évite les doublons)
+            for (const existing of cards) {
+              await deleteCard(existing.id);
+            }
+            for (const card of backup.cards || []) {
               const { id, createdAt, updatedAt, ...rest } = card;
               await addCard(rest);
             }
-            Alert.alert("✅ Sauvegarde restaurée", "Vos cartes ont été restaurées avec succès.");
+
+            // Restaure le code PIN et la préférence biométrie
+            await applyBackupSettings(backup);
+            setPinEnabled(!!backup.pin?.enabled);
+
+            Alert.alert("✅ Sauvegarde restaurée", "Vos cartes, photos et paramètres de sécurité ont été restaurés avec succès.");
           } finally {
             setImporting(false);
           }
