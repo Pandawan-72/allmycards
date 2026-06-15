@@ -70,6 +70,10 @@ const IT = {
   card: {
     newCard: "Nuova carta",
     editCard: "Modifica carta",
+    discardTitle: "Annullare le modifiche?",
+    discardMessage: "Vuoi uscire da questa schermata e annullare le modifiche in corso?",
+    discardConfirm: "Sì, annulla",
+    discardCancel: "No, resta qui",
     name: "Nome della carta",
     namePh: "Supermercato, Istruzione & Biblioteca, Palestra…",
     category: "Categoria",

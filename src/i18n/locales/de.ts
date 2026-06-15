@@ -70,6 +70,10 @@ const DE = {
   card: {
     newCard: "Neue Karte",
     editCard: "Karte bearbeiten",
+    discardTitle: "Änderungen verwerfen?",
+    discardMessage: "Möchten Sie diese Seite verlassen und Ihre aktuellen Änderungen verwerfen?",
+    discardConfirm: "Ja, verwerfen",
+    discardCancel: "Nein, hier bleiben",
     name: "Kartenname",
     namePh: "Supermarkt, Bildung & Bibliothek, Fitnessstudio…",
     category: "Kategorie",

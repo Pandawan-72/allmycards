@@ -70,6 +70,10 @@ const FR = {
   card: {
     newCard: "Nouvelle carte",
     editCard: "Modifier la carte",
+    discardTitle: "Abandonner les modifications ?",
+    discardMessage: "Voulez-vous quitter la fiche et abandonner les modifications en cours ?",
+    discardConfirm: "Oui, abandonner",
+    discardCancel: "Non, rester sur la fiche",
     name: "Nom de la carte",
     namePh: "Carrefour, SNCF, Éducation & Bibliothèque…",
     category: "Catégorie",

@@ -117,10 +117,21 @@ export default function CardScreen() {
     router.push({ pathname: "/(app)/scanner", params: { cardId: id || "", mode: "photo", side } });
   };
 
+  const onClose = () => {
+    Alert.alert(
+      t("card.discardTitle"),
+      t("card.discardMessage"),
+      [
+        { text: t("card.discardCancel"), style: "cancel" },
+        { text: t("card.discardConfirm"), style: "destructive", onPress: () => router.back() },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+        <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
           <Icons.ChevronLeft color={theme.text} size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{existing ? t("card.editCard") : t("card.newCard")}</Text>

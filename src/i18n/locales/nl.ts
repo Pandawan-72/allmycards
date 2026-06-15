@@ -70,6 +70,10 @@ const NL = {
   card: {
     newCard: "Nieuwe kaart",
     editCard: "Kaart bewerken",
+    discardTitle: "Wijzigingen verwijderen?",
+    discardMessage: "Wilt u dit scherm verlaten en de huidige wijzigingen verwijderen?",
+    discardConfirm: "Ja, verwijderen",
+    discardCancel: "Nee, hier blijven",
     name: "Kaartnaam",
     namePh: "Supermarkt, Onderwijs & Bibliotheek, Sportschool…",
     category: "Categorie",

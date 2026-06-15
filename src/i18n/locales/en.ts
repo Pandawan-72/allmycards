@@ -70,6 +70,10 @@ const EN = {
   card: {
     newCard: "New card",
     editCard: "Edit card",
+    discardTitle: "Discard changes?",
+    discardMessage: "Do you want to leave this screen and discard your current changes?",
+    discardConfirm: "Yes, discard",
+    discardCancel: "No, stay here",
     name: "Card name",
     namePh: "Supermarket, Education & Library, Gym…",
     category: "Category",

@@ -70,6 +70,10 @@ const ES = {
   card: {
     newCard: "Nueva tarjeta",
     editCard: "Editar tarjeta",
+    discardTitle: "¿Descartar cambios?",
+    discardMessage: "¿Quieres salir de esta pantalla y descartar los cambios actuales?",
+    discardConfirm: "Sí, descartar",
+    discardCancel: "No, quedarme aquí",
     name: "Nombre de la tarjeta",
     namePh: "Supermercado, Educación & Biblioteca, Gimnasio…",
     category: "Categoría",
