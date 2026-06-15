@@ -8,6 +8,7 @@ import * as Icons from "lucide-react-native";
 import { useCards } from "@/src/contexts/CardsContext";
 import { setPendingScanResult } from "@/src/lib/scannerBridge";
 import { theme } from "@/src/theme";
+import { useTranslation } from "react-i18next";
 
 const { width } = Dimensions.get("window");
 
@@ -18,6 +19,7 @@ const CARD_RATIO = CARD_ASPECT[0] / CARD_ASPECT[1];
 
 export default function Scanner() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { cardId, mode, side } = useLocalSearchParams<{ cardId: string; mode: string; side?: string }>();
   const { updateCard } = useCards();
   const [permission, requestPermission] = useCameraPermissions();
@@ -120,7 +122,7 @@ export default function Scanner() {
             <Icons.ChevronLeft color={theme.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
-            {side === "back" ? "Verso de la carte" : "Recto de la carte"}
+            {side === "back" ? t("card.backTitle") : t("card.frontTitle")}
           </Text>
           <View style={styles.headerBtn} />
         </View>

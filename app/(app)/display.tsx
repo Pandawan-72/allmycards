@@ -336,14 +336,14 @@ export default function Display() {
               ) : (
                 <GenericBarcode value={card.barcodeValue!} width={280} height={100} />
               )}
-              <Text style={styles.hint}>Tournez en paysage pour agrandir ↻</Text>
+              <Text style={styles.hint}>{t("card.rotateHint")}</Text>
             </View>
           ) : hasPhoto ? (
             <Image source={{ uri: currentImage || card.frontImage! }} style={styles.cardPhoto} resizeMode="contain" />
           ) : (
             <View style={{ alignItems: "center", gap: 12 }}>
               <Icons.CreditCard color={theme.textSubtle} size={60} strokeWidth={1} />
-              <Text style={styles.hint}>Aucun code barre ni photo.</Text>
+              <Text style={styles.hint}>{t("card.noBarcodeOrPhoto")}</Text>
             </View>
           )}
 
@@ -354,7 +354,7 @@ export default function Display() {
                   style={[styles.toggleBtn, showBarcode && styles.toggleBtnActive]}
                   onPress={() => router.setParams({ view: "barcode" })}
                 >
-                  <Text style={[styles.toggleText, showBarcode && styles.toggleTextActive]}>Code barre</Text>
+                  <Text style={[styles.toggleText, showBarcode && styles.toggleTextActive]}>{t("card.toggleBarcode")}</Text>
                 </TouchableOpacity>
               ) : null}
               {card.frontImage ? (
@@ -362,7 +362,7 @@ export default function Display() {
                   style={[styles.toggleBtn, !showBack && !showBarcode && styles.toggleBtnActive]}
                   onPress={() => router.setParams({ view: "front" })}
                 >
-                  <Text style={[styles.toggleText, !showBack && !showBarcode && styles.toggleTextActive]}>Recto</Text>
+                  <Text style={[styles.toggleText, !showBack && !showBarcode && styles.toggleTextActive]}>{t("card.scanFront")}</Text>
                 </TouchableOpacity>
               ) : null}
               {card.backImage ? (
@@ -370,7 +370,7 @@ export default function Display() {
                   style={[styles.toggleBtn, showBack && styles.toggleBtnActive]}
                   onPress={() => router.setParams({ view: "back" })}
                 >
-                  <Text style={[styles.toggleText, showBack && styles.toggleTextActive]}>Verso</Text>
+                  <Text style={[styles.toggleText, showBack && styles.toggleTextActive]}>{t("card.scanBack")}</Text>
                 </TouchableOpacity>
               ) : null}
             </View>
@@ -412,7 +412,7 @@ export default function Display() {
           {isPro ? (
             <TouchableOpacity style={styles.shareCardBtn} onPress={onShareCard}>
               <Icons.Share2 color={theme.accent} size={18} />
-              <Text style={styles.shareCardBtnText}>Partager cette carte</Text>
+              <Text style={styles.shareCardBtnText}>{t("card.shareCard")}</Text>
             </TouchableOpacity>
           ) : null}
         </ScrollView>
