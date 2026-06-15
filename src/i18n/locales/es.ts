@@ -21,6 +21,13 @@ const ES = {
     scan: "Escanear",
   },
   auth: {
+    emailInUse: "Este correo electrónico ya está en uso. Inicia sesión con Google o usa «¿Olvidaste tu contraseña?» para crear una contraseña.",
+    forgotPassword: "¿Olvidaste tu contraseña?",
+    resetTitle: "Restablecer contraseña",
+    resetDesc: "Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+    resetSend: "Enviar enlace",
+    resetSuccess: "¡Correo enviado! Revisa tu bandeja de entrada (incluidas las carpetas de Spam/Promociones).",
+    resetError: "No se pudo enviar el correo. Comprueba la dirección.",
     welcome: "Bienvenido.",
     subtitle: "Todas tus tarjetas, siempre contigo.",
     email: "Email",

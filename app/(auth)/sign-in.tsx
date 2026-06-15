@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image, Modal } from "react-native";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { nativeGoogleSignIn } from "@/src/lib/googleAuth";
+import { firebaseSendPasswordReset } from "@/src/lib/firebaseAuth";
 import { theme } from "@/src/theme";
 
 export default function SignIn() {
@@ -16,6 +17,10 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showForgot, setShowForgot] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMsg, setResetMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const onLogin = async () => {
     if (!email || !password) { setError(t("auth.fillCreds")); return; }
@@ -42,6 +47,26 @@ export default function SignIn() {
     } finally {
       setGoogleLoading(false);
     }
+  };
+
+  const onResetPassword = async () => {
+    if (!resetEmail) return;
+    setResetLoading(true);
+    setResetMsg(null);
+    try {
+      await firebaseSendPasswordReset(resetEmail);
+      setResetMsg({ type: "success", text: t("auth.resetSuccess") });
+    } catch {
+      setResetMsg({ type: "error", text: t("auth.resetError") });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const openForgotPassword = () => {
+    setResetEmail(email);
+    setResetMsg(null);
+    setShowForgot(true);
   };
 
   return (
@@ -72,6 +97,10 @@ export default function SignIn() {
           secureTextEntry
         />
 
+        <TouchableOpacity onPress={openForgotPassword} style={styles.forgotLink}>
+          <Text style={styles.forgotLinkText}>{t("auth.forgotPassword")}</Text>
+        </TouchableOpacity>
+
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <TouchableOpacity style={styles.btn} onPress={onLogin} disabled={loading}>
@@ -99,6 +128,33 @@ export default function SignIn() {
           <Text style={[styles.switchText, { color: theme.accent, fontWeight: "700" }]}>{t("auth.goSignUp")}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal visible={showForgot} transparent animationType="slide" onRequestClose={() => setShowForgot(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t("auth.resetTitle")}</Text>
+            <Text style={styles.modalDesc}>{t("auth.resetDesc")}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={t("auth.email")}
+              placeholderTextColor={theme.textSubtle}
+              value={resetEmail}
+              onChangeText={setResetEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            {resetMsg ? (
+              <Text style={resetMsg.type === "error" ? styles.error : styles.success}>{resetMsg.text}</Text>
+            ) : null}
+            <TouchableOpacity style={styles.btn} onPress={onResetPassword} disabled={resetLoading}>
+              {resetLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t("auth.resetSend")}</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowForgot(false)} style={{ alignItems: "center", marginTop: 12 }}>
+              <Text style={{ color: theme.textMuted, fontWeight: "600" }}>{t("common.cancel")}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -126,4 +182,11 @@ const styles = StyleSheet.create({
   googleBtnText: { color: theme.text, fontWeight: "700", fontSize: 15 },
   switchRow: { flexDirection: "row", justifyContent: "center", marginTop: 24 },
   switchText: { fontSize: 14, color: theme.textMuted },
+  forgotLink: { alignSelf: "flex-end", marginTop: -6, marginBottom: 12 },
+  forgotLinkText: { color: theme.accent, fontSize: 13, fontWeight: "700" },
+  success: { color: theme.accent, fontSize: 13, marginBottom: 12 },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", padding: 24 },
+  modalContent: { backgroundColor: theme.bg, borderRadius: 20, padding: 24, gap: 4 },
+  modalTitle: { fontSize: 18, fontWeight: "900", color: theme.text, marginBottom: 8 },
+  modalDesc: { fontSize: 14, color: theme.textMuted, lineHeight: 20, marginBottom: 16 },
 });

@@ -21,6 +21,13 @@ const EN = {
     scan: "Scan",
   },
   auth: {
+    emailInUse: "This email is already in use. Sign in with Google, or use 'Forgot password' to set a password.",
+    forgotPassword: "Forgot password?",
+    resetTitle: "Reset your password",
+    resetDesc: "Enter your email address and we'll send you a link to reset your password.",
+    resetSend: "Send link",
+    resetSuccess: "Email sent! Check your inbox (including Spam/Promotions folders).",
+    resetError: "Couldn't send the email. Please check the address.",
     welcome: "Welcome.",
     subtitle: "All your cards, always with you.",
     email: "Email",

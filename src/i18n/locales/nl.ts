@@ -21,6 +21,13 @@ const NL = {
     scan: "Scannen",
   },
   auth: {
+    emailInUse: "Dit e-mailadres is al in gebruik. Log in met Google of gebruik 'Wachtwoord vergeten?' om een wachtwoord in te stellen.",
+    forgotPassword: "Wachtwoord vergeten?",
+    resetTitle: "Wachtwoord opnieuw instellen",
+    resetDesc: "Voer je e-mailadres in en we sturen je een link om je wachtwoord opnieuw in te stellen.",
+    resetSend: "Link verzenden",
+    resetSuccess: "E-mail verzonden! Controleer je inbox (ook de map Spam/Promoties).",
+    resetError: "E-mail kon niet worden verzonden. Controleer het adres.",
     welcome: "Welkom.",
     subtitle: "Al uw kaarten, altijd bij u.",
     email: "E-mail",

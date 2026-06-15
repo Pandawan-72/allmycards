@@ -22,8 +22,12 @@ export default function SignUp() {
     try {
       await register(name, email, password);
       router.replace("/(app)/home");
-    } catch {
-      setError(t("auth.fillAll"));
+    } catch (e: any) {
+      if (e?.code === "auth/email-already-in-use") {
+        setError(t("auth.emailInUse"));
+      } else {
+        setError(t("auth.fillAll"));
+      }
     } finally {
       setLoading(false);
     }

@@ -21,6 +21,13 @@ const PT = {
     scan: "Digitalizar",
   },
   auth: {
+    emailInUse: "Este e-mail já está em uso. Inicie sessão com o Google ou use \"Esqueceu a senha?\" para definir uma senha.",
+    forgotPassword: "Esqueceu a senha?",
+    resetTitle: "Redefinir senha",
+    resetDesc: "Introduza o seu e-mail e enviaremos um link para redefinir a sua senha.",
+    resetSend: "Enviar link",
+    resetSuccess: "E-mail enviado! Verifique a sua caixa de entrada (incluindo as pastas de Spam/Promoções).",
+    resetError: "Não foi possível enviar o e-mail. Verifique o endereço.",
     welcome: "Bem-vindo.",
     subtitle: "Todos os seus cartões, sempre consigo.",
     email: "Email",

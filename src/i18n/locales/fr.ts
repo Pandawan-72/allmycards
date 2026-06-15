@@ -21,6 +21,13 @@ const FR = {
     scan: "Scanner",
   },
   auth: {
+    emailInUse: "Cette adresse e-mail est déjà utilisée. Connectez-vous avec Google, ou utilisez « Mot de passe oublié » pour définir un mot de passe.",
+    forgotPassword: "Mot de passe oublié ?",
+    resetTitle: "Réinitialiser le mot de passe",
+    resetDesc: "Saisissez votre adresse e-mail, nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    resetSend: "Envoyer le lien",
+    resetSuccess: "E-mail envoyé ! Vérifiez votre boîte de réception (et les dossiers Spam / Promotions).",
+    resetError: "Impossible d'envoyer l'e-mail. Vérifiez l'adresse saisie.",
     welcome: "Bienvenue.",
     subtitle: "Toutes vos cartes, toujours avec vous.",
     email: "Email",

@@ -21,6 +21,13 @@ const DE = {
     scan: "Scannen",
   },
   auth: {
+    emailInUse: "Diese E-Mail-Adresse wird bereits verwendet. Melden Sie sich mit Google an oder verwenden Sie „Passwort vergessen“, um ein Passwort festzulegen.",
+    forgotPassword: "Passwort vergessen?",
+    resetTitle: "Passwort zurücksetzen",
+    resetDesc: "Geben Sie Ihre E-Mail-Adresse ein, und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+    resetSend: "Link senden",
+    resetSuccess: "E-Mail gesendet! Überprüfen Sie Ihr Postfach (auch die Ordner Spam/Werbung).",
+    resetError: "E-Mail konnte nicht gesendet werden. Bitte überprüfen Sie die Adresse.",
     welcome: "Willkommen.",
     subtitle: "Alle Ihre Karten, immer dabei.",
     email: "E-Mail",
