@@ -290,6 +290,8 @@ export default function Display() {
               <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center" }}>
                 {isEAN13 ? (
                   <EAN13Barcode value={card.barcodeValue} width={280} height={55} />
+                ) : isQR ? (
+                  <SimpleQR value={card.barcodeValue} size={90} />
                 ) : (
                   <GenericBarcode value={card.barcodeValue} width={280} height={55} />
                 )}
