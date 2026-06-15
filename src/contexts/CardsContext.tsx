@@ -28,6 +28,7 @@ type CardsState = {
   addCard: (c: Omit<Card, "id" | "createdAt" | "updatedAt">) => Promise<Card>;
   updateCard: (id: string, c: Partial<Omit<Card, "id" | "createdAt">>) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
+  replaceAllCards: (next: Card[]) => Promise<void>;
 };
 
 const Ctx = createContext<CardsState | undefined>(undefined);
@@ -83,8 +84,15 @@ export function CardsProvider({ children }: { children: ReactNode }) {
     await persistCards(cards.filter((x) => x.id !== id));
   }, [persistCards, cards]);
 
+  // Remplace l'intégralité du tableau de cartes en une seule opération
+  // atomique (utilisé pour la restauration de sauvegarde) — évite les
+  // problèmes de "stale closure" d'une boucle d'appels addCard/deleteCard.
+  const replaceAllCards = useCallback(async (next: Card[]) => {
+    await persistCards(next);
+  }, [persistCards]);
+
   return (
-    <Ctx.Provider value={{ loading, cards, addCard, updateCard, deleteCard }}>
+    <Ctx.Provider value={{ loading, cards, addCard, updateCard, deleteCard, replaceAllCards }}>
       {children}
     </Ctx.Provider>
   );

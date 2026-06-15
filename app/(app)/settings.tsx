@@ -20,7 +20,7 @@ const APP_BUILD = Application.nativeBuildVersion || "—";
 export default function Settings() {
   const router = useRouter();
   const { user, logout, refreshUser } = useAuth();
-  const { cards, addCard, deleteCard } = useCards();
+  const { cards, replaceAllCards } = useCards();
   const [restoring, setRestoring] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -78,14 +78,9 @@ export default function Settings() {
             const backup = await importBackup();
             if (!backup) return;
 
-            // Remplace proprement les cartes actuelles (évite les doublons)
-            for (const existing of cards) {
-              await deleteCard(existing.id);
-            }
-            for (const card of backup.cards || []) {
-              const { id, createdAt, updatedAt, ...rest } = card;
-              await addCard(rest);
-            }
+            // Remplace l'intégralité des cartes en une seule opération atomique
+            // (les cartes de la sauvegarde conservent leurs id/dates d'origine)
+            await replaceAllCards(backup.cards || []);
 
             // Restaure le code PIN et la préférence biométrie
             await applyBackupSettings(backup);
