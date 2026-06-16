@@ -153,8 +153,8 @@ export default function Display() {
   }
 
   if (isLandscape && card.barcodeValue && (showBarcode || !hasPhoto)) {
-    const paddingV = 130;
-    const paddingH = 40;
+    const paddingV = 30;
+    const paddingH = 10;
     const maxH = dims.height - paddingV * 2;
     const maxW = dims.width - paddingH * 2;
     const aspectRatio = isQR ? 1 : 3;
@@ -171,10 +171,13 @@ export default function Display() {
           onPress={() => { restoreBrightness(); router.back(); }}
           activeOpacity={1}
         >
-          <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue} width={barcodeW} height={barcodeH - 20} />
-          <Text style={{ color: theme.textSubtle, fontSize: 11, marginTop: 8 }}>
-            Appuyez pour fermer
-          </Text>
+          {(card.barcodeType === "qr" || card.barcodeType === "aztec" || card.barcodeType === "pdf417") ? (
+            <QRCode value={card.barcodeValue || " "} size={barcodeW} />
+          ) : (
+            <View style={{ transform: [{ scale: barcodeW / 380 }] }}>
+              <Barcode value={card.barcodeValue || "0"} format={{"ean13":"EAN13","ean8":"EAN8","upc":"UPC","code128":"CODE128","code39":"CODE39"}[card.barcodeType] || "CODE128"} singleBarWidth={2} height={100} maxWidth={280} />
+            </View>
+          )}
         </TouchableOpacity>
       </View>
     );
