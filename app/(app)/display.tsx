@@ -10,106 +10,26 @@ import PinLock from "@/src/components/PinLock";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import * as ScreenOrientation from "expo-screen-orientation";
-import Svg, { Rect, Text as SvgText } from "react-native-svg";
+import QRCode from "react-native-qrcode-svg";
+import Barcode from "react-native-barcode-svg";
 import { captureRef } from "react-native-view-shot";
 import { useCards } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { findCategory } from "@/src/data/categories";
 import { theme } from "@/src/theme";
 
-function EAN13Barcode({ value, width, height }: { value: string; width: number; height: number }) {
-  const digits = value.replace(/\D/g, "").padStart(13, "0").slice(0, 13);
-  const L_CODES: Record<string, string> = {
-    "0": "0001101", "1": "0011001", "2": "0010011", "3": "0111101",
-    "4": "0100011", "5": "0110001", "6": "0101111", "7": "0111011",
-    "8": "0110111", "9": "0001011",
+function BarcodeDisplay({ type, value, width, height }: { type: string; value: string; width: number; height: number }) {
+  const BCID: Record<string, string> = {
+    ean13: "EAN13", ean8: "EAN8", upc: "UPC", code128: "CODE128", code39: "CODE39",
   };
-  const G_CODES: Record<string, string> = {
-    "0": "0100111", "1": "0110011", "2": "0011011", "3": "0100001",
-    "4": "0011101", "5": "0111001", "6": "0000101", "7": "0010001",
-    "8": "0001001", "9": "0010111",
-  };
-  const R_CODES: Record<string, string> = {
-    "0": "1110010", "1": "1100110", "2": "1101100", "3": "1000010",
-    "4": "1011100", "5": "1001110", "6": "1010000", "7": "1000100",
-    "8": "1001000", "9": "1110100",
-  };
-  const FIRST_DIGIT_PARITY: Record<string, string> = {
-    "0": "LLLLLL", "1": "LLGLGG", "2": "LLGGLG", "3": "LLGGGL",
-    "4": "LGLLGG", "5": "LGGLLG", "6": "LGGGLL", "7": "LGLGLG",
-    "8": "LGLGGL", "9": "LGGLGL",
-  };
-  const first = digits[0];
-  const parity = FIRST_DIGIT_PARITY[first] || "LLLLLL";
-  let bars = "101";
-  for (let i = 1; i <= 6; i++) {
-    const d = digits[i];
-    bars += parity[i - 1] === "L" ? (L_CODES[d] || "0001101") : (G_CODES[d] || "0100111");
+  if (type === "qr" || type === "aztec" || type === "pdf417") {
+    return <QRCode value={value || " "} size={width} />;
   }
-  bars += "01010";
-  for (let i = 7; i <= 12; i++) {
-    bars += R_CODES[digits[i]] || "1110010";
-  }
-  bars += "101";
-  const barW = width / bars.length;
-  return (
-    <Svg width={width} height={height + 20}>
-      {bars.split("").map((b, i) =>
-        b === "1" ? <Rect key={i} x={i * barW} y={0} width={barW} height={height} fill="#111827" /> : null
-      )}
-      <SvgText x={width / 2} y={height + 16} fontSize={12} fill="#111827" textAnchor="middle" fontFamily="monospace">
-        {digits}
-      </SvgText>
-    </Svg>
-  );
+  const format = BCID[type] || "CODE128";
+  return <Barcode value={value || "0"} format={format} singleBarWidth={2} height={height} maxWidth={width} />;
 }
 
-function GenericBarcode({ value, width, height }: { value: string; width: number; height: number }) {
-  const unitW = width / (value.length * 11 + 20);
-  const bars: { x: number; w: number }[] = [];
-  let x = 0;
-  bars.push({ x, w: unitW }); x += unitW * 2;
-  bars.push({ x, w: unitW }); x += unitW * 2;
-  bars.push({ x, w: unitW }); x += unitW * 2;
-  for (let i = 0; i < value.length; i++) {
-    const code = value.charCodeAt(i);
-    const pattern = ((code * 3 + 7) % 4) + 1;
-    bars.push({ x, w: unitW * pattern }); x += unitW * (pattern + 2);
-  }
-  bars.push({ x, w: unitW * 2 }); x += unitW * 3;
-  bars.push({ x, w: unitW });
-  return (
-    <Svg width={width} height={height + 20}>
-      {bars.map((b, i) => <Rect key={i} x={b.x} y={0} width={b.w} height={height} fill="#111827" />)}
-      <SvgText x={width / 2} y={height + 16} fontSize={10} fill="#111827" textAnchor="middle" fontFamily="monospace">
-        {value}
-      </SvgText>
-    </Svg>
-  );
-}
 
-function SimpleQR({ value, size }: { value: string; size: number }) {
-  const CELL = size / 21;
-  const grid: boolean[][] = Array(21).fill(null).map((_, r) =>
-    Array(21).fill(null).map((_, c) => {
-      if ((r < 7 && c < 7) || (r < 7 && c > 13) || (r > 13 && c < 7)) {
-        const fr = r % 7, fc = c % 7;
-        return (fr === 0 || fr === 6 || fc === 0 || fc === 6 || (fr >= 2 && fr <= 4 && fc >= 2 && fc <= 4));
-      }
-      const hash = (r * 21 + c + value.charCodeAt((r * 21 + c) % value.length)) % 3;
-      return hash === 0;
-    })
-  );
-  return (
-    <Svg width={size} height={size}>
-      {grid.map((row, r) =>
-        row.map((cell, c) =>
-          cell ? <Rect key={`${r}-${c}`} x={c * CELL} y={r * CELL} width={CELL} height={CELL} fill="#111827" /> : null
-        )
-      )}
-    </Svg>
-  );
-}
 
 export default function Display() {
   const router = useRouter();
@@ -251,13 +171,7 @@ export default function Display() {
           onPress={() => { restoreBrightness(); router.back(); }}
           activeOpacity={1}
         >
-          {isEAN13 ? (
-            <EAN13Barcode value={card.barcodeValue} width={barcodeW} height={barcodeH - 20} />
-          ) : isQR ? (
-            <SimpleQR value={card.barcodeValue} size={barcodeW} />
-          ) : (
-            <GenericBarcode value={card.barcodeValue} width={barcodeW} height={barcodeH - 20} />
-          )}
+          <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue} width={barcodeW} height={barcodeH - 20} />
           <Text style={{ color: theme.textSubtle, fontSize: 11, marginTop: 8 }}>
             Appuyez pour fermer
           </Text>
@@ -284,26 +198,20 @@ export default function Display() {
               <View style={{ position: "absolute", width: 130, height: 130, borderRadius: 65, backgroundColor: "rgba(255,255,255,0.07)", bottom: -30, left: -20 }} />
             </>
           )}
-          {/* Code barre en bas */}
-          <View style={{ flex: 1, justifyContent: "flex-end", gap: 8 }}>
-            {card.barcodeValue ? (
+          {/* Code barre centré */}
+          {card.barcodeValue ? (
+            <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, alignItems: "center", justifyContent: "center" }}>
               <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center" }}>
-                {isEAN13 ? (
-                  <EAN13Barcode value={card.barcodeValue} width={280} height={55} />
-                ) : isQR ? (
-                  <SimpleQR value={card.barcodeValue} size={90} />
-                ) : (
-                  <GenericBarcode value={card.barcodeValue} width={280} height={55} />
-                )}
+                <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue} width={isQR ? 90 : 280} height={isQR ? 90 : 55} />
               </View>
-            ) : null}
-            {/* Overlay bas avec nom */}
-            <View style={{ backgroundColor: "rgba(0,0,0,0.45)", borderBottomLeftRadius: 20, borderBottomRightRadius: 20, paddingHorizontal: 14, paddingVertical: 8, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ color: "#fff", fontSize: 16, fontWeight: "800" }}>{card.name}</Text>
-              <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 5, paddingHorizontal: 5, paddingVertical: 2, flexDirection: "row", alignItems: "center", gap: 4 }}>
-                <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 70, height: 18 }} resizeMode="contain" />
-                <Text style={{ color: theme.textMuted, fontSize: 11, fontWeight: "700" }}>· {(user?.name || "").split(" ")[0]}</Text>
-              </View>
+            </View>
+          ) : null}
+          {/* Overlay bas avec nom — collé en bas */}
+          <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.45)", borderBottomLeftRadius: 20, borderBottomRightRadius: 20, paddingHorizontal: 10, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+            <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: "#fff", fontSize: 13, fontWeight: "800", flexShrink: 1, marginRight: 6 }}>{card.name}</Text>
+            <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 4, paddingHorizontal: 4, paddingVertical: 2, flexDirection: "row", alignItems: "center", gap: 3, flexShrink: 0 }}>
+              <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 55, height: 14 }} resizeMode="contain" />
+              <Text numberOfLines={1} style={{ color: theme.textMuted, fontSize: 10, fontWeight: "700" }}>· {(user?.name || "").split(" ")[0].slice(0, 8)}</Text>
             </View>
           </View>
         </View>
@@ -331,13 +239,7 @@ export default function Display() {
 
           {showBarcode && hasBarcode ? (
             <View style={styles.barcodeBox}>
-              {isEAN13 ? (
-                <EAN13Barcode value={card.barcodeValue!} width={280} height={100} />
-              ) : isQR ? (
-                <SimpleQR value={card.barcodeValue!} size={200} />
-              ) : (
-                <GenericBarcode value={card.barcodeValue!} width={280} height={100} />
-              )}
+              <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue!} width={isQR ? 200 : 280} height={isQR ? 200 : 100} />
               <Text style={styles.hint}>{t("card.rotateHint")}</Text>
             </View>
           ) : hasPhoto ? (
@@ -439,7 +341,6 @@ const styles = StyleSheet.create({
     width: 340,
     height: 214,
     borderRadius: 20,
-    padding: 20,
     overflow: "hidden",
   },
   header: {

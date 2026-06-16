@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Dimensions, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions, BarcodeType } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import * as Icons from "lucide-react-native";
 import { useCards } from "@/src/contexts/CardsContext";
@@ -171,7 +171,7 @@ export default function Scanner() {
         style={{ flex: 1 }}
         facing="back"
         barcodeScannerSettings={{
-          barcodeTypes: ["qr", "ean13", "ean8", "code128", "code39", "upc-a", "aztec", "pdf417"],
+          barcodeTypes: ["qr", "ean13", "ean8", "code128", "code39", "upc-a", "aztec", "pdf417"] as BarcodeType[],
         }}
         onBarcodeScanned={onBarcodeScanned}
       >
