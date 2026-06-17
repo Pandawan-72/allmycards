@@ -135,6 +135,7 @@ const FR = {
     logout: "Se déconnecter",
     version: "Version",
     language: "Langue",
+    darkMode: "Mode sombre",
     backup: {
       section: "SAUVEGARDE",
       exportTitle: "Exporter mes cartes",

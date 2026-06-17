@@ -135,6 +135,7 @@ const NL = {
     logout: "Afmelden",
     version: "Versie",
     language: "Taal",
+    darkMode: "Donkere modus",
     backup: {
       section: "BACK-UP",
       exportTitle: "Mijn kaarten exporteren",

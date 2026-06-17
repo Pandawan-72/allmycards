@@ -10,11 +10,13 @@ import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPerm
 import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
 import { findBrandColor } from "@/src/data/brands";
 import { consumePendingScanResult } from "@/src/lib/scannerBridge";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316"];
 
 export default function CardScreen() {
+  const { theme, isDark } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -170,7 +172,7 @@ export default function CardScreen() {
           {COLORS.map((c) => (
             <TouchableOpacity
               key={c}
-              style={[styles.colorDot, { backgroundColor: c }, color === c && styles.colorDotSelected]}
+              style={[styles.colorDot, { backgroundColor: c }, isDark && { borderWidth: 1, borderColor: "rgba(255,255,255,0.25)" }, color === c && styles.colorDotSelected]}
               onPress={() => { setColor(c); setColorManual(true); }}
             />
           ))}
@@ -347,7 +349,8 @@ export default function CardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   header: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
@@ -375,7 +378,7 @@ const styles = StyleSheet.create({
   colorDotSelected: { borderWidth: 3, borderColor: theme.text },
   scanBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10,
-    backgroundColor: theme.primary, borderRadius: 14, padding: 14, marginBottom: 12,
+    backgroundColor: theme.cardBg, borderRadius: 14, padding: 14, marginBottom: 12,
   },
   scanBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
   barcodePreview: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: theme.accentSoft, borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: theme.accent },
@@ -397,3 +400,4 @@ const styles = StyleSheet.create({
   listRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: theme.border },
   listRowText: { fontSize: 16, color: theme.text },
 });
+}

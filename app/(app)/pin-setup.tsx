@@ -8,11 +8,13 @@ import { setPIN, disablePIN, isPINEnabled, verifyPIN, isBiometricAvailable, isBi
 import { useCards } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { firebaseLogin } from "@/src/lib/firebaseAuth";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 type Step = "choice" | "verify_current" | "enter_new" | "confirm_new";
 
 export default function PinSetup() {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { cards, updateCard } = useCards();
@@ -254,7 +256,7 @@ export default function PinSetup() {
               autoCapitalize="none"
             />
             <TouchableOpacity
-              style={{ backgroundColor: theme.primary, borderRadius: 14, padding: 16, alignItems: "center" }}
+              style={{ backgroundColor: theme.cardBg, borderRadius: 14, padding: 16, alignItems: "center" }}
               onPress={onForgotPin}
               disabled={forgotLoading}
             >
@@ -270,7 +272,8 @@ export default function PinSetup() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.border },
   headerBtn: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
@@ -278,7 +281,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 16 },
   title: { fontSize: 22, fontWeight: "900", color: theme.text, textAlign: "center" },
   subtitle: { fontSize: 14, color: theme.textMuted, textAlign: "center", lineHeight: 20 },
-  btn: { backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 16, paddingHorizontal: 24, width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 10 },
+  btn: { backgroundColor: theme.cardBg, borderRadius: 14, paddingVertical: 16, paddingHorizontal: 24, width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 10 },
   btnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
   btnOutline: { borderWidth: 1, borderColor: theme.danger, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 24, width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 10 },
   btnOutlineText: { color: theme.danger, fontWeight: "700", fontSize: 15 },
@@ -295,3 +298,4 @@ const styles = StyleSheet.create({
   key: { width: 72, height: 72, borderRadius: 36, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" },
   keyText: { fontSize: 26, fontWeight: "700", color: theme.text },
 });
+}

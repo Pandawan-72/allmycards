@@ -135,6 +135,7 @@ const RU = {
     logout: "Выйти",
     version: "Версия",
     language: "Язык",
+    darkMode: "Тёмный режим",
     backup: {
       section: "РЕЗЕРВНАЯ КОПИЯ",
       exportTitle: "Экспортировать карты",

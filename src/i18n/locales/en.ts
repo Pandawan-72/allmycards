@@ -135,6 +135,7 @@ const EN = {
     logout: "Sign out",
     version: "Version",
     language: "Language",
+    darkMode: "Dark mode",
     backup: {
       section: "BACKUP",
       exportTitle: "Export my cards",

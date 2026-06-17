@@ -135,6 +135,7 @@ const PT = {
     logout: "Terminar sessão",
     version: "Versão",
     language: "Idioma",
+    darkMode: "Modo escuro",
     backup: {
       section: "CÓPIA DE SEGURANÇA",
       exportTitle: "Exportar os meus cartões",

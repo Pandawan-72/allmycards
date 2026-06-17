@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration } from "reac
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Icons from "lucide-react-native";
 import { verifyPIN, isBiometricAvailable, authenticateWithBiometrics, isBiometricEnabled } from "@/src/lib/pin";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 type Props = {
   onUnlock: () => void;
@@ -11,6 +11,8 @@ type Props = {
 };
 
 export default function PinLock({ onUnlock, onClose }: Props) {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -117,7 +119,8 @@ export default function PinLock({ onUnlock, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
   logoWrap: { alignItems: "center", marginBottom: 40 },
@@ -132,3 +135,4 @@ const styles = StyleSheet.create({
   key: { width: 72, height: 72, borderRadius: 36, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, alignItems: "center", justifyContent: "center" },
   keyText: { fontSize: 26, fontWeight: "700", color: theme.text },
 });
+}

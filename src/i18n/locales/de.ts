@@ -135,6 +135,7 @@ const DE = {
     logout: "Abmelden",
     version: "Version",
     language: "Sprache",
+    darkMode: "Dunkelmodus",
     backup: {
       section: "SICHERUNG",
       exportTitle: "Karten exportieren",

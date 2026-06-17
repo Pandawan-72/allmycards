@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator,
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/src/contexts/AuthContext";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 export default function SignUp() {
+  const { theme, isDark } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { register } = useAuth();
@@ -37,7 +39,7 @@ export default function SignUp() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.logoWrap}>
-          <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 220, height: 55 }} resizeMode="contain" />
+          <Image source={isDark ? require("../../assets/images/logo-sombre.png") : require("../../assets/images/logo-allmycards.png")} style={{ width: 220, height: 55 }} resizeMode="contain" />
           <Text style={styles.tagline}>{t("auth.subtitle")}</Text>
         </View>
 
@@ -83,7 +85,8 @@ export default function SignUp() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: theme.bg, padding: 24, justifyContent: "center" },
   logoWrap: { alignItems: "center", marginBottom: 40 },
   tagline: { fontSize: 14, color: theme.textMuted, marginTop: 12, textAlign: "center" },
@@ -93,8 +96,9 @@ const styles = StyleSheet.create({
     borderRadius: 14, padding: 14, fontSize: 15, color: theme.text, marginBottom: 12,
   },
   error: { color: theme.danger, fontSize: 13, marginBottom: 12 },
-  btn: { backgroundColor: theme.primary, borderRadius: 14, padding: 16, alignItems: "center", marginTop: 4 },
+  btn: { backgroundColor: theme.cardBg, borderRadius: 14, padding: 16, alignItems: "center", marginTop: 4 },
   btnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
   switchRow: { flexDirection: "row", justifyContent: "center", marginTop: 24 },
   switchText: { fontSize: 14, color: theme.textMuted },
 });
+}

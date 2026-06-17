@@ -16,11 +16,11 @@ import { captureRef } from "react-native-view-shot";
 import { useCards } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { findCategory } from "@/src/data/categories";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 function BarcodeDisplay({ type, value, width, height }: { type: string; value: string; width: number; height: number }) {
   const BCID: Record<string, string> = {
-    ean13: "EAN13", ean8: "EAN8", upc: "UPC", code128: "CODE128", code39: "CODE39",
+    ean13: "EAN13", ean8: "EAN8", upc: "UPC", code128: "CODE128", code39: "CODE39", none: "",
   };
   if (type === "qr" || type === "aztec" || type === "pdf417") {
     return <QRCode value={value || " "} size={width} />;
@@ -32,6 +32,8 @@ function BarcodeDisplay({ type, value, width, height }: { type: string; value: s
 
 
 export default function Display() {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { id, view } = useLocalSearchParams<{ id: string; view?: string }>();
@@ -184,7 +186,7 @@ export default function Display() {
   }
 
   return (
-    <View style={[styles.fullscreen, { backgroundColor: "#fff" }]}>
+    <View style={[styles.fullscreen, { backgroundColor: theme.bg }]}>
       {/* Vue cachée pour la capture JPEG — format carte bancaire 340x214 */}
       <View
         ref={cardShareRef}
@@ -328,8 +330,9 @@ export default function Display() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+function makeStyles(theme: any) {
+  return StyleSheet.create({
+  safe: { flex: 1, backgroundColor: theme.bg },
   fullscreen: { flex: 1 },
   // Vue cachée pour capture JPEG
   cardShareView: {
@@ -359,13 +362,13 @@ const styles = StyleSheet.create({
   cardPhoto: { width: "100%", height: 200, borderRadius: 16 },
   toggleRow: { flexDirection: "row", backgroundColor: theme.surfaceAlt, borderRadius: 999, padding: 4, gap: 4 },
   toggleBtn: { paddingVertical: 8, paddingHorizontal: 20, borderRadius: 999 },
-  toggleBtnActive: { backgroundColor: "#fff" },
+  toggleBtnActive: { backgroundColor: theme.surface },
   toggleText: { fontSize: 14, fontWeight: "700", color: theme.textMuted },
   toggleTextActive: { color: theme.text },
   barcodeBox: {
     width: "100%", backgroundColor: "#fff", borderRadius: 20,
     padding: 20, alignItems: "center", gap: 12,
-    borderWidth: 1, borderColor: theme.border,
+    borderWidth: 1, borderColor: "#E5E7EB",
   },
   hint: { fontSize: 12, color: theme.textMuted, textAlign: "center", lineHeight: 18 },
   shareBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 20, paddingVertical: 12 },
@@ -377,3 +380,4 @@ const styles = StyleSheet.create({
   contactBtn: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, width: "100%" },
   contactBtnText: { flex: 1, fontSize: 15, fontWeight: "600", color: theme.text },
 });
+}

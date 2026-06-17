@@ -135,6 +135,7 @@ const IT = {
     logout: "Disconnetti",
     version: "Versione",
     language: "Lingua",
+    darkMode: "Modalità scura",
     backup: {
       section: "BACKUP",
       exportTitle: "Esporta le mie carte",

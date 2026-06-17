@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { useCards, Card } from "@/src/contexts/CardsContext";
 import { findCategory, DEFAULT_CATEGORIES } from "@/src/data/categories";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 import PinLock from "@/src/components/PinLock";
 import { isPINEnabled } from "@/src/lib/pin";
 import { AppLang } from "@/src/i18n";
@@ -25,6 +25,8 @@ function CatIcon({ name, color, size = 20 }: { name: string; color: string; size
 }
 
 function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?: boolean; onPress: () => void; onLongPress: () => void }) {
+  const { theme, isDark } = useTheme();
+  const styles = makeStyles(theme);
   const { t } = useTranslation();
   const cat = findCategory(card.categoryId);
   const hasPhoto = !!card.frontImage;
@@ -109,6 +111,8 @@ function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?:
   );
 }
 export default function Home() {
+  const { theme, isDark } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -216,7 +220,7 @@ export default function Home() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
         <View style={{ flex: 1, alignItems: "center" }}>
-          <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 240, height: 60 }} resizeMode="contain" />
+          <Image source={isDark ? require("../../assets/images/logo-sombre.png") : require("../../assets/images/logo-allmycards.png")} style={{ width: 240, height: 60 }} resizeMode="contain" />
           {firstName ? <Text style={styles.greeting}>{t("auth.welcomeName", { name: firstName })}</Text> : null}
         </View>
         <TouchableOpacity onPress={() => router.push("/(app)/settings")} style={styles.iconBtn}>
@@ -359,7 +363,8 @@ export default function Home() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   header: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
@@ -371,7 +376,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
   },
   heroCard: {
-    backgroundColor: theme.primary, borderRadius: 18,
+    backgroundColor: theme.cardBg, borderRadius: 18,
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 18, paddingVertical: 12, marginTop: 6, marginBottom: 14, gap: 10,
   },
@@ -434,8 +439,9 @@ const styles = StyleSheet.create({
   lockedText: { color: "#fff", fontSize: 12, fontWeight: "800", textAlign: "center" },
   fab: {
     position: "absolute", right: 20, bottom: 24, width: 60, height: 60,
-    borderRadius: 30, backgroundColor: theme.primary, alignItems: "center",
+    borderRadius: 30, backgroundColor: theme.cardBg, alignItems: "center",
     justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2,
     shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6,
   },
 });
+}

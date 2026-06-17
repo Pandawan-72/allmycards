@@ -7,7 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as Icons from "lucide-react-native";
 import { useCards } from "@/src/contexts/CardsContext";
 import { setPendingScanResult } from "@/src/lib/scannerBridge";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
 
 const { width } = Dimensions.get("window");
@@ -18,6 +18,8 @@ const CARD_ASPECT: [number, number] = [1586, 1000];
 const CARD_RATIO = CARD_ASPECT[0] / CARD_ASPECT[1];
 
 export default function Scanner() {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { cardId, mode, side } = useLocalSearchParams<{ cardId: string; mode: string; side?: string }>();
@@ -208,7 +210,8 @@ export default function Scanner() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   header: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
@@ -236,6 +239,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.surfaceAlt, borderRadius: 12, padding: 12,
   },
   photoActionText: { fontSize: 12, fontWeight: "600", color: theme.text },
-  btn: { backgroundColor: theme.primary, borderRadius: 14, padding: 16, alignItems: "center" },
+  btn: { backgroundColor: theme.cardBg, borderRadius: 14, padding: 16, alignItems: "center" },
   btnText: { color: "#fff", fontWeight: "800", fontSize: 15 },
 });
+}

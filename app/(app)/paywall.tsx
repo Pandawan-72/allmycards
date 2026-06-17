@@ -6,11 +6,13 @@ import * as Icons from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { configureRC, fetchOfferingPackages, isRevenueCatSupported, purchaseRCPackage, restorePurchasesRC, RCPackageInfo } from "@/src/lib/revenuecat";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 const LIFETIME_PRICE = "5,99 €";
 
 export default function Paywall() {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { user, refreshUser } = useAuth();
@@ -132,7 +134,8 @@ export default function Paywall() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   header: { paddingHorizontal: 12, paddingVertical: 8, flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderBottomWidth: 1, borderBottomColor: theme.border },
   headerBtn: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
@@ -147,7 +150,7 @@ const styles = StyleSheet.create({
   compareRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   compareText: { fontSize: 13, color: theme.text },
   compareDivider: { width: 1, backgroundColor: theme.border },
-  planCard: { backgroundColor: theme.primary, borderRadius: 20, padding: 24, position: "relative", overflow: "hidden" },
+  planCard: { backgroundColor: theme.cardBg, borderRadius: 20, padding: 24, position: "relative", overflow: "hidden" },
   badge: { position: "absolute", top: 0, left: 0, backgroundColor: theme.accent, paddingHorizontal: 12, paddingVertical: 4, borderBottomRightRadius: 12 },
   badgeText: { color: "#fff", fontSize: 10, fontWeight: "900", letterSpacing: 1.5 },
   planName: { color: "#fff", fontSize: 20, fontWeight: "900", marginTop: 16 },
@@ -157,3 +160,4 @@ const styles = StyleSheet.create({
   planBtnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
   note: { color: theme.textSubtle, fontSize: 12, textAlign: "center", marginTop: 16, lineHeight: 18 },
 });
+}

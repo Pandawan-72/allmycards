@@ -6,9 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { nativeGoogleSignIn } from "@/src/lib/googleAuth";
 import { firebaseSendPasswordReset } from "@/src/lib/firebaseAuth";
-import { theme } from "@/src/theme";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 export default function SignIn() {
+  const { theme, isDark } = useTheme();
+  const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
   const { login, loginWithGoogleIdToken } = useAuth();
@@ -73,7 +75,7 @@ export default function SignIn() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.logoWrap}>
-          <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 220, height: 55 }} resizeMode="contain" />
+          <Image source={isDark ? require("../../assets/images/logo-sombre.png") : require("../../assets/images/logo-allmycards.png")} style={{ width: 220, height: 55 }} resizeMode="contain" />
           <Text style={styles.tagline}>{t("auth.subtitle")}</Text>
         </View>
 
@@ -159,7 +161,8 @@ export default function SignIn() {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(theme: any) {
+  return StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: theme.bg, padding: 24, justifyContent: "center" },
   logoWrap: { alignItems: "center", marginBottom: 40 },
   tagline: { fontSize: 14, color: theme.textMuted, marginTop: 12, textAlign: "center" },
@@ -169,7 +172,7 @@ const styles = StyleSheet.create({
     borderRadius: 14, padding: 14, fontSize: 15, color: theme.text, marginBottom: 12,
   },
   error: { color: theme.danger, fontSize: 13, marginBottom: 12 },
-  btn: { backgroundColor: theme.primary, borderRadius: 14, padding: 16, alignItems: "center", marginTop: 4 },
+  btn: { backgroundColor: theme.cardBg, borderRadius: 14, padding: 16, alignItems: "center", marginTop: 4 },
   btnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
   divider: { flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 20 },
   dividerLine: { flex: 1, height: 1, backgroundColor: theme.border },
@@ -190,3 +193,4 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 18, fontWeight: "900", color: theme.text, marginBottom: 8 },
   modalDesc: { fontSize: 14, color: theme.textMuted, lineHeight: 20, marginBottom: 16 },
 });
+}
