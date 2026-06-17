@@ -491,11 +491,11 @@ function makeStyles(theme: any) {
   },
   fabOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   fabMenu: {
-    position: "absolute", right: 16, bottom: 96,
+    position: "absolute", alignSelf: "center", left: "10%", right: "10%", bottom: "18%",
     backgroundColor: theme.surface, borderRadius: 20,
     shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 20,
     shadowOffset: { width: 0, height: 8 }, elevation: 10,
-    minWidth: 260, overflow: "hidden",
+    overflow: "hidden",
   },
   fabMenuItem: { flexDirection: "row", alignItems: "center", gap: 14, padding: 16 },
   fabMenuIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
