@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image, Modal } from "react-native";
+import React, { useState, useMemo, useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image, Modal, Animated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
@@ -163,13 +163,27 @@ export default function Home() {
 
   const firstName = (user?.name || "").trim().split(/\s+/)[0] || "";
 
-  const onAdd = () => {
+  const [showFabMenu, setShowFabMenu] = useState(false);
+  const fabMenuAnim = React.useRef(new Animated.Value(0)).current;
+
+  const openFabMenu = () => {
     if (!isPro && cards.length >= FREE_CARD_LIMIT) {
       router.push("/(app)/paywall");
       return;
     }
-    router.push("/(app)/card");
+    if (!isPro) {
+      router.push("/(app)/card");
+      return;
+    }
+    setShowFabMenu(true);
+    Animated.spring(fabMenuAnim, { toValue: 1, useNativeDriver: true, tension: 80, friction: 10 }).start();
   };
+
+  const closeFabMenu = () => {
+    Animated.timing(fabMenuAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => setShowFabMenu(false));
+  };
+
+  const onAdd = openFabMenu;
 
   const onCardPress = (card: Card) => {
     if (lockedCardIds.has(card.id)) {
@@ -181,7 +195,7 @@ export default function Home() {
 
   const showCardActions = (card: Card) => {
     Alert.alert(card.name, t("common.edit") + " / " + t("common.delete"), [
-      { text: t("common.edit"), onPress: () => router.push({ pathname: "/(app)/card", params: { id: card.id } }) },
+      { text: t("common.edit"), onPress: () => router.push({ pathname: card.barcodeValue?.startsWith("BEGIN:VCARD") ? "/(app)/vcard" : "/(app)/card", params: { id: card.id } }) },
       { text: t("common.delete"), style: "destructive", onPress: () => {
         Alert.alert(t("common.delete"), `${t("card.deleteConfirm", { name: card.name })}`, [
           { text: t("common.cancel"), style: "cancel" },
@@ -229,6 +243,7 @@ export default function Home() {
       </View>
 
       <FlatList
+        removeClippedSubviews={false}
         data={rows}
         keyExtractor={(_, i) => String(i)}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}
@@ -285,7 +300,7 @@ export default function Home() {
                   return (
                     <TouchableOpacity
                       key={cat.id}
-                      style={[styles.catFilterBtn, isActive && { borderColor: cat.color, borderWidth: 3 }]}
+                      style={[styles.catFilterBtn, isActive && { borderColor: (cat.id === "bank" && isDark) ? "#92400E" : cat.color, borderWidth: 3 }]}
                       onPress={() => { setSelectedCat(isActive ? null : cat.id); setSearch(""); }}
                     >
                       <Text style={styles.catFilterLabel} numberOfLines={2}>{t("categories." + cat.label)}</Text>
@@ -356,7 +371,38 @@ export default function Home() {
         </Modal>
       ) : null}
 
-      <TouchableOpacity style={styles.fab} onPress={onAdd}>
+      {showFabMenu ? (
+        <TouchableOpacity style={styles.fabOverlay} activeOpacity={1} onPress={closeFabMenu} />
+      ) : null}
+
+      {showFabMenu ? (
+        <Animated.View style={[styles.fabMenu, {
+          opacity: fabMenuAnim,
+          transform: [{ translateY: fabMenuAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }]
+        }]}>
+          <TouchableOpacity style={styles.fabMenuItem} onPress={() => { closeFabMenu(); setTimeout(() => router.push("/(app)/card"), 200); }}>
+            <View style={[styles.fabMenuIcon, { backgroundColor: theme.accentSoft }]}>
+              <Icons.CreditCard color={theme.accent} size={20} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.fabMenuTitle}>{t("home.addStandardCard")}</Text>
+              <Text style={styles.fabMenuSub}>{t("home.addStandardCardSub")}</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={styles.fabMenuDivider} />
+          <TouchableOpacity style={styles.fabMenuItem} onPress={() => { closeFabMenu(); setTimeout(() => router.push("/(app)/vcard"), 200); }}>
+            <View style={[styles.fabMenuIcon, { backgroundColor: "#EEF2FF" }]}>
+              <Icons.Contact color="#6366F1" size={20} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.fabMenuTitle}>{t("card.createVCard")}</Text>
+              <Text style={styles.fabMenuSub}>{t("home.addVCardSub")}</Text>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+      ) : null}
+
+      <TouchableOpacity style={styles.fab} onPress={showFabMenu ? closeFabMenu : onAdd}>
         <Icons.Plus color="#fff" size={28} strokeWidth={2.5} />
       </TouchableOpacity>
     </SafeAreaView>
@@ -386,8 +432,8 @@ function makeStyles(theme: any) {
   heroCount: { color: theme.accent, fontSize: 22, fontWeight: "900", letterSpacing: -0.5 },
   heroSub: { color: "#9CA3AF", fontSize: 13, fontWeight: "700" },
   catFilterWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 12 },
-  catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: "#E9EBEF", alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: "#D6D9DE", flexDirection: "column" },
-  catFilterLabel: { fontSize: 11, fontWeight: "700", color: "#6B7280", textAlign: "center", lineHeight: 14, flexShrink: 1 },
+  catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: theme.surfaceAlt, alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: theme.border, flexDirection: "column" },
+  catFilterLabel: { fontSize: 11, fontWeight: "700", color: theme.textMuted, textAlign: "center", lineHeight: 14, flexShrink: 1 },
   longPressHintWrap: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 10 },
   longPressHintText: { fontSize: 12, color: theme.textMuted, fontWeight: "800", textAlign: "center" },
   heroSearchBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.1)", alignItems: "center", justifyContent: "center" },
@@ -443,5 +489,18 @@ function makeStyles(theme: any) {
     justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2,
     shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6,
   },
+  fabOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  fabMenu: {
+    position: "absolute", right: 16, bottom: 96,
+    backgroundColor: theme.surface, borderRadius: 20,
+    shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 }, elevation: 10,
+    minWidth: 260, overflow: "hidden",
+  },
+  fabMenuItem: { flexDirection: "row", alignItems: "center", gap: 14, padding: 16 },
+  fabMenuIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  fabMenuTitle: { fontSize: 15, fontWeight: "700", color: theme.text },
+  fabMenuSub: { fontSize: 12, color: theme.textMuted, marginTop: 1 },
+  fabMenuDivider: { height: 1, backgroundColor: theme.border, marginHorizontal: 16 },
 });
 }

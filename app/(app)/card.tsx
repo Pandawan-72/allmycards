@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect , useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
@@ -11,6 +11,7 @@ import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
 import { findBrandColor } from "@/src/data/brands";
 import { consumePendingScanResult } from "@/src/lib/scannerBridge";
 import { useTheme } from "@/src/contexts/ThemeContext";
+import { isPINEnabled } from "@/src/lib/pin";
 
 const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316"];
 
@@ -33,6 +34,13 @@ export default function CardScreen() {
   const [barcodeType, setBarcodeType] = useState<BarcodeType>(existing?.barcodeType || "qr");
   const [barcodeValue, setBarcodeValue] = useState(existing?.barcodeValue || "");
   const [notes, setNotes] = useState(existing?.notes || "");
+  const [showVCard, setShowVCard] = useState(false);
+  const [vcFirst, setVcFirst] = useState("");
+  const [vcLast, setVcLast] = useState("");
+  const [vcOrg, setVcOrg] = useState("");
+  const [vcEmail, setVcEmail] = useState("");
+  const [vcPhone, setVcPhone] = useState("");
+  const [vcWeb, setVcWeb] = useState("");
   const [expiresAt, setExpiresAt] = useState(existing?.expiresAt || "");
   const [phone, setPhone] = useState(existing?.phone || "");
   const [website, setWebsite] = useState(existing?.website || "");
@@ -41,6 +49,7 @@ export default function CardScreen() {
   const [backImage, setBackImage] = useState<string | null>(existing?.backImage || null);
   const [showCatPicker, setShowCatPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [pinDefined, setPinDefined] = useState(false);
 
   useFocusEffect(useCallback(() => {
     if (existing) {
@@ -115,9 +124,34 @@ export default function CardScreen() {
     router.push({ pathname: "/(app)/scanner", params: { cardId: id || "", mode: "barcode" } });
   };
 
+  const generateVCard = () => {
+    if (!vcFirst && !vcLast && !vcOrg) {
+      Alert.alert(t("vcard.errorTitle"), t("vcard.errorMsg"));
+      return;
+    }
+    const vcard = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `FN:${[vcFirst, vcLast].filter(Boolean).join(" ")}`,
+      `N:${vcLast};${vcFirst};;;`,
+      vcOrg ? `ORG:${vcOrg}` : "",
+      vcEmail ? `EMAIL:${vcEmail}` : "",
+      vcPhone ? `TEL:${vcPhone}` : "",
+      vcWeb ? `URL:${vcWeb}` : "",
+      "END:VCARD",
+    ].filter(Boolean).join("\n");
+    setBarcodeValue(vcard);
+    setBarcodeType("qr");
+    setShowVCard(false);
+  };
+
   const onScanPhoto = (side: "front" | "back") => {
     router.push({ pathname: "/(app)/scanner", params: { cardId: id || "", mode: "photo", side } });
   };
+
+  useEffect(() => {
+    isPINEnabled().then(setPinDefined);
+  }, []);
 
   const onClose = () => {
     Alert.alert(
@@ -151,7 +185,7 @@ export default function CardScreen() {
 
         {/* Nom */}
         <Text style={styles.label}>{t("card.name")}</Text>
-        <TextInput
+        <TextInput autoCorrect={false}
           style={styles.input}
           placeholder={t("card.namePh")}
           placeholderTextColor={theme.textSubtle}
@@ -184,7 +218,7 @@ export default function CardScreen() {
           <Icons.ScanLine color="#fff" size={20} />
           <Text style={styles.scanBtnText}>{t("card.scanBarcode")}</Text>
         </TouchableOpacity>
-        <TextInput
+        <TextInput autoCorrect={false}
           style={[styles.input, { marginTop: 10 }]}
           placeholder={t("card.scanBarcode")}
           placeholderTextColor={theme.textSubtle}
@@ -267,7 +301,7 @@ export default function CardScreen() {
         {isPro ? (
           <>
             <Text style={[styles.label, { marginTop: 4 }]}>{t("card.expiresAt")}</Text>
-            <TextInput
+            <TextInput autoCorrect={false}
               style={styles.input}
               placeholder="JJ/MM/AAAA"
               placeholderTextColor={theme.textSubtle}
@@ -292,7 +326,7 @@ export default function CardScreen() {
 
         {/* Notes */}
         <Text style={[styles.label, { marginTop: 20 }]}>{t("card.notes")}</Text>
-        <TextInput
+        <TextInput autoCorrect={false}
           style={[styles.input, { minHeight: 80, textAlignVertical: "top" }]}
           placeholder={t("card.notesPh")}
           placeholderTextColor={theme.textSubtle}
@@ -303,7 +337,13 @@ export default function CardScreen() {
 
         {/* Protection PIN — Pro */}
         {isPro ? (
-          <TouchableOpacity style={styles.protectRow} onPress={() => setIsProtected(!isProtected)}>
+          <TouchableOpacity style={styles.protectRow} onPress={() => {
+              if (!pinDefined) {
+                Alert.alert(t("card.pinRequired"), t("card.pinRequiredMsg"));
+                return;
+              }
+              setIsProtected(!isProtected);
+            }}>
             <View style={{ flex: 1 }}>
               <Text style={styles.protectTitle}>{t("card.protect")}</Text>
               <Text style={styles.protectSub}>{t("card.protectSub")}</Text>
@@ -324,6 +364,30 @@ export default function CardScreen() {
       </ScrollView>
 
       {/* Catégorie picker */}
+      {/* Modal vCard */}
+      <Modal visible={showVCard} animationType="slide" transparent onRequestClose={() => setShowVCard(false)}>
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }}>
+          <View style={{ backgroundColor: theme.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: "800", color: theme.text, marginBottom: 4 }}>{t("card.createVCard")}</Text>
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <TextInput autoCorrect={false} style={[styles.input, { flex: 1 }]} placeholder={t("vcard.firstName")} placeholderTextColor={theme.textSubtle} value={vcFirst} onChangeText={setVcFirst} />
+              <TextInput autoCorrect={false} style={[styles.input, { flex: 1 }]} placeholder={t("vcard.lastName")} placeholderTextColor={theme.textSubtle} value={vcLast} onChangeText={setVcLast} />
+            </View>
+            <TextInput autoCorrect={false} style={styles.input} placeholder={t("vcard.org")} placeholderTextColor={theme.textSubtle} value={vcOrg} onChangeText={setVcOrg} />
+            <TextInput style={styles.input} placeholder={t("vcard.email")} placeholderTextColor={theme.textSubtle} value={vcEmail} onChangeText={setVcEmail} keyboardType="email-address" autoCapitalize="none" />
+            <TextInput style={styles.input} placeholder={t("vcard.phone")} placeholderTextColor={theme.textSubtle} value={vcPhone} onChangeText={setVcPhone} keyboardType="phone-pad" />
+            <TextInput autoCorrect={false} style={styles.input} placeholder={t("vcard.web")} placeholderTextColor={theme.textSubtle} value={vcWeb} onChangeText={setVcWeb} autoCapitalize="none" />
+            <TouchableOpacity style={[styles.scanBtn, { marginTop: 8 }]} onPress={generateVCard}>
+              <Icons.QrCode color="#fff" size={20} />
+              <Text style={styles.scanBtnText}>{t("card.generateVCard")}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowVCard(false)} style={{ alignItems: "center", paddingVertical: 12 }}>
+              <Text style={{ color: theme.textMuted, fontWeight: "600" }}>{t("common.cancel")}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <Modal visible={showCatPicker} animationType="slide" onRequestClose={() => setShowCatPicker(false)}>
         <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
           <View style={styles.header}>

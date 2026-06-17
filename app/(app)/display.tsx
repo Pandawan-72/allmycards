@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback , useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
@@ -44,6 +44,13 @@ export default function Display() {
   const [pinUnlocked, setPinUnlocked] = useState(false);
   const [dims, setDims] = useState(Dimensions.get("window"));
   const cardShareRef = useRef<View>(null);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup ref pour éviter le bug Fabric "addViewAt: failed to insert view"
+      (cardShareRef as any).current = null;
+    };
+  }, []);
   const isPro = !!user?.pro?.is_pro;
 
   useEffect(() => {
@@ -72,14 +79,14 @@ export default function Display() {
       return () => {
         // Rend le contrôle de la luminosité au système (plus fiable que de
         // restaurer une valeur numérique capturée précédemment).
-        Brightness.useSystemBrightnessAsync().catch(() => {});
+        Brightness.restoreSystemBrightnessAsync().catch(() => {});
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
       };
     }, [])
   );
 
   const restoreBrightness = () => {
-    Brightness.useSystemBrightnessAsync().catch(() => {});
+    Brightness.restoreSystemBrightnessAsync().catch(() => {});
   };
 
   const onShareImage = async (uri: string) => {
@@ -95,7 +102,7 @@ export default function Display() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(shareUri, {
           mimeType: "image/jpeg",
-          dialogTitle: "Partager la carte",
+          dialogTitle: t("card.shareCard"),
           UTI: "public.jpeg",
         });
       }
@@ -116,7 +123,7 @@ export default function Display() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, {
           mimeType: "image/jpeg",
-          dialogTitle: `Carte ${card?.name}`,
+          dialogTitle: t("card.shareCard") + " - " + (card?.name || ""),
           UTI: "public.jpeg",
         });
       }
@@ -140,6 +147,7 @@ export default function Display() {
 
   const cat = findCategory(card.categoryId);
   const isQR = card.barcodeType === "qr";
+  const isVCard = card.barcodeValue?.startsWith("BEGIN:VCARD") ?? false;
   const isEAN13 = card.barcodeType === "ean13";
   const hasPhoto = !!(card.frontImage || card.backImage);
   const hasBarcode = !!card.barcodeValue;
@@ -203,13 +211,28 @@ export default function Display() {
               <View style={{ position: "absolute", width: 130, height: 130, borderRadius: 65, backgroundColor: "rgba(255,255,255,0.07)", bottom: -30, left: -20 }} />
             </>
           )}
-          {/* Code barre centré */}
+          {/* Code barre centré ou layout vCard */}
           {card.barcodeValue ? (
-            <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, alignItems: "center", justifyContent: "center" }}>
-              <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center" }}>
-                <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue} width={isQR ? 90 : 280} height={isQR ? 90 : 55} />
+            isVCard ? (
+              <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", paddingHorizontal: 14, gap: 12 }}>
+                <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 6, alignItems: "center", justifyContent: "center" }}>
+                  <BarcodeDisplay type="qr" value={card.barcodeValue} width={85} height={85} />
+                </View>
+                <View style={{ flexShrink: 1, gap: 3, justifyContent: "center", maxWidth: 190 }}>
+                  {card.barcodeValue.match(/FN:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "#fff", fontSize: 13, fontWeight: "800" }}>{card.barcodeValue.match(/FN:(.+)/)?.[1]}</Text> : card.name ? <Text numberOfLines={1} style={{ color: "#fff", fontSize: 13, fontWeight: "800" }}>{card.name}</Text> : null}
+                  {card.barcodeValue.match(/ORG:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/ORG:(.+)/)?.[1]}</Text> : null}
+                  {card.barcodeValue.match(/EMAIL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/EMAIL:(.+)/)?.[1]}</Text> : null}
+                  {card.barcodeValue.match(/TEL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/TEL:(.+)/)?.[1]}</Text> : null}
+                  {card.barcodeValue.match(/URL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/URL:(.+)/)?.[1]}</Text> : null}
+                </View>
               </View>
-            </View>
+            ) : (
+              <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, alignItems: "center", justifyContent: "center" }}>
+                <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center" }}>
+                  <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue} width={isQR ? 90 : 280} height={isQR ? 90 : 55} />
+                </View>
+              </View>
+            )
           ) : null}
           {/* Overlay bas avec nom — collé en bas */}
           <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.45)", borderBottomLeftRadius: 20, borderBottomRightRadius: 20, paddingHorizontal: 10, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
@@ -229,7 +252,7 @@ export default function Display() {
           </TouchableOpacity>
           <Text style={styles.headerTitle} numberOfLines={1}>{card.name}</Text>
           <TouchableOpacity
-            onPress={() => { restoreBrightness(); router.push({ pathname: "/(app)/card", params: { id: card.id } }); }}
+            onPress={() => { restoreBrightness(); router.push({ pathname: isVCard ? "/(app)/vcard" : "/(app)/card", params: { id: card.id } }); }}
             style={styles.headerBtn}
           >
             <Icons.Pencil color={theme.text} size={20} />

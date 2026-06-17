@@ -21,6 +21,7 @@ export default function AppLayout() {
       <Stack.Screen name="settings" />
       <Stack.Screen name="paywall" />
       <Stack.Screen name="pin-setup" />
+      <Stack.Screen name="vcard" />
       <Stack.Screen name="privacy" />
       <Stack.Screen name="terms" />
     </Stack>

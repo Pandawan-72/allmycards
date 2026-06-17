@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image, Modal } from "react-native";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";

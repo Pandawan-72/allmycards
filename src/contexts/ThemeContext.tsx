@@ -46,6 +46,8 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 });
 
+export let currentTheme = lightTheme;
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState(false);
 
@@ -59,9 +61,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setIsDark((prev) => {
       const next = !prev;
       AsyncStorage.setItem("darkMode", String(next));
+      currentTheme = next ? darkTheme : lightTheme;
       return next;
     });
   };
+
+  currentTheme = isDark ? darkTheme : lightTheme;
 
   return (
     <ThemeContext.Provider value={{ theme: isDark ? darkTheme : lightTheme, isDark, toggleTheme }}>

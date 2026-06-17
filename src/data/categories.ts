@@ -11,7 +11,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: "sport",     label: "sport",  icon: "Dumbbell",    color: "#10B981" },
   { id: "health",    label: "health",            icon: "Heart",       color: "#EF4444" },
   { id: "identity",  label: "identity",         icon: "IdCard",      color: "#6366F1" },
-  { id: "bank",      label: "bank",           icon: "CreditCard",  color: "#111827" },
+  { id: "bank",      label: "bank",           icon: "CreditCard",  color: "#92400E" },
   { id: "library",   label: "library",     icon: "BookOpen",    color: "#8B5CF6" },
   { id: "other",     label: "other",            icon: "Tag",         color: "#9CA3AF" },
 ];

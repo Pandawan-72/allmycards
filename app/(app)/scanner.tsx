@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef , useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Dimensions, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -27,21 +27,14 @@ export default function Scanner() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [showChoice, setShowChoice] = useState(true);
   const cameraRef = useRef<any>(null);
 
   useEffect(() => {
     if (mode === "barcode" && !permission?.granted) requestPermission();
   }, []);
 
-  // Mode photo : on ouvre directement l'appareil photo natif avec recadrage
-  // interactif au format carte bancaire (UI système, fiable partout —
-  // plus aucun calcul de crop maison).
-  useEffect(() => {
-    if (mode === "photo" && !photo) {
-      onTakePhoto();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Mode photo : on affiche le choix caméra/galerie
 
   const onBarcodeScanned = async ({ type, data }: { type: string; data: string }) => {
     if (scanned) return;
@@ -107,11 +100,24 @@ export default function Scanner() {
   // ─── Mode photo ──────────────────────────────────────────────────────────
   if (mode === "photo") {
     if (!photo) {
-      // En attente du retour de l'appareil photo natif (lancé automatiquement)
       return (
         <SafeAreaView style={styles.safe}>
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            <ActivityIndicator color={theme.accent} size="large" />
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+              <Icons.ChevronLeft color={theme.text} size={24} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{side === "back" ? t("card.backTitle") : t("card.frontTitle")}</Text>
+            <View style={styles.headerBtn} />
+          </View>
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 16 }}>
+            <TouchableOpacity style={styles.btn} onPress={onTakePhoto}>
+              <Icons.Camera color="#fff" size={20} />
+              <Text style={styles.btnText}>{t("card.takePhoto")}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.btn, { backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }]} onPress={onPickFromGallery}>
+              <Icons.Image color={theme.text} size={20} />
+              <Text style={[styles.btnText, { color: theme.text }]}>{t("card.pickFromGallery")}</Text>
+            </TouchableOpacity>
           </View>
         </SafeAreaView>
       );

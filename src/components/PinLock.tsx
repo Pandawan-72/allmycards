@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect , useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Icons from "lucide-react-native";

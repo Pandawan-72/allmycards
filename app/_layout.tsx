@@ -24,7 +24,7 @@ export default function RootLayout() {
           <AuthProvider>
             <CardsProvider>
               <StatusBar style="auto" />
-              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "transparent" } }} />
+              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#F9FAFB" } }} />
             </CardsProvider>
           </AuthProvider>
         </LanguageProvider>
