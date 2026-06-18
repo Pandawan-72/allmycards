@@ -13,7 +13,7 @@ import { consumePendingScanResult } from "@/src/lib/scannerBridge";
 import { useTheme } from "@/src/contexts/ThemeContext";
 import { isPINEnabled } from "@/src/lib/pin";
 
-const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316"];
+const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316","#92400E"];
 
 export default function CardScreen() {
   const { theme, isDark } = useTheme();

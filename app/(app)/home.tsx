@@ -471,8 +471,7 @@ function makeStyles(theme: any) {
   cardCat: { color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: "600" },
   trialBanner: {
     flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: theme.accentSoft, borderColor: theme.accent, borderWidth: 1,
-    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, marginBottom: 12,
+    paddingHorizontal: 4, paddingVertical: 6, marginBottom: 8, alignSelf: "center",
   },
   trialBannerText: { flex: 1, fontSize: 13, fontWeight: "700", color: theme.accent },
   proActivatedBanner: { alignSelf: "center" },

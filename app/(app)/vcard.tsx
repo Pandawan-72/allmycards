@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Image } from "react-native";
+
+const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316","#92400E"];
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as Icons from "lucide-react-native";
@@ -44,7 +46,7 @@ export default function VCardScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const { cards, addCard, updateCard } = useCards();
+  const { cards, addCard, updateCard, deleteCard } = useCards();
   const { user } = useAuth();
   const isPro = !!user?.pro?.is_pro;
 
@@ -54,6 +56,7 @@ export default function VCardScreen() {
     : { firstName: "", lastName: "", org: "", email: "", phone: "", web: "" };
 
   const [cardName, setCardName] = useState(existing?.name || "");
+  const [color, setColor] = useState(existing?.color || "#6366F1");
   const [firstName, setFirstName] = useState(parsed.firstName);
   const [lastName, setLastName] = useState(parsed.lastName);
   const [org, setOrg] = useState(parsed.org);
@@ -93,6 +96,17 @@ export default function VCardScreen() {
     router.push({ pathname: "/(app)/scanner", params: { cardId: id || "", mode: "photo", side: "front" } });
   };
 
+  const onDelete = () => {
+    if (!existing) return;
+    Alert.alert(t("common.delete"), t("card.deleteConfirm", { name: existing.name }), [
+      { text: t("common.cancel"), style: "cancel" },
+      { text: t("common.delete"), style: "destructive", onPress: async () => {
+        await deleteCard(existing.id);
+        router.back();
+      }},
+    ]);
+  };
+
   const onClose = () => {
     Alert.alert(
       t("card.discardTitle"),
@@ -110,9 +124,9 @@ export default function VCardScreen() {
     setSaving(true);
     try {
       if (existing) {
-        await updateCard(existing.id, { name, barcodeValue: vcard, barcodeType: "qr", notes, isProtected, frontImage, backImage });
+        await updateCard(existing.id, { name, barcodeValue: vcard, barcodeType: "qr", notes, isProtected, frontImage, backImage, color });
       } else {
-        await addCard({ name, categoryId: "identity", color: "#6366F1", barcodeType: "qr", barcodeValue: vcard, notes, isProtected, frontImage, backImage });
+        await addCard({ name, categoryId: "identity", color, barcodeType: "qr", barcodeValue: vcard, notes, isProtected, frontImage, backImage });
       }
       router.back();
     } finally {
@@ -136,14 +150,14 @@ export default function VCardScreen() {
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
         {/* Preview */}
-        <View style={[styles.cardPreview, { backgroundColor: "#6366F1" }]}>
+        <View style={[styles.cardPreview, { backgroundColor: color }]}>
           <Icons.Contact color="rgba(255,255,255,0.6)" size={28} style={{ marginBottom: 8 }} />
           <Text style={styles.cardPreviewName}>{displayName}</Text>
           <Text style={styles.cardPreviewSub}>{org || email || phone || ""}</Text>
         </View>
 
         {/* Nom de la carte */}
-        <Text style={styles.label}>{t("card.name")}</Text>
+        <Text style={styles.label}>{t("card.name").toUpperCase()}</Text>
         <TextInput autoCorrect={false}
           style={styles.input}
           placeholder={t("vcard.namePh")}
@@ -151,6 +165,18 @@ export default function VCardScreen() {
           value={cardName}
           onChangeText={setCardName}
         />
+
+        {/* Couleur */}
+        <Text style={[styles.label, { marginTop: 20 }]}>{t("card.color").toUpperCase()}</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 8 }}>
+          {COLORS.map((c) => (
+            <TouchableOpacity
+              key={c}
+              style={[{ width: 32, height: 32, borderRadius: 16, backgroundColor: c, borderWidth: color === c ? 3 : 1, borderColor: color === c ? theme.text : theme.border }]}
+              onPress={() => setColor(c)}
+            />
+          ))}
+        </View>
 
         {/* Identité */}
         <Text style={[styles.label, { marginTop: 20 }]}>{t("vcard.identity").toUpperCase()}</Text>
@@ -167,7 +193,7 @@ export default function VCardScreen() {
         <TextInput autoCorrect={false} style={[styles.input, { marginTop: 10 }]} placeholder={t("vcard.web")} placeholderTextColor={theme.textSubtle} value={web} onChangeText={setWeb} autoCapitalize="none" />
 
         {/* Notes */}
-        <Text style={[styles.label, { marginTop: 20 }]}>{t("card.notes")}</Text>
+        <Text style={[styles.label, { marginTop: 20 }]}>{t("card.notes").toUpperCase()}</Text>
         <TextInput autoCorrect={false}
           style={[styles.input, { height: 80, textAlignVertical: "top", marginTop: 0 }]}
           placeholder={t("card.notesPh")}
@@ -229,6 +255,13 @@ export default function VCardScreen() {
         </TouchableOpacity>
         ) : null}
 
+        {existing ? (
+          <TouchableOpacity style={styles.deleteBtn} onPress={onDelete}>
+            <Icons.Trash2 color={theme.danger} size={18} />
+            <Text style={styles.deleteBtnText}>{t("common.delete")}</Text>
+          </TouchableOpacity>
+        ) : null}
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -244,6 +277,8 @@ function makeStyles(theme: any) { return StyleSheet.create({
   cardPreviewSub: { color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 4, textAlign: "center" },
   label: { fontSize: 11, fontWeight: "700", color: theme.textMuted, letterSpacing: 1.5, marginBottom: 8 },
   input: { backgroundColor: theme.surface, borderRadius: 14, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: theme.text, marginBottom: 0 },
+  deleteBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, padding: 16, borderRadius: 14, borderWidth: 1, borderColor: theme.danger, marginTop: 20, marginBottom: 10 },
+  deleteBtnText: { color: theme.danger, fontWeight: "700", fontSize: 15 },
   protectRow: { flexDirection: "row", alignItems: "center", backgroundColor: theme.accentSoft, borderWidth: 1, borderColor: theme.accent, borderRadius: 14, padding: 14, marginTop: 20, gap: 12 },
   protectTitle: { fontSize: 15, fontWeight: "700", color: theme.text },
   protectSub: { fontSize: 12, color: theme.textMuted, marginTop: 2 },
