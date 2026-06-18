@@ -109,6 +109,8 @@ const NL = {
     pinRequired: "PIN vereist",
     pinRequiredMsg: "Maak eerst uw PIN aan in de instellingen.",
     expiryAlert: "✅ Melding 30 dagen voor vervaldatum",
+    alertBefore: "Waarschuw mij",
+    alertDays: "dagen van tevoren",
     notesPh: "Klantnummer, opmerkingen…",
   },
   vcard: {
@@ -162,6 +164,7 @@ const NL = {
     version: "Versie",
     language: "Taal",
     darkMode: "Donkere modus",
+    title: "Instellingen",
     backup: {
       section: "BACK-UP",
       exportTitle: "Mijn kaarten exporteren",

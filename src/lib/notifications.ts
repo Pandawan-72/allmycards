@@ -19,31 +19,40 @@ export async function scheduleExpirationAlert(
   cardId: string,
   cardName: string,
   expiresAt: string,
-  daysBefore: number = 30
+  daysBefore: number = 2
 ): Promise<string | null> {
   try {
     const expDate = new Date(expiresAt);
-    const alertDate = new Date(expDate);
-    alertDate.setDate(alertDate.getDate() - daysBefore);
+    const now = new Date();
 
-    if (alertDate <= new Date()) return null;
-
-    // Annuler l'ancienne notif pour cette carte
+    // Annuler les anciennes notifs pour cette carte
     await cancelExpirationAlert(cardId);
 
-    const id = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Carte bientôt expirée 🗓",
-        body: `Votre carte "${cardName}" expire dans ${daysBefore} jours.`,
-        data: { cardId },
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date: alertDate,
-      },
-    });
+    // Planifier une notification par jour, de (expDate - daysBefore) jusqu'à expDate
+    const ids: string[] = [];
+    for (let d = daysBefore; d >= 0; d--) {
+      const alertDate = new Date(expDate);
+      alertDate.setDate(alertDate.getDate() - d);
+      alertDate.setHours(9, 0, 0, 0); // 9h du matin
 
-    return id;
+      if (alertDate <= now) continue;
+
+      const daysLeft = d === 0 ? "aujourd'hui" : d === 1 ? "demain" : `dans ${d} jours`;
+      const id = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Carte bientôt expirée 🗓",
+          body: `Votre carte "${cardName}" expire ${daysLeft}.`,
+          data: { cardId },
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: alertDate,
+        },
+      });
+      ids.push(id);
+    }
+
+    return ids[0] || null;
   } catch (e) {
     console.error("scheduleExpirationAlert error:", e);
     return null;

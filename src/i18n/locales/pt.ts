@@ -109,6 +109,8 @@ const PT = {
     pinRequired: "PIN necessário",
     pinRequiredMsg: "Por favor, crie o seu PIN nas definições primeiro.",
     expiryAlert: "✅ Alerta 30 dias antes de expirar",
+    alertBefore: "Alertar-me",
+    alertDays: "dias antes",
     notesPh: "Número de cliente, observações…",
   },
   vcard: {
@@ -162,6 +164,7 @@ const PT = {
     version: "Versão",
     language: "Idioma",
     darkMode: "Modo escuro",
+    title: "Definições",
     backup: {
       section: "CÓPIA DE SEGURANÇA",
       exportTitle: "Exportar os meus cartões",

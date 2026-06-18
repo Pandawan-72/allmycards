@@ -109,6 +109,8 @@ const RU = {
     pinRequired: "Требуется PIN",
     pinRequiredMsg: "Сначала создайте PIN-код в настройках.",
     expiryAlert: "✅ Уведомление за 30 дней до истечения",
+    alertBefore: "Уведомить за",
+    alertDays: "дней до",
     notesPh: "Номер клиента, замечания…",
   },
   vcard: {
@@ -162,6 +164,7 @@ const RU = {
     version: "Версия",
     language: "Язык",
     darkMode: "Тёмный режим",
+    title: "Настройки",
     backup: {
       section: "РЕЗЕРВНАЯ КОПИЯ",
       exportTitle: "Экспортировать карты",

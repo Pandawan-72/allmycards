@@ -42,6 +42,7 @@ export default function CardScreen() {
   const [vcPhone, setVcPhone] = useState("");
   const [vcWeb, setVcWeb] = useState("");
   const [expiresAt, setExpiresAt] = useState(existing?.expiresAt || "");
+  const [alertDays, setAlertDays] = useState("2");
   const [phone, setPhone] = useState(existing?.phone || "");
   const [website, setWebsite] = useState(existing?.website || "");
   const [isProtected, setIsProtected] = useState(existing?.isProtected || false);
@@ -99,7 +100,7 @@ export default function CardScreen() {
       }
       if (isPro && expiresAt && savedCard) {
         const hasPermission = await requestNotificationPermission();
-        if (hasPermission) await scheduleExpirationAlert(savedCard.id, name.trim(), expiresAt, 30);
+        if (hasPermission) await scheduleExpirationAlert(savedCard.id, name.trim(), expiresAt, parseInt(alertDays) || 2);
       } else if (savedCard && !expiresAt) {
         await cancelExpirationAlert(savedCard.id);
       }
@@ -317,9 +318,18 @@ export default function CardScreen() {
               maxLength={10}
             />
             {expiresAt ? (
-              <Text style={{ fontSize: 12, color: theme.accent, marginTop: -8, marginBottom: 8 }}>
-                ✅ t("card.expiryAlert")
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 4, marginBottom: 8 }}>
+                <Icons.Bell color={theme.accent} size={14} />
+                <Text style={{ fontSize: 12, color: theme.textMuted }}>{t("card.alertBefore")}</Text>
+                <TextInput
+                  style={{ backgroundColor: theme.surface, borderRadius: 8, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 10, paddingVertical: 4, fontSize: 13, color: theme.text, width: 48, textAlign: "center" }}
+                  value={alertDays}
+                  onChangeText={(v) => setAlertDays(v.replace(/[^0-9]/g, ""))}
+                  keyboardType="numeric"
+                  maxLength={3}
+                />
+                <Text style={{ fontSize: 12, color: theme.textMuted }}>{t("card.alertDays")}</Text>
+              </View>
             ) : null}
           </>
         ) : null}

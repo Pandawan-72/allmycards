@@ -109,6 +109,8 @@ const DE = {
     pinRequired: "PIN erforderlich",
     pinRequiredMsg: "Bitte erstellen Sie zuerst Ihre PIN in den Einstellungen.",
     expiryAlert: "✅ Benachrichtigung 30 Tage vor Ablauf",
+    alertBefore: "Benachrichtigen",
+    alertDays: "Tage vorher",
     notesPh: "Kundennummer, Bemerkungen…",
   },
   vcard: {
@@ -162,6 +164,7 @@ const DE = {
     version: "Version",
     language: "Sprache",
     darkMode: "Dunkelmodus",
+    title: "Einstellungen",
     backup: {
       section: "SICHERUNG",
       exportTitle: "Karten exportieren",

@@ -109,6 +109,8 @@ const EN = {
     pinRequired: "PIN required",
     pinRequiredMsg: "Please create your PIN in settings first.",
     expiryAlert: "✅ Alert 30 days before expiry",
+    alertBefore: "Alert me",
+    alertDays: "days before",
     notesPh: "Member number, remarks…",
   },
   vcard: {
@@ -162,6 +164,7 @@ const EN = {
     version: "Version",
     language: "Language",
     darkMode: "Dark mode",
+    title: "Settings",
     backup: {
       section: "BACKUP",
       exportTitle: "Export my cards",
