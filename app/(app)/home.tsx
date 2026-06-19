@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image, Modal, Animated } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image, Modal, Animated, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
@@ -8,6 +8,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import { useCards, Card } from "@/src/contexts/CardsContext";
 import { findCategory, DEFAULT_CATEGORIES } from "@/src/data/categories";
 import { useTheme } from "@/src/contexts/ThemeContext";
+import { LinearGradient } from "expo-linear-gradient";
 import PinLock from "@/src/components/PinLock";
 import { BrandLogo } from "@/src/components/BrandLogo";
 import { isPINEnabled } from "@/src/lib/pin";
@@ -123,6 +124,7 @@ export default function Home() {
   const { cards, deleteCard } = useCards();
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [catScrollX, setCatScrollX] = useState(0);
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [pendingCard, setPendingCard] = useState<Card | null>(null);
   const [showPin, setShowPin] = useState(false);
@@ -291,29 +293,62 @@ export default function Home() {
               </View>
             </View>
 
+            {isPro ? (
+              <View style={{ marginBottom: 12 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.catFilterScroll}
+                  decelerationRate="fast"
+                  onScroll={(e) => setCatScrollX(e.nativeEvent.contentOffset.x)}
+                  scrollEventThrottle={16}
+                >
+                  {DEFAULT_CATEGORIES.map((cat) => {
+                    const isActive = selectedCat === cat.id;
+                    const CatCmp = (Icons as any)[cat.icon] || (Icons as any).Tag;
+                    return (
+                      <TouchableOpacity
+                        key={cat.id}
+                        style={[styles.catFilterBtn, isActive && { borderColor: (cat.id === "bank" && isDark) ? "#92400E" : cat.color, borderWidth: 3 }]}
+                        onPress={() => { setSelectedCat(isActive ? null : cat.id); setSearch(""); }}
+                      >
+                        <Text style={styles.catFilterLabel} numberOfLines={2}>{t("categories." + cat.label)}</Text>
+                        <CatCmp color={cat.color} size={26} strokeWidth={2} />
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+                {catScrollX > 4 ? (
+                  <LinearGradient
+                    pointerEvents="none"
+                    colors={[theme.bg, theme.bg + "00"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.catFilterFadeLeft}
+                  >
+                    <View style={styles.catFilterArrowLeft}>
+                      <Icons.ChevronLeft color={theme.textMuted} size={16} strokeWidth={3} />
+                    </View>
+                  </LinearGradient>
+                ) : null}
+                <LinearGradient
+                  pointerEvents="none"
+                  colors={[theme.bg + "00", theme.bg]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.catFilterFadeRight}
+                >
+                  <View style={styles.catFilterArrowRight}>
+                    <Icons.ChevronRight color={theme.textMuted} size={16} strokeWidth={3} />
+                  </View>
+                </LinearGradient>
+              </View>
+            ) : null}
+
             <View style={styles.longPressHintWrap}>
               <Icons.Hand color={theme.textMuted} size={14} />
               <Text style={styles.longPressHintText}>{t("home.longPressHint").toUpperCase()}</Text>
             </View>
-
-            {isPro ? (
-              <View style={styles.catFilterWrap}>
-                {DEFAULT_CATEGORIES.map((cat) => {
-                  const isActive = selectedCat === cat.id;
-                  const CatCmp = (Icons as any)[cat.icon] || (Icons as any).Tag;
-                  return (
-                    <TouchableOpacity
-                      key={cat.id}
-                      style={[styles.catFilterBtn, isActive && { borderColor: (cat.id === "bank" && isDark) ? "#92400E" : cat.color, borderWidth: 3 }]}
-                      onPress={() => { setSelectedCat(isActive ? null : cat.id); setSearch(""); }}
-                    >
-                      <Text style={styles.catFilterLabel} numberOfLines={2}>{t("categories." + cat.label)}</Text>
-                      <CatCmp color={cat.color} size={26} strokeWidth={2} />
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            ) : null}
 
             {filtered.length === 0 && !search ? (
               <Text style={styles.empty}>{t("home.empty")}</Text>
@@ -435,8 +470,26 @@ function makeStyles(theme: any) {
   heroLabel: { color: "#9CA3AF", fontSize: 12, letterSpacing: 1.5, fontWeight: "800" },
   heroCount: { color: theme.accent, fontSize: 22, fontWeight: "900", letterSpacing: -0.5 },
   heroSub: { color: "#9CA3AF", fontSize: 13, fontWeight: "700" },
-  catFilterWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 12 },
-  catFilterBtn: { width: (width - 40 - 3 * 10) / 4, height: (width - 40 - 3 * 10) / 4, borderRadius: 14, backgroundColor: theme.surfaceAlt, alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: theme.border, flexDirection: "column" },
+  catFilterScroll: { flexDirection: "row", gap: 10, paddingRight: 28 },
+  catFilterBtn: { width: 84, height: 84, borderRadius: 14, backgroundColor: theme.surfaceAlt, alignItems: "center", justifyContent: "space-evenly", paddingVertical: 8, borderWidth: 1, borderColor: theme.border, flexDirection: "column" },
+  catFilterFadeRight: {
+    position: "absolute", right: 0, top: 0, bottom: 0, width: 48,
+    alignItems: "flex-end", justifyContent: "center",
+  },
+  catFilterFadeLeft: {
+    position: "absolute", left: 0, top: 0, bottom: 0, width: 48,
+    alignItems: "flex-start", justifyContent: "center",
+  },
+  catFilterArrowLeft: {
+    marginLeft: 2, width: 22, height: 22, borderRadius: 11,
+    backgroundColor: theme.surface, alignItems: "center", justifyContent: "center",
+    borderWidth: 1, borderColor: theme.border,
+  },
+  catFilterArrowRight: {
+    marginRight: 2, alignSelf: "flex-end", width: 22, height: 22, borderRadius: 11,
+    backgroundColor: theme.surface, alignItems: "center", justifyContent: "center",
+    borderWidth: 1, borderColor: theme.border,
+  },
   catFilterLabel: { fontSize: 11, fontWeight: "700", color: theme.textMuted, textAlign: "center", lineHeight: 14, flexShrink: 1 },
   longPressHintWrap: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 10 },
   longPressHintText: { fontSize: 12, color: theme.textMuted, fontWeight: "800", textAlign: "center" },

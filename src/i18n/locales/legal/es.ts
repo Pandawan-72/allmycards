@@ -34,7 +34,8 @@ const LEGAL_ES = {
       { title: "6. Reembolsos", body: "Los reembolsos son gestionados por Google Play según su política." },
       { title: "7. Uso aceptable", body: "No eludir limitaciones, no aplicar ingeniería inversa ni usar la App ilegalmente." },
       { title: "8. Propiedad intelectual", body: "La App y su contenido son propiedad exclusiva de Retro-Spare." },
-      { title: "9. Limitación de responsabilidad", body: "App proporcionada tal cual. Sin responsabilidad por pérdida de datos locales." },
+      { title: "9. Logotipos de marcas", body: "Los logotipos de las marcas que se muestran en la Aplicación son proporcionados por el servicio de terceros Logo.dev (https://logo.dev) únicamente con fines de identificación visual. Estos logotipos siguen siendo propiedad de sus respectivos titulares." },
+      { title: "10. Limitación de responsabilidad", body: "App proporcionada tal cual. Sin responsabilidad por pérdida de datos locales." },
       { title: "10. Contacto", body: "dev@retro-spare.fr" }
     ]
   }

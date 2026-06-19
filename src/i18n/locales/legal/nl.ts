@@ -34,7 +34,8 @@ const LEGAL_NL = {
       { title: "6. Terugbetalingen", body: "Terugbetalingen worden afgehandeld door Google Play volgens hun beleid." },
       { title: "7. Aanvaardbaar gebruik", body: "Geen beperkingen omzeilen, geen reverse engineering of illegaal gebruik van de App." },
       { title: "8. Intellectueel eigendom", body: "De App en de inhoud zijn het exclusieve eigendom van Retro-Spare." },
-      { title: "9. Beperking van aansprakelijkheid", body: "App geleverd zoals ze is. Geen aansprakelijkheid voor verlies van lokale gegevens." },
+      { title: "9. Merklogo's", body: "De merklogo's die in de Applicatie worden weergegeven, worden geleverd door de externe dienst Logo.dev (https://logo.dev), uitsluitend voor visuele identificatie. Deze logo's blijven eigendom van hun respectievelijke eigenaars." },
+      { title: "10. Beperking van aansprakelijkheid", body: "App geleverd zoals ze is. Geen aansprakelijkheid voor verlies van lokale gegevens." },
       { title: "10. Contact", body: "dev@retro-spare.fr" }
     ]
   }
