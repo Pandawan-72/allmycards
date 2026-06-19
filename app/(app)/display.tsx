@@ -17,6 +17,7 @@ import { useCards } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { findCategory } from "@/src/data/categories";
 import { useTheme } from "@/src/contexts/ThemeContext";
+import { BrandLogo } from "@/src/components/BrandLogo";
 
 function BarcodeDisplay({ type, value, width, height }: { type: string; value: string; width: number; height: number }) {
   const BCID: Record<string, string> = {
@@ -211,28 +212,29 @@ export default function Display() {
               <View style={{ position: "absolute", width: 130, height: 130, borderRadius: 65, backgroundColor: "rgba(255,255,255,0.07)", bottom: -30, left: -20 }} />
             </>
           )}
-          {/* Code barre centré ou layout vCard */}
-          {card.barcodeValue ? (
-            isVCard ? (
-              <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", paddingHorizontal: 14, gap: 12 }}>
-                <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 6, alignItems: "center", justifyContent: "center" }}>
-                  <BarcodeDisplay type="qr" value={card.barcodeValue} width={85} height={85} />
-                </View>
-                <View style={{ flexShrink: 1, gap: 3, justifyContent: "center", maxWidth: 190 }}>
-                  {card.barcodeValue.match(/FN:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "#fff", fontSize: 13, fontWeight: "800" }}>{card.barcodeValue.match(/FN:(.+)/)?.[1]}</Text> : card.name ? <Text numberOfLines={1} style={{ color: "#fff", fontSize: 13, fontWeight: "800" }}>{card.name}</Text> : null}
-                  {card.barcodeValue.match(/ORG:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/ORG:(.+)/)?.[1]}</Text> : null}
-                  {card.barcodeValue.match(/EMAIL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/EMAIL:(.+)/)?.[1]}</Text> : null}
-                  {card.barcodeValue.match(/TEL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/TEL:(.+)/)?.[1]}</Text> : null}
-                  {card.barcodeValue.match(/URL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/URL:(.+)/)?.[1]}</Text> : null}
-                </View>
+          {/* Logo + Code barre centrés, ou layout vCard */}
+          {card.barcodeValue && isVCard ? (
+            <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", paddingHorizontal: 14, gap: 12 }}>
+              <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 6, alignItems: "center", justifyContent: "center" }}>
+                <BarcodeDisplay type="qr" value={card.barcodeValue} width={85} height={85} />
               </View>
-            ) : (
-              <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, alignItems: "center", justifyContent: "center" }}>
-                <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center" }}>
+              <View style={{ flexShrink: 1, gap: 3, justifyContent: "center", maxWidth: 190 }}>
+                {card.barcodeValue.match(/FN:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "#fff", fontSize: 13, fontWeight: "800" }}>{card.barcodeValue.match(/FN:(.+)/)?.[1]}</Text> : card.name ? <Text numberOfLines={1} style={{ color: "#fff", fontSize: 13, fontWeight: "800" }}>{card.name}</Text> : null}
+                {card.barcodeValue.match(/ORG:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/ORG:(.+)/)?.[1]}</Text> : null}
+                {card.barcodeValue.match(/EMAIL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/EMAIL:(.+)/)?.[1]}</Text> : null}
+                {card.barcodeValue.match(/TEL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/TEL:(.+)/)?.[1]}</Text> : null}
+                {card.barcodeValue.match(/URL:(.+)/)?.[1] ? <Text numberOfLines={1} style={{ color: "rgba(255,255,255,0.85)", fontSize: 10 }}>{card.barcodeValue.match(/URL:(.+)/)?.[1]}</Text> : null}
+              </View>
+            </View>
+          ) : !isVCard ? (
+            <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={44} rounded={12} />
+              {card.barcodeValue ? (
+                <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center", justifyContent: "center" }}>
                   <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue} width={isQR ? 90 : 280} height={isQR ? 90 : 55} />
                 </View>
-              </View>
-            )
+              ) : null}
+            </View>
           ) : null}
           {/* Overlay bas avec nom — collé en bas */}
           <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.45)", borderBottomLeftRadius: 20, borderBottomRightRadius: 20, paddingHorizontal: 10, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
@@ -260,9 +262,12 @@ export default function Display() {
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 20, alignItems: "center", gap: 20 }}>
-          <View style={[styles.cardBadge, { backgroundColor: card.color || cat.color }]}>
-            <Text style={styles.cardBadgeName}>{card.name}</Text>
-            <Text style={styles.cardBadgeCat}>{t("categories." + cat.label)}</Text>
+          <View style={[styles.cardBadge, { backgroundColor: card.color || cat.color, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardBadgeName}>{card.name}</Text>
+              <Text style={styles.cardBadgeCat}>{t("categories." + cat.label)}</Text>
+            </View>
+            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={16} />
           </View>
 
           {showBarcode && hasBarcode ? (

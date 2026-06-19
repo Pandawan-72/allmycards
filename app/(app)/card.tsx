@@ -8,7 +8,8 @@ import { useCards, Card, BarcodeType } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { scheduleExpirationAlert, cancelExpirationAlert, requestNotificationPermission } from "@/src/lib/notifications";
 import { DEFAULT_CATEGORIES, findCategory } from "@/src/data/categories";
-import { findBrandColor } from "@/src/data/brands";
+import { findBrandColor, searchBrands, Brand } from "@/src/data/brands";
+import { BrandLogo } from "@/src/components/BrandLogo";
 import { consumePendingScanResult } from "@/src/lib/scannerBridge";
 import { useTheme } from "@/src/contexts/ThemeContext";
 import { isPINEnabled } from "@/src/lib/pin";
@@ -28,6 +29,8 @@ export default function CardScreen() {
   const existing = id ? cards.find((c) => c.id === id) : null;
 
   const [name, setName] = useState(existing?.name || "");
+  const [nameSuggestions, setNameSuggestions] = useState<Brand[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [categoryId, setCategoryId] = useState(existing?.categoryId || "loyalty");
   const [color, setColor] = useState(existing?.color || "#10B981");
   const [colorManual, setColorManual] = useState(!!existing);
@@ -179,9 +182,14 @@ export default function CardScreen() {
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
         {/* Preview */}
-        <View style={[styles.cardPreview, { backgroundColor: color }]}>
-          <Text style={styles.cardPreviewName}>{name || t("card.namePh")}</Text>
-          <Text style={styles.cardPreviewCat}>{t("categories." + cat.label)}</Text>
+        <View style={[styles.cardPreview, { backgroundColor: color, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cardPreviewName}>{name || t("card.namePh")}</Text>
+            <Text style={styles.cardPreviewCat}>{t("categories." + cat.label)}</Text>
+          </View>
+          {name ? (
+            <BrandLogo cardName={name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={16} />
+          ) : null}
         </View>
 
         {/* Nom */}
@@ -191,8 +199,33 @@ export default function CardScreen() {
           placeholder={t("card.namePh")}
           placeholderTextColor={theme.textSubtle}
           value={name}
-          onChangeText={(v) => { setName(v); if (!colorManual) { const bc = findBrandColor(v); if (bc) setColor(bc); } }}
+          onChangeText={(v) => {
+            setName(v);
+            if (!colorManual) { const bc = findBrandColor(v); if (bc) setColor(bc); }
+            const results = searchBrands(v, 5);
+            setNameSuggestions(results);
+            setShowSuggestions(results.length > 0);
+          }}
+          onFocus={() => { if (nameSuggestions.length > 0) setShowSuggestions(true); }}
         />
+        {showSuggestions && nameSuggestions.length > 0 ? (
+          <View style={styles.suggestionsBox}>
+            {nameSuggestions.map((b) => (
+              <TouchableOpacity
+                key={b.name}
+                style={styles.suggestionRow}
+                onPress={() => {
+                  setName(b.name);
+                  if (!colorManual) setColor(b.color);
+                  setShowSuggestions(false);
+                }}
+              >
+                <View style={[styles.suggestionDot, { backgroundColor: b.color }]} />
+                <Text style={styles.suggestionText}>{b.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : null}
 
         {/* Catégorie */}
         <Text style={styles.label}>{t("card.category")}</Text>
@@ -441,6 +474,17 @@ function makeStyles(theme: any) {
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
     borderRadius: 14, padding: 14, fontSize: 15, color: theme.text, marginBottom: 12,
   },
+  suggestionsBox: {
+    backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
+    borderRadius: 14, marginTop: -8, marginBottom: 12, overflow: "hidden",
+  },
+  suggestionRow: {
+    flexDirection: "row", alignItems: "center", gap: 10,
+    paddingHorizontal: 14, paddingVertical: 12,
+    borderBottomWidth: 1, borderBottomColor: theme.border,
+  },
+  suggestionDot: { width: 12, height: 12, borderRadius: 6 },
+  suggestionText: { fontSize: 14, color: theme.text, fontWeight: "600" },
   picker: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,

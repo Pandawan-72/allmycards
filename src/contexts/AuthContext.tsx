@@ -14,7 +14,9 @@ import {
   isTrialActive,
   getTrialHoursLeft,
   hasUsedTrial,
+  getTrialStart,
 } from "@/src/lib/trial";
+import { scheduleTrialEndingNotification } from "@/src/lib/notifications";
 
 // ✅ Compte de test local (défini dans .env, jamais exposé sur GitHub)
 const DEV_EMAIL = process.env.EXPO_PUBLIC_DEV_EMAIL || "";
@@ -131,6 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Connexion Firebase normale
     const base = await firebaseLogin(email, password);
     await startTrialIfNeeded();
+    const trialStart = await getTrialStart();
+    if (trialStart) await scheduleTrialEndingNotification(trialStart);
     const enriched = await enrichWithTrial(base);
     setUser(enriched);
   }, []);

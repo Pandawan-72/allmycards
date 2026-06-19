@@ -9,6 +9,7 @@ import { useCards, Card } from "@/src/contexts/CardsContext";
 import { findCategory, DEFAULT_CATEGORIES } from "@/src/data/categories";
 import { useTheme } from "@/src/contexts/ThemeContext";
 import PinLock from "@/src/components/PinLock";
+import { BrandLogo } from "@/src/components/BrandLogo";
 import { isPINEnabled } from "@/src/lib/pin";
 import { AppLang } from "@/src/i18n";
 
@@ -85,6 +86,9 @@ function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?:
             <View style={styles.cardIconWrap}>
               <CatIcon name={cat.icon} color="#fff" size={16} />
             </View>
+          </View>
+          <View style={styles.cardLogoCenter} pointerEvents="none">
+            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={56} rounded={14} />
           </View>
           <View style={styles.cardColoredOverlay}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
@@ -462,6 +466,7 @@ function makeStyles(theme: any) {
   },
   cardNameOnPhoto: { color: "#fff", fontWeight: "800", fontSize: 16 },
   cardColored: { flex: 1, padding: 12, justifyContent: "space-between", borderRadius: 12, overflow: "hidden" },
+  cardLogoCenter: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center" },
   deco1: { position: "absolute", width: CARD_W * 0.9, height: CARD_W * 0.9, borderRadius: CARD_W * 0.45, top: -CARD_W * 0.3, right: -CARD_W * 0.3 },
   deco2: { position: "absolute", width: CARD_W * 0.6, height: CARD_W * 0.6, borderRadius: CARD_W * 0.3, bottom: -CARD_W * 0.2, left: -CARD_W * 0.1 },
   cardColoredTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },

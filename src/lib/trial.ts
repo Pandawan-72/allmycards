@@ -1,11 +1,12 @@
-// Gestion du trial 72h en local (sans backend).
+// Gestion du trial 15 jours en local (sans backend).
 // Au premier login, on enregistre l'heure de début.
-// Le trial est actif tant que moins de 72h se sont écoulées.
+// Le trial est actif tant que moins de 15 jours se sont écoulés.
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TRIAL_KEY = "amc.trial_start";
-const TRIAL_DURATION_MS = 5 * 24 * 60 * 60 * 1000; // 5 jours
+const TRIAL_DURATION_MS = 15 * 24 * 60 * 60 * 1000; // 15 jours
+const TRIAL_WARNING_DAY = 13; // Rappel au 13ème jour (2 jours avant la fin)
 
 // Démarre le trial si ce n'est pas déjà fait (appelé au login)
 export async function startTrialIfNeeded(): Promise<void> {
@@ -49,4 +50,12 @@ export async function getTrialHoursLeft(): Promise<number> {
 export async function hasUsedTrial(): Promise<boolean> {
   const start = await getTrialStart();
   return start !== null;
+}
+
+// Retourne true si on est au jour 13 (2 jours avant la fin)
+export async function isTrialEndingSoon(): Promise<boolean> {
+  const start = await getTrialStart();
+  if (!start) return false;
+  const daysElapsed = (Date.now() - start) / (24 * 60 * 60 * 1000);
+  return daysElapsed >= TRIAL_WARNING_DAY && daysElapsed < 15;
 }

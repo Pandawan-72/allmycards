@@ -73,3 +73,34 @@ export async function cancelExpirationAlert(cardId: string): Promise<void> {
 export async function cancelAllExpirationAlerts(): Promise<void> {
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
+
+export async function scheduleTrialEndingNotification(trialStartMs: number): Promise<void> {
+  try {
+    const warningDate = new Date(trialStartMs + 13 * 24 * 60 * 60 * 1000);
+    warningDate.setHours(9, 0, 0, 0);
+
+    if (warningDate <= new Date()) return;
+
+    // Annuler l'ancienne notif trial si existante
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    for (const notif of scheduled) {
+      if (notif.content.data?.type === "trial_ending") {
+        await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+      }
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Votre essai Pro se termine bientôt ✨",
+        body: "Il vous reste 2 jours pour profiter de toutes les fonctionnalités Pro d'All My Cards.",
+        data: { type: "trial_ending" },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: warningDate,
+      },
+    });
+  } catch (e) {
+    console.error("scheduleTrialEndingNotification error:", e);
+  }
+}
