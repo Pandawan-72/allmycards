@@ -201,6 +201,7 @@ const EN = {
     freeCards: "5 cards",
     feature8: "vCard business card",
     feature9: "Dark mode",
+    feature10: "Favorite cards",
     buyLifetime: "Buy — €5.99",
     restore: "Restore purchases",
     once: "One-time purchase, lifetime access",

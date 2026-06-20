@@ -200,7 +200,10 @@ export default function CardScreen() {
           </View>
           <TouchableOpacity
             testID="favorite-toggle"
-            onPress={() => setIsFavorite(!isFavorite)}
+            onPress={() => {
+              if (!isPro) { router.push("/(app)/paywall"); return; }
+              setIsFavorite(!isFavorite);
+            }}
             style={styles.favoriteToggleRow}
           >
             <Icons.Star

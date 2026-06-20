@@ -201,6 +201,7 @@ const NL = {
     freeCards: "5 kaarten",
     feature8: "vCard visitekaartje",
     feature9: "Donkere modus",
+    feature10: "Favoriete kaarten",
     buyLifetime: "Kopen — € 5,99",
     restore: "Aankopen herstellen",
     once: "Eenmalige aankoop, levenslange toegang",

@@ -159,7 +159,10 @@ export default function VCardScreen() {
           <Text style={styles.cardPreviewSub}>{org || email || phone || ""}</Text>
           <TouchableOpacity
             testID="favorite-toggle"
-            onPress={() => setIsFavorite(!isFavorite)}
+            onPress={() => {
+              if (!isPro) { router.push("/(app)/paywall"); return; }
+              setIsFavorite(!isFavorite);
+            }}
             style={styles.favoriteToggleRow}
           >
             <Icons.Star

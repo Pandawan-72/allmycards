@@ -98,6 +98,7 @@ export default function Paywall() {
             <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature5")}</Text></View>
             <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature7")}</Text></View>
             <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature8")}</Text></View>
+            <View style={styles.compareRow}><Icons.X color={theme.danger} size={16} /><Text style={[styles.compareText, { color: theme.textMuted }]}>{t("paywall.feature10")}</Text></View>
           </View>
           <View style={styles.compareDivider} />
           <View style={styles.compareCol}>
@@ -110,6 +111,7 @@ export default function Paywall() {
             <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature5")}</Text></View>
             <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature7")}</Text></View>
             <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature8")}</Text></View>
+            <View style={styles.compareRow}><Icons.Check color={theme.accent} size={16} /><Text style={styles.compareText}>{t("paywall.feature10")}</Text></View>
           </View>
         </View>
 
@@ -151,8 +153,8 @@ function makeStyles(theme: any) {
   compareCard: { flexDirection: "row", backgroundColor: theme.surface, borderRadius: 20, borderWidth: 1, borderColor: theme.border, padding: 20, marginBottom: 24, gap: 12 },
   compareCol: { flex: 1, gap: 10 },
   compareTitle: { fontSize: 14, fontWeight: "800", color: theme.text, marginBottom: 4 },
-  compareRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  compareText: { fontSize: 13, color: theme.text },
+  compareRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  compareText: { fontSize: 13, color: theme.text, flex: 1, flexShrink: 1 },
   compareDivider: { width: 1, backgroundColor: theme.border },
   planCard: { backgroundColor: theme.cardBg, borderRadius: 20, padding: 24, position: "relative", overflow: "hidden" },
   badge: { position: "absolute", top: 0, left: 0, backgroundColor: theme.accent, paddingHorizontal: 12, paddingVertical: 4, borderBottomRightRadius: 12 },

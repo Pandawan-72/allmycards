@@ -201,6 +201,7 @@ const DE = {
     freeCards: "5 Karten",
     feature8: "vCard-Visitenkarte",
     feature9: "Dunkelmodus",
+    feature10: "Favoriten-Karten",
     buyLifetime: "Kaufen — 5,99 €",
     restore: "Käufe wiederherstellen",
     once: "Einmaliger Kauf, lebenslanger Zugang",

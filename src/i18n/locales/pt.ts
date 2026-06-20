@@ -201,6 +201,7 @@ const PT = {
     freeCards: "5 cartões",
     feature8: "Cartão de visita vCard",
     feature9: "Modo escuro",
+    feature10: "Cartões favoritos",
     buyLifetime: "Comprar — 5,99 €",
     restore: "Restaurar compras",
     once: "Compra única, acesso vitalício",

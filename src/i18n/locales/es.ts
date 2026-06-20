@@ -201,6 +201,7 @@ const ES = {
     freeCards: "5 tarjetas",
     feature8: "Tarjeta de visita vCard",
     feature9: "Modo oscuro",
+    feature10: "Tarjetas favoritas",
     buyLifetime: "Comprar — 5,99 €",
     restore: "Restaurar compras",
     once: "Compra única, acceso de por vida",

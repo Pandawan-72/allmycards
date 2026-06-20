@@ -211,6 +211,7 @@ const FR = {
     freeCards: "5 cartes",
     feature8: "Carte de visite vCard",
     feature9: "Mode sombre",
+    feature10: "Cartes favorites",
     buyLifetime: "Acheter — 5,99 €",
     restore: "Restaurer mes achats",
     once: "Achat unique, accès à vie",
