@@ -217,7 +217,7 @@ export const BRANDS: Brand[] = [
   // ═══════════════════════════════════════════════════════════════════════
   // RESTAURATION / FAST-FOOD / CAFÉ
   // ═══════════════════════════════════════════════════════════════════════
-  { name: "McDonald's", color: "#FFC72C", domain: "mcdonalds.com", aliases: ["mcdonalds", "mcdo"] },
+  { name: "McDonald's", color: "#27520B", domain: "mcdonaldsrestaurant.nl", aliases: ["mcdonalds", "mcdo"] },
   { name: "Starbucks", color: "#00704A", domain: "starbucks.com" },
   { name: "Burger King", color: "#EC1C24", domain: "bk.com" },
   { name: "KFC", color: "#E4002B", domain: "kfc.com" },
@@ -645,6 +645,79 @@ export const BRANDS: Brand[] = [
   { name: "Gloria Jeans", color: "#E2001A", domain: "gloria-jeans.ru" },
   { name: "Befree", color: "#1A1A1A", domain: "befree.ru" },
   { name: "Zarina", color: "#1A1A1A", domain: "zarina.ru" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // SPORT
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Reebok", color: "#000000", domain: "reebok.com" },
+  { name: "Under Armour", color: "#1A1A1A", domain: "underarmour.com" },
+  { name: "Asics", color: "#0033A0", domain: "asics.com" },
+  { name: "Fila", color: "#0033A0", domain: "fila.com" },
+  { name: "Columbia", color: "#1A4D8F", domain: "columbia.com" },
+  { name: "The North Face", color: "#1A1A1A", domain: "thenorthface.com" },
+  { name: "Quiksilver", color: "#003DA5", domain: "quiksilver.com" },
+  { name: "Salomon", color: "#1A1A1A", domain: "salomon.com" },
+  { name: "Lululemon", color: "#C8102E", domain: "lululemon.com" },
+  { name: "Footlocker", color: "#1A1A1A", domain: "footlocker.com" },
+  { name: "JD Sports", color: "#1A1A1A", domain: "jdsports.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MODE INTERNATIONALE
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Tommy Hilfiger", color: "#001E62", domain: "tommy.com" },
+  { name: "Calvin Klein", color: "#1A1A1A", domain: "calvinklein.com" },
+  { name: "Lacoste", color: "#1A7A3C", domain: "lacoste.com" },
+  { name: "Ralph Lauren", color: "#1A1A1A", domain: "ralphlauren.com" },
+  { name: "Guess", color: "#1A1A1A", domain: "guess.com" },
+  { name: "Diesel", color: "#1A1A1A", domain: "diesel.com" },
+  { name: "G-Star RAW", color: "#1A1A1A", domain: "g-star.com" },
+  { name: "Timberland", color: "#FFC72C", domain: "timberland.com" },
+  { name: "Dr. Martens", color: "#FFCC00", domain: "drmartens.com" },
+  { name: "Crocs", color: "#1A1A1A", domain: "crocs.com" },
+  { name: "Skechers", color: "#1A1A1A", domain: "skechers.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ÉLECTRONIQUE & MULTIMEDIA
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "MediaMarkt", color: "#E2001A", domain: "mediamarkt.de" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // BEAUTÉ & SANTÉ
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "MAC Cosmetics", color: "#1A1A1A", domain: "maccosmetics.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MAISON & DÉCO
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Bed Bath & Beyond", color: "#0033A0", domain: "bedbathandbeyond.com" },
+  { name: "Williams Sonoma", color: "#1A1A1A", domain: "williams-sonoma.com" },
+  { name: "Crate & Barrel", color: "#1A1A1A", domain: "crateandbarrel.com" },
+  { name: "Made.com", color: "#1A1A1A", domain: "made.com" },
+  { name: "Alinéa", color: "#1A1A1A", domain: "alinea.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // RESTAURATION RAPIDE
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "KFC", color: "#E4002B", domain: "kfc.com" },
+  { name: "Dunkin'", color: "#FF671F", domain: "dunkindonuts.com" },
+  { name: "Chick-fil-A", color: "#DD0033", domain: "chick-fil-a.com" },
+  { name: "Popeyes", color: "#FF6600", domain: "popeyes.com" },
+  { name: "Panda Express", color: "#C8102E", domain: "pandaexpress.com" },
+  { name: "Sonic Drive-In", color: "#0033A0", domain: "sonicdrivein.com" },
+  { name: "Jack in the Box", color: "#E2001A", domain: "jackinthebox.com" },
+  { name: "Carl's Jr.", color: "#E2231A", domain: "carlsjr.com" },
+  { name: "Arby's", color: "#C8102E", domain: "arbys.com" },
+  { name: "Hardee's", color: "#E2231A", domain: "hardees.com" },
+  { name: "In-N-Out Burger", color: "#D2232A", domain: "in-n-out.com" },
+  { name: "Krispy Kreme", color: "#1A1A1A", domain: "krispykreme.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // BAGAGERIE & ACCESSOIRES
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Samsonite", color: "#1A1A1A", domain: "samsonite.com" },
+  { name: "Fossil", color: "#1A1A1A", domain: "fossil.com" },
+  { name: "Swatch", color: "#E4002B", domain: "swatch.com" },
+  { name: "Pandora", color: "#1A1A1A", domain: "pandora.net" },
 
 ];
 
