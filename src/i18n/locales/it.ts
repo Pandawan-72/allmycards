@@ -84,6 +84,7 @@ const IT = {
     discardCancel: "No, resta qui",
     namePh: "Supermercato, Istruzione & Biblioteca, Palestra…",
     useLetterLogo: "Logo lettera",
+    markFavorite: "Segna come preferito",
     category: "Categoria",
     color: "Colore",
     barcodeType: "Tipo di codice",

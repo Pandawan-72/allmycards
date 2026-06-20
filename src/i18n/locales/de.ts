@@ -84,6 +84,7 @@ const DE = {
     discardCancel: "Nein, hier bleiben",
     namePh: "Supermarkt, Bildung & Bibliothek, Fitnessstudio…",
     useLetterLogo: "Buchstaben-Logo",
+    markFavorite: "Als Favorit markieren",
     category: "Kategorie",
     color: "Farbe",
     barcodeType: "Code-Typ",

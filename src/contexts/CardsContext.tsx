@@ -17,6 +17,7 @@ export type Card = {
   notes?: string | null;
   isProtected?: boolean;
   useLetterLogo?: boolean;
+  isFavorite?: boolean;
   phone?: string | null;
   website?: string | null;
   createdAt: string;

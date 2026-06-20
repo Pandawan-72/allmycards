@@ -84,6 +84,7 @@ const NL = {
     discardCancel: "Nee, hier blijven",
     namePh: "Supermarkt, Onderwijs & Bibliotheek, Sportschool…",
     useLetterLogo: "Letterlogo",
+    markFavorite: "Markeren als favoriet",
     category: "Categorie",
     color: "Kleur",
     barcodeType: "Codetype",

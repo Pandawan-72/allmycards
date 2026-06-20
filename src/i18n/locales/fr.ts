@@ -84,6 +84,7 @@ const FR = {
     discardCancel: "Non, rester sur la fiche",
     namePh: "Carrefour, SNCF, Éducation & Bibliothèque…",
     useLetterLogo: "Lettre Logo",
+    markFavorite: "Marquer comme favori",
     category: "Catégorie",
     color: "Couleur",
     barcodeType: "Type de code",

@@ -84,6 +84,7 @@ const EN = {
     discardCancel: "No, stay here",
     namePh: "Supermarket, Education & Library, Gym…",
     useLetterLogo: "Letter Logo",
+    markFavorite: "Mark as favorite",
     category: "Category",
     color: "Color",
     barcodeType: "Code type",

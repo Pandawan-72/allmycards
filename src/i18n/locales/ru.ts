@@ -84,6 +84,7 @@ const RU = {
     discardCancel: "Нет, остаться здесь",
     namePh: "Супермаркет, Образование & Библиотека, Спортзал…",
     useLetterLogo: "Логотип-буква",
+    markFavorite: "Добавить в избранное",
     category: "Категория",
     color: "Цвет",
     barcodeType: "Тип кода",

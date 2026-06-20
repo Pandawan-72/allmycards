@@ -67,6 +67,7 @@ function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?:
             <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
               {card.isProtected ? <Icons.Lock color="#FCD34D" size={14} strokeWidth={3} /> : null}
               <Text style={styles.cardNameOnPhoto} numberOfLines={1}>{card.name}</Text>
+              {card.isFavorite ? <Icons.Star color="#FBBF24" fill="#FBBF24" size={13} /> : null}
             </View>
             <Text style={styles.cardCat} numberOfLines={1}>{t("categories." + cat.label)}</Text>
           </View>
@@ -95,6 +96,7 @@ function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?:
             <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
               {card.isProtected ? <Icons.Lock color="#FCD34D" size={14} strokeWidth={3} /> : null}
               <Text style={styles.cardName} numberOfLines={1}>{card.name}</Text>
+              {card.isFavorite ? <Icons.Star color="#FBBF24" fill="#FBBF24" size={13} /> : null}
             </View>
             <Text style={styles.cardCat} numberOfLines={1}>{t("categories." + cat.label)}</Text>
           </View>
@@ -164,7 +166,12 @@ export default function Home() {
     let result = cards;
     if (selectedCat) result = result.filter((c) => c.categoryId === selectedCat);
     if (search) result = result.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
-    return result;
+    // Favoris en premier, puis ordre alphabétique pour tous (favoris entre eux, et le reste entre eux).
+    return [...result].sort((a, b) => {
+      const favDiff = (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0);
+      if (favDiff !== 0) return favDiff;
+      return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+    });
   }, [cards, search, selectedCat]);
 
   const firstName = (user?.name || "").trim().split(/\s+/)[0] || "";

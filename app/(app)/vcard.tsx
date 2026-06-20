@@ -59,6 +59,7 @@ export default function VCardScreen() {
 
   const [cardName, setCardName] = useState(existing?.name || "");
   const [color, setColor] = useState(existing?.color || "#6366F1");
+  const [isFavorite, setIsFavorite] = useState(existing?.isFavorite || false);
   const [firstName, setFirstName] = useState(parsed.firstName);
   const [lastName, setLastName] = useState(parsed.lastName);
   const [org, setOrg] = useState(parsed.org);
@@ -126,9 +127,9 @@ export default function VCardScreen() {
     setSaving(true);
     try {
       if (existing) {
-        await updateCard(existing.id, { name, barcodeValue: vcard, barcodeType: "qr", notes, isProtected, frontImage, backImage, color });
+        await updateCard(existing.id, { name, barcodeValue: vcard, barcodeType: "qr", notes, isProtected, frontImage, backImage, color, isFavorite });
       } else {
-        await addCard({ name, categoryId: "identity", color, barcodeType: "qr", barcodeValue: vcard, notes, isProtected, frontImage, backImage });
+        await addCard({ name, categoryId: "businesscard", color, barcodeType: "qr", barcodeValue: vcard, notes, isProtected, frontImage, backImage, isFavorite });
       }
       router.back();
     } finally {
@@ -156,6 +157,18 @@ export default function VCardScreen() {
           <Icons.Contact color="rgba(255,255,255,0.6)" size={28} style={{ marginBottom: 8 }} />
           <Text style={styles.cardPreviewName}>{displayName}</Text>
           <Text style={styles.cardPreviewSub}>{org || email || phone || ""}</Text>
+          <TouchableOpacity
+            testID="favorite-toggle"
+            onPress={() => setIsFavorite(!isFavorite)}
+            style={styles.favoriteToggleRow}
+          >
+            <Icons.Star
+              color={isFavorite ? "#FBBF24" : "rgba(255,255,255,0.6)"}
+              fill={isFavorite ? "#FBBF24" : "transparent"}
+              size={18}
+            />
+            <Text style={styles.favoriteToggleText}>{t("card.markFavorite")}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Nom de la carte */}
@@ -277,6 +290,8 @@ function makeStyles(theme: any) { return StyleSheet.create({
   cardPreview: { borderRadius: 20, padding: 24, marginBottom: 24, alignItems: "center", justifyContent: "center", minHeight: 100 },
   cardPreviewName: { color: "#fff", fontSize: 22, fontWeight: "900", textAlign: "center" },
   cardPreviewSub: { color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 4, textAlign: "center" },
+  favoriteToggleRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 14 },
+  favoriteToggleText: { color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: "600" },
   label: { fontSize: 11, fontWeight: "700", color: theme.textMuted, letterSpacing: 1.5, marginBottom: 8 },
   input: { backgroundColor: theme.surface, borderRadius: 14, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: theme.text, marginBottom: 0 },
   deleteBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, padding: 16, borderRadius: 14, borderWidth: 1, borderColor: theme.danger, marginTop: 20, marginBottom: 10 },

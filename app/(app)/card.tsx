@@ -52,6 +52,7 @@ export default function CardScreen() {
   const [website, setWebsite] = useState(existing?.website || "");
   const [isProtected, setIsProtected] = useState(existing?.isProtected || false);
   const [useLetterLogo, setUseLetterLogo] = useState(existing?.useLetterLogo || false);
+  const [isFavorite, setIsFavorite] = useState(existing?.isFavorite || false);
   const [frontImage, setFrontImage] = useState<string | null>(existing?.frontImage || null);
   const [backImage, setBackImage] = useState<string | null>(existing?.backImage || null);
   const [showCatPicker, setShowCatPicker] = useState(false);
@@ -96,6 +97,7 @@ export default function CardScreen() {
         expiresAt: expiresAt || null,
         isProtected,
         useLetterLogo,
+        isFavorite,
         phone: phone || null,
         website: website || null,
       };
@@ -186,14 +188,28 @@ export default function CardScreen() {
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
         {/* Preview */}
-        <View style={[styles.cardPreview, { backgroundColor: color, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.cardPreviewName}>{name || t("card.namePh")}</Text>
-            <Text style={styles.cardPreviewCat}>{t("categories." + cat.label)}</Text>
+        <View style={[styles.cardPreview, { backgroundColor: color }]}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardPreviewName}>{name || t("card.namePh")}</Text>
+              <Text style={styles.cardPreviewCat}>{t("categories." + cat.label)}</Text>
+            </View>
+            {name ? (
+              <BrandLogo cardName={name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={10} useLetterLogo={useLetterLogo} letterColor={color} />
+            ) : null}
           </View>
-          {name ? (
-            <BrandLogo cardName={name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={10} useLetterLogo={useLetterLogo} letterColor={color} />
-          ) : null}
+          <TouchableOpacity
+            testID="favorite-toggle"
+            onPress={() => setIsFavorite(!isFavorite)}
+            style={styles.favoriteToggleRow}
+          >
+            <Icons.Star
+              color={isFavorite ? "#FBBF24" : "rgba(255,255,255,0.6)"}
+              fill={isFavorite ? "#FBBF24" : "transparent"}
+              size={18}
+            />
+            <Text style={styles.favoriteToggleText}>{t("card.markFavorite")}</Text>
+          </TouchableOpacity>
         </View>
 
         {name ? (
@@ -482,7 +498,9 @@ function makeStyles(theme: any) {
   },
   headerBtn: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 16, fontWeight: "800", color: theme.text },
-  cardPreview: { borderRadius: 20, padding: 24, marginBottom: 24, minHeight: 100, justifyContent: "flex-end" },
+  cardPreview: { borderRadius: 20, padding: 24, marginBottom: 24, minHeight: 100, justifyContent: "flex-end", gap: 14 },
+  favoriteToggleRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
+  favoriteToggleText: { color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: "600" },
   cardPreviewName: { fontSize: 22, fontWeight: "900", color: "#fff" },
   cardPreviewCat: { fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 },
   letterLogoRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20, marginTop: -12 },
