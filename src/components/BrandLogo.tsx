@@ -46,10 +46,10 @@ export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, ro
   const uri = `https://img.logo.dev/${domain}?token=${LOGODEV_TOKEN}&size=${Math.round(size * 2)}&format=png&theme=light`;
 
   return (
-    <View style={[styles.wrap, { width: size, height: size, borderRadius: rounded }]}>
+    <View style={[styles.wrap, { width: size, height: size, borderRadius: rounded, backgroundColor: "#ffffff" }]}>
       <Image
         source={{ uri }}
-        style={{ width: size, height: size, borderRadius: rounded }}
+        style={{ width: size - 2, height: size - 2, borderRadius: rounded }}
         resizeMode="contain"
         onError={() => setFailed(true)}
       />
