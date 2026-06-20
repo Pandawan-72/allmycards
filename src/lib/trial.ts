@@ -1,22 +1,52 @@
-// Gestion du trial 15 jours en local (sans backend).
-// Au premier login, on enregistre l'heure de début.
-// Le trial est actif tant que moins de 15 jours se sont écoulés.
+// Gestion du trial 15 jours, avec Firestore comme source de vérité (liée
+// au compte/uid) et AsyncStorage comme cache local pour un accès rapide et
+// un fonctionnement hors-ligne. Empêche un utilisateur de relancer un
+// nouveau trial en désinstallant/réinstallant l'app : le timestamp de
+// départ du trial est attaché à son compte côté serveur, pas à l'appareil.
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getRemoteTrialStart, startRemoteTrialIfNeeded } from "@/src/lib/firestore";
 
 const TRIAL_KEY = "amc.trial_start";
 const TRIAL_DURATION_MS = 15 * 24 * 60 * 60 * 1000; // 15 jours
 const TRIAL_WARNING_DAY = 13; // Rappel au 13ème jour (2 jours avant la fin)
 
-// Démarre le trial si ce n'est pas déjà fait (appelé au login)
-export async function startTrialIfNeeded(): Promise<void> {
+// Démarre le trial si ce n'est pas déjà fait (appelé au login), en
+// consultant Firestore en priorité. Met à jour le cache local ensuite.
+export async function startTrialIfNeeded(uid?: string): Promise<void> {
   try {
+    if (uid) {
+      const start = await startRemoteTrialIfNeeded(uid);
+      await AsyncStorage.setItem(TRIAL_KEY, String(start));
+      return;
+    }
+    // Repli local si aucun uid n'est fourni (ne devrait pas arriver en usage normal).
     const existing = await AsyncStorage.getItem(TRIAL_KEY);
     if (!existing) {
       await AsyncStorage.setItem(TRIAL_KEY, String(Date.now()));
     }
   } catch (e) {
     console.warn("[trial] startTrialIfNeeded failed", e);
+    // En cas d'échec réseau, on utilise/initialise le cache local pour ne
+    // pas bloquer l'utilisateur — la prochaine connexion resynchronisera.
+    const existing = await AsyncStorage.getItem(TRIAL_KEY);
+    if (!existing) {
+      await AsyncStorage.setItem(TRIAL_KEY, String(Date.now()));
+    }
+  }
+}
+
+// Synchronise le cache local avec Firestore (à appeler après login, avant
+// toute lecture du trial, pour éviter de se fier à un cache périmé après
+// une réinstallation).
+export async function syncTrialFromRemote(uid: string): Promise<void> {
+  try {
+    const remoteStart = await getRemoteTrialStart(uid);
+    if (remoteStart) {
+      await AsyncStorage.setItem(TRIAL_KEY, String(remoteStart));
+    }
+  } catch (e) {
+    console.warn("[trial] syncTrialFromRemote failed", e);
   }
 }
 
