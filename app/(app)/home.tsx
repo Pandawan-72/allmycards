@@ -177,10 +177,6 @@ export default function Home() {
       router.push("/(app)/paywall");
       return;
     }
-    if (!isPro) {
-      router.push("/(app)/card");
-      return;
-    }
     setShowFabMenu(true);
     Animated.spring(fabMenuAnim, { toValue: 1, useNativeDriver: true, tension: 80, friction: 10 }).start();
   };
@@ -429,24 +425,34 @@ export default function Home() {
             </View>
           </TouchableOpacity>
           <View style={styles.fabMenuDivider} />
-          <TouchableOpacity style={styles.fabMenuItem} onPress={() => { closeFabMenu(); setTimeout(() => router.push({ pathname: "/(app)/scanner", params: { mode: "barcode", createOnScan: "true" } }), 200); }}>
-            <View style={[styles.fabMenuIcon, { backgroundColor: "#ECFDF5" }]}>
-              <Icons.ScanLine color="#10B981" size={20} />
+          <TouchableOpacity style={styles.fabMenuItem} onPress={() => {
+            closeFabMenu();
+            if (!isPro) { setTimeout(() => router.push("/(app)/paywall"), 200); return; }
+            setTimeout(() => router.push({ pathname: "/(app)/scanner", params: { mode: "barcode", createOnScan: "true" } }), 200);
+          }}>
+            <View style={[styles.fabMenuIcon, { backgroundColor: isPro ? "#ECFDF5" : theme.surfaceAlt }]}>
+              <Icons.ScanLine color={isPro ? "#10B981" : theme.textSubtle} size={20} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.fabMenuTitle}>{t("home.scanToCreate")}</Text>
-              <Text style={styles.fabMenuSub}>{t("home.scanToCreateSub")}</Text>
+              <Text style={[styles.fabMenuTitle, !isPro && { color: theme.textMuted }]}>{t("home.scanToCreate")}</Text>
+              <Text style={styles.fabMenuSub}>{isPro ? t("home.scanToCreateSub") : t("settings.backup.proRequired")}</Text>
             </View>
+            {!isPro ? <Icons.Lock color={theme.textSubtle} size={16} /> : null}
           </TouchableOpacity>
           <View style={styles.fabMenuDivider} />
-          <TouchableOpacity style={styles.fabMenuItem} onPress={() => { closeFabMenu(); setTimeout(() => router.push("/(app)/vcard"), 200); }}>
-            <View style={[styles.fabMenuIcon, { backgroundColor: "#EEF2FF" }]}>
-              <Icons.Contact color="#6366F1" size={20} />
+          <TouchableOpacity style={styles.fabMenuItem} onPress={() => {
+            closeFabMenu();
+            if (!isPro) { setTimeout(() => router.push("/(app)/paywall"), 200); return; }
+            setTimeout(() => router.push("/(app)/vcard"), 200);
+          }}>
+            <View style={[styles.fabMenuIcon, { backgroundColor: isPro ? "#EEF2FF" : theme.surfaceAlt }]}>
+              <Icons.Contact color={isPro ? "#6366F1" : theme.textSubtle} size={20} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.fabMenuTitle}>{t("card.createVCard")}</Text>
-              <Text style={styles.fabMenuSub}>{t("home.addVCardSub")}</Text>
+              <Text style={[styles.fabMenuTitle, !isPro && { color: theme.textMuted }]}>{t("card.createVCard")}</Text>
+              <Text style={styles.fabMenuSub}>{isPro ? t("home.addVCardSub") : t("settings.backup.proRequired")}</Text>
             </View>
+            {!isPro ? <Icons.Lock color={theme.textSubtle} size={16} /> : null}
           </TouchableOpacity>
         </Animated.View>
       ) : null}

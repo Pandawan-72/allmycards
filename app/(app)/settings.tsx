@@ -165,18 +165,19 @@ export default function Settings() {
         </TouchableOpacity>
 
         {/* PIN */}
-        {isPro ? (
-          <TouchableOpacity onPress={() => router.push("/(app)/pin-setup")} style={[styles.row, { marginTop: 10 }]}>
-            <View style={[styles.rowIcon, { backgroundColor: "#EFF6FF" }]}>
-              <Icons.Lock color="#3B82F6" size={18} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.rowTitle}>{t("settings.pin")}</Text>
-              <Text style={styles.rowSub}>{pinEnabled ? t("settings.pinEnabled") : t("common.disabled")}</Text>
-            </View>
-            <Icons.ChevronRight color={theme.textSubtle} size={18} />
-          </TouchableOpacity>
-        ) : null}
+        <TouchableOpacity
+          onPress={() => { if (!isPro) { router.push("/(app)/paywall"); return; } router.push("/(app)/pin-setup"); }}
+          style={[styles.row, { marginTop: 10 }]}
+        >
+          <View style={[styles.rowIcon, { backgroundColor: isPro ? "#EFF6FF" : theme.surfaceAlt }]}>
+            <Icons.Lock color={isPro ? "#3B82F6" : theme.textSubtle} size={18} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.rowTitle, !isPro && { color: theme.textMuted }]}>{t("settings.pin")}</Text>
+            <Text style={styles.rowSub}>{isPro ? (pinEnabled ? t("settings.pinEnabled") : t("common.disabled")) : t("settings.backup.proRequired")}</Text>
+          </View>
+          {isPro ? <Icons.ChevronRight color={theme.textSubtle} size={18} /> : <Icons.Lock color={theme.textSubtle} size={16} />}
+        </TouchableOpacity>
 
         <Text style={[styles.section, { marginTop: 24 }]}>{t("settings.backup.section")}</Text>
 

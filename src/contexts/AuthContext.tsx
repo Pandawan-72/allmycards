@@ -20,6 +20,12 @@ import { scheduleTrialEndingNotification } from "@/src/lib/notifications";
 
 // ✅ Compte de test local (défini dans .env, jamais exposé sur GitHub)
 const DEV_EMAIL = process.env.EXPO_PUBLIC_DEV_EMAIL || "";
+// Comptes de test toujours forcés en version GRATUITE (aucun trial, jamais Pro) —
+// utile pour tester l'expérience utilisateur gratuite sans bidouiller Firebase/RevenueCat.
+const FORCE_FREE_EMAILS = ["dev@retro-spare.fr"];
+function isForcedFreeAccount(email: string): boolean {
+  return FORCE_FREE_EMAILS.includes(email.toLowerCase().trim());
+}
 const DEV_PASSWORD = process.env.EXPO_PUBLIC_DEV_PASSWORD || "";
 
 export type AuthUser = {
@@ -108,8 +114,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsub = onAuthStateChanged(auth, async (fbUser: any) => {
       if (fbUser) {
         const base = firebaseUserToAuthUser(fbUser);
-        const enriched = await enrichWithTrial(base);
-        setUser(enriched);
+        if (isForcedFreeAccount(base.email)) {
+          setUser({ ...base, pro: { plan: "free", is_pro: false, trial_end: null, current_period_end: null, has_used_trial: true } });
+        } else {
+          const enriched = await enrichWithTrial(base);
+          setUser(enriched);
+        }
       } else {
         setUser(null);
       }
@@ -132,6 +142,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Connexion Firebase normale
     const base = await firebaseLogin(email, password);
+
+    if (isForcedFreeAccount(email)) {
+      // Compte de test "gratuit forcé" : jamais de trial, jamais Pro.
+      setUser({ ...base, pro: { plan: "free", is_pro: false, trial_end: null, current_period_end: null, has_used_trial: true } });
+      return;
+    }
+
     await startTrialIfNeeded();
     const trialStart = await getTrialStart();
     if (trialStart) await scheduleTrialEndingNotification(trialStart);
@@ -179,6 +196,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fbUser = auth.currentUser;
     if (!fbUser) return;
     const base = firebaseUserToAuthUser(fbUser);
+    if (isForcedFreeAccount(base.email)) {
+      setUser({ ...base, pro: { plan: "free", is_pro: false, trial_end: null, current_period_end: null, has_used_trial: true } });
+      return;
+    }
     const enriched = await enrichWithTrial(base);
     setUser(enriched);
   }, [user]);
