@@ -18,7 +18,7 @@ const LEGAL_FR = {
       { title: "6. Services tiers", body: "All My Cards utilise : Google Sign-In / Firebase (authentification), RevenueCat (achats Pro), Google Play (paiements)." },
       { title: "7. Conservation", body: "Compte Firebase conservé tant qu'actif, supprimé sur demande. Données locales supprimées à la désinstallation." },
       { title: "8. Vos droits (RGPD)", body: "Accès, rectification, effacement, portabilité, opposition. Contactez-nous à dev@retro-spare.fr." },
-      { title: "9. Sécurité", body: "Authentification via Firebase. Communications chiffrées HTTPS/TLS. Protection optionnelle par code PIN biométrique." },
+      { title: "9. Sécurité", body: "Authentification via Firebase. Communications chiffrées HTTPS/TLS. Protection optionnelle des cartes par code PIN ou biométrie." },
       { title: "10. Mineurs", body: "Application non destinée aux moins de 13 ans." },
       { title: "11. Contact", body: "dev@retro-spare.fr" }
     ]
@@ -28,7 +28,7 @@ const LEGAL_FR = {
     sections: [
       { title: "1. Acceptation", body: "En utilisant l'Application, vous acceptez les présentes CGU." },
       { title: "2. Version gratuite et Pro", body: "Gratuit : jusqu'à 5 cartes. Pro (5,99 € achat unique) : cartes illimitées, protection PIN, filtres catégories, alertes d'expiration, sauvegarde & restauration, partage de carte." },
-      { title: "3. Essai gratuit 72h", body: "À la première connexion, chaque utilisateur bénéficie d'un essai gratuit de 72 heures avec accès complet Pro." },
+      { title: "3. Essai gratuit 15 jours", body: "À la première connexion, chaque utilisateur bénéficie d'un essai gratuit de 15 jours avec accès complet Pro." },
       { title: "4. Achat unique Pro", body: "L'accès Pro est disponible via un achat unique de 5,99 € sur Google Play. Aucun abonnement, aucun frais récurrent." },
       { title: "5. Restauration", body: "Utilisez le bouton Restaurer mes achats dans les paramètres avec le même compte Google Play." },
       { title: "6. Remboursements", body: "Les remboursements sont gérés par Google Play selon leur politique." },

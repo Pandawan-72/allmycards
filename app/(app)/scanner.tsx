@@ -22,7 +22,7 @@ export default function Scanner() {
   const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
-  const { cardId, mode, side } = useLocalSearchParams<{ cardId: string; mode: string; side?: string }>();
+  const { cardId, mode, side, createOnScan } = useLocalSearchParams<{ cardId: string; mode: string; side?: string; createOnScan?: string }>();
   const { updateCard } = useCards();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -44,6 +44,10 @@ export default function Scanner() {
       await updateCard(cardId, { barcodeValue: data, barcodeType: type as any });
     } else {
       setPendingScanResult({ type: "barcode", value: data, barcodeType: type });
+    }
+    if (createOnScan === "true") {
+      router.replace("/(app)/card");
+      return;
     }
     Alert.alert("✅ Code scanné", `Valeur : ${data}`, [
       { text: "OK", onPress: () => router.back() }
@@ -179,7 +183,7 @@ export default function Scanner() {
         style={{ flex: 1 }}
         facing="back"
         barcodeScannerSettings={{
-          barcodeTypes: ["qr", "ean13", "ean8", "code128", "code39", "upc-a", "aztec", "pdf417"] as BarcodeType[],
+          barcodeTypes: ["qr", "ean13", "ean8", "code128", "code39", "upc_a", "aztec", "pdf417"] as BarcodeType[],
         }}
         onBarcodeScanned={onBarcodeScanned}
       >

@@ -12,13 +12,13 @@ const LEGAL_NL = {
     sections: [
       { title: "1. Uitgever", body: "All My Cards wordt uitgegeven door Retro-Spare. Contact: dev@retro-spare.fr." },
       { title: "2. Verzamelde gegevens", body: "Naam, e-mailadres (Firebase). Met Google Aanmelden: naam, e-mail, foto. Geen betalingsgegevens opgeslagen." },
-      { title: "3. Lokale gegevens", body: "Al uw kaarten worden uitsluitend lokaal op uw apparaat opgeslagen en nooit naar onze servers verzonden." },
+      { title: "3. Lokale gegevens", body: "Al uw kaarten (loyaliteit, identiteit, vervoer, enz.) worden uitsluitend lokaal op uw apparaat opgeslagen. Ze worden nooit naar onze servers verzonden." },
       { title: "4. Kaartfoto's", body: "Voor-/achterkantfoto's worden lokaal opgeslagen en verlaten uw telefoon nooit, behalve bij het delen." },
       { title: "5. Gebruik van gegevens", body: "We gebruiken uw gegevens alleen voor het aanmaken en beveiligen van uw account, het beheren van Pro-toegang en het beantwoorden van ondersteuningsverzoeken." },
       { title: "6. Diensten van derden", body: "All My Cards gebruikt: Firebase (authenticatie), RevenueCat (Pro-aankopen), Google Play (betalingen)." },
       { title: "7. Bewaring", body: "Firebase-account bewaard zolang actief, verwijderd op verzoek. Lokale gegevens verwijderd bij verwijdering." },
       { title: "8. Uw rechten (AVG)", body: "Toegang, rectificatie, verwijdering, overdraagbaarheid, bezwaar. Contact: dev@retro-spare.fr." },
-      { title: "9. Beveiliging", body: "Authenticatie via Firebase. HTTPS/TLS-versleutelde communicatie. Optionele biometrische PIN-beveiliging." },
+      { title: "9. Beveiliging", body: "Authenticatie via Firebase. HTTPS/TLS-versleutelde communicatie. Optionele kaartbeveiliging met PIN-code of biometrie." },
       { title: "10. Minderjarigen", body: "App niet bestemd voor gebruikers onder de 13 jaar." },
       { title: "11. Contact", body: "dev@retro-spare.fr" }
     ]
@@ -28,7 +28,7 @@ const LEGAL_NL = {
     sections: [
       { title: "1. Aanvaarding", body: "Door de App te gebruiken, accepteert u deze voorwaarden." },
       { title: "2. Gratis en Pro-versie", body: "Gratis: tot 5 kaarten. Pro (€ 5,99 eenmalige aankoop): onbeperkte kaarten, PIN-beveiliging, categoriefilters, verloopmeldingen, back-up en herstel, kaart delen." },
-      { title: "3. 72u gratis proefperiode", body: "Bij de eerste aanmelding krijgt elke gebruiker een gratis proefperiode van 72 uur met volledige Pro-toegang." },
+      { title: "3. 15 dagen gratis proefperiode", body: "Bij de eerste aanmelding krijgt elke gebruiker een gratis proefperiode van 15 dagen met volledige Pro-toegang." },
       { title: "4. Pro eenmalige aankoop", body: "Pro-toegang is beschikbaar via een eenmalige aankoop van € 5,99 op Google Play. Geen abonnement, geen terugkerende kosten." },
       { title: "5. Herstel", body: "Gebruik de knop Aankopen herstellen in de instellingen met hetzelfde Google Play-account." },
       { title: "6. Terugbetalingen", body: "Terugbetalingen worden afgehandeld door Google Play volgens hun beleid." },

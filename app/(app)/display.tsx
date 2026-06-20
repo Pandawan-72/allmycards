@@ -228,7 +228,7 @@ export default function Display() {
             </View>
           ) : !isVCard ? (
             <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 44, alignItems: "center", justifyContent: "center", gap: 8 }}>
-              <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={44} rounded={12} />
+              <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={44} rounded={8} useLetterLogo={card.useLetterLogo} letterColor={card.color || cat.color} />
               {card.barcodeValue ? (
                 <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 10, padding: 8, alignItems: "center", justifyContent: "center" }}>
                   <BarcodeDisplay type={card.barcodeType} value={card.barcodeValue} width={isQR ? 90 : 280} height={isQR ? 90 : 55} />
@@ -267,7 +267,7 @@ export default function Display() {
               <Text style={styles.cardBadgeName}>{card.name}</Text>
               <Text style={styles.cardBadgeCat}>{t("categories." + cat.label)}</Text>
             </View>
-            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={16} />
+            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={10} useLetterLogo={card.useLetterLogo} letterColor={card.color || cat.color} />
           </View>
 
           {showBarcode && hasBarcode ? (

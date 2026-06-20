@@ -370,8 +370,8 @@ export const BRANDS: Brand[] = [
   // ═══════════════════════════════════════════════════════════════════════
   // CAVISTES / BOISSONS — France
   // ═══════════════════════════════════════════════════════════════════════
-  { name: "V and B", color: "#7B1F2B", domain: "v-and-b.com", aliases: ["v&b", "v and b"] },
-  { name: "Chope et Compagnie", color: "#C8102E", domain: "chope-et-compagnie.fr", aliases: ["chope et cie"] },
+  { name: "V and B", color: "#7CB342", domain: "vandb.fr", aliases: ["v&b", "v and b"] },
+  { name: "Chope et Compagnie", color: "#FF7F11", domain: "chopeetcompagnie.fr", aliases: ["chope et cie"] },
   { name: "Nicolas", color: "#7B1F2B", domain: "nicolas.com" },
   { name: "Repaire de Bacchus", color: "#7B1F2B", domain: "repairedebacchus.com" },
   { name: "Cave Ô", color: "#7B1F2B", domain: "cave-o.com" },
@@ -562,6 +562,88 @@ export const BRANDS: Brand[] = [
   { name: "Sport Bittl", color: "#0055A4", domain: "sport-bittl.com" },
   { name: "Go Outdoors", color: "#00543C", domain: "gooutdoors.co.uk" },
   { name: "Snowleader", color: "#0055A4", domain: "snowleader.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MODE HOMME / FEMME / ENFANT — France
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Galeries Lafayette", color: "#8801D2", domain: "galerieslafayette.com" },
+  { name: "Printemps", color: "#E6007E", domain: "printemps.com" },
+  { name: "Bonobo", color: "#000000", domain: "bonobo-jeans.com" },
+  { name: "Bizzbee", color: "#000000", domain: "bizzbee.com" },
+  { name: "Naf Naf", color: "#E2001A", domain: "nafnaf.com" },
+  { name: "Pimkie", color: "#E6007E", domain: "pimkie.fr" },
+  { name: "Morgan", color: "#000000", domain: "morgan.fr" },
+  { name: "Jennyfer", color: "#E6007E", domain: "jennyfer.com" },
+  { name: "Brice", color: "#1A1A1A", domain: "brice.fr" },
+  { name: "Burton", color: "#000000", domain: "burton.fr" },
+  { name: "Tape à l'Œil", color: "#FFD200", domain: "tapealoeil.fr" },
+  { name: "Orchestra", color: "#0091D6", domain: "orchestra.fr" },
+  { name: "Sergent Major", color: "#003DA5", domain: "sergent-major.com" },
+  { name: "Catimini", color: "#E6007E", domain: "catimini.com" },
+  { name: "Jacadi", color: "#003DA5", domain: "jacadi.fr" },
+  { name: "Grain de Malice", color: "#E6007E", domain: "graindemalice.fr" },
+  { name: "Cache Cache", color: "#1A1A1A", domain: "cache-cache.fr" },
+  { name: "Kaporal", color: "#1A1A1A", domain: "kaporal.com" },
+  { name: "IKKS", color: "#1A1A1A", domain: "ikks.com" },
+  { name: "Galeries Barbès", color: "#E2001A", domain: "galeriesbarbes.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MODE HOMME / FEMME / ENFANT — UK / US
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Zara UK", color: "#000000", domain: "zara.com" },
+  { name: "Burberry", color: "#A1824A", domain: "burberry.com" },
+  { name: "Ted Baker", color: "#000000", domain: "tedbaker.com" },
+  { name: "Superdry", color: "#1A1A1A", domain: "superdry.com" },
+  { name: "Fred Perry", color: "#1A4D2E", domain: "fredperry.com" },
+  { name: "Reiss", color: "#1A1A1A", domain: "reiss.com" },
+  { name: "Jack Wills", color: "#000033", domain: "jackwills.com" },
+  { name: "Hollister", color: "#003087", domain: "hollisterco.com" },
+  { name: "Abercrombie & Fitch", color: "#1A1A1A", domain: "abercrombie.com" },
+  { name: "American Eagle", color: "#003DA5", domain: "ae.com" },
+  { name: "Old Navy", color: "#003DA5", domain: "oldnavy.gap.com" },
+  { name: "Banana Republic", color: "#1A1A1A", domain: "bananarepublic.gap.com" },
+  { name: "J.Crew", color: "#1A1A1A", domain: "jcrew.com" },
+  { name: "Forever 21", color: "#FFD200", domain: "forever21.com" },
+  { name: "Urban Outfitters", color: "#1A1A1A", domain: "urbanoutfitters.com" },
+  { name: "Express", color: "#1A1A1A", domain: "express.com" },
+  { name: "Aeropostale", color: "#003DA5", domain: "aeropostale.com" },
+  { name: "Carter's", color: "#E2001A", domain: "carters.com" },
+  { name: "Children's Place", color: "#E6007E", domain: "childrensplace.com" },
+  { name: "Zumiez", color: "#1A1A1A", domain: "zumiez.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MODE HOMME / FEMME / ENFANT — Allemagne
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Bonprix", color: "#E6007E", domain: "bonprix.de" },
+  { name: "Hallhuber", color: "#1A1A1A", domain: "hallhuber.com" },
+  { name: "Adler Mode", color: "#0055A4", domain: "adlermode.com" },
+  { name: "Vögele", color: "#000000", domain: "voegele-shoes.com" },
+  { name: "Engelhorn", color: "#000000", domain: "engelhorn.com" },
+  { name: "Jack & Jones", color: "#1A1A1A", domain: "jackjones.com" },
+  { name: "Vero Moda", color: "#1A1A1A", domain: "veromoda.com" },
+  { name: "Only", color: "#1A1A1A", domain: "only.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MODE HOMME / FEMME / ENFANT — Espagne / Italie / Portugal
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "Lefties", color: "#1A1A1A", domain: "lefties.com" },
+  { name: "Women'secret", color: "#E6007E", domain: "womensecret.com" },
+  { name: "Springfield", color: "#1A1A1A", domain: "springfield.com" },
+  { name: "Tezenis", color: "#1A1A1A", domain: "tezenis.com" },
+  { name: "Sisley", color: "#1A1A1A", domain: "sisley.com" },
+  { name: "Original Marines", color: "#0091D6", domain: "originalmarines.com" },
+  { name: "Prenatal", color: "#E6007E", domain: "prenatal.it" },
+  { name: "Salsa Jeans", color: "#1A1A1A", domain: "salsajeans.com" },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MODE HOMME / FEMME / ENFANT — Pays-Bas / Russie
+  // ═══════════════════════════════════════════════════════════════════════
+  { name: "C&A Nederland", color: "#E2001A", domain: "c-and-a.com" },
+  { name: "Costes Fashion", color: "#000000", domain: "costes.nl" },
+  { name: "Sportmaster Mode", color: "#E2001A", domain: "sportmaster.ru" },
+  { name: "Gloria Jeans", color: "#E2001A", domain: "gloria-jeans.ru" },
+  { name: "Befree", color: "#1A1A1A", domain: "befree.ru" },
+  { name: "Zarina", color: "#1A1A1A", domain: "zarina.ru" },
 
 ];
 

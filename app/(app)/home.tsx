@@ -89,7 +89,7 @@ function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?:
             </View>
           </View>
           <View style={styles.cardLogoCenter} pointerEvents="none">
-            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={56} rounded={14} />
+            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={68} rounded={10} useLetterLogo={card.useLetterLogo} letterColor={card.color || cat.color} />
           </View>
           <View style={styles.cardColoredOverlay}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
@@ -426,6 +426,16 @@ export default function Home() {
             <View style={{ flex: 1 }}>
               <Text style={styles.fabMenuTitle}>{t("home.addStandardCard")}</Text>
               <Text style={styles.fabMenuSub}>{t("home.addStandardCardSub")}</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={styles.fabMenuDivider} />
+          <TouchableOpacity style={styles.fabMenuItem} onPress={() => { closeFabMenu(); setTimeout(() => router.push({ pathname: "/(app)/scanner", params: { mode: "barcode", createOnScan: "true" } }), 200); }}>
+            <View style={[styles.fabMenuIcon, { backgroundColor: "#ECFDF5" }]}>
+              <Icons.ScanLine color="#10B981" size={20} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.fabMenuTitle}>{t("home.scanToCreate")}</Text>
+              <Text style={styles.fabMenuSub}>{t("home.scanToCreateSub")}</Text>
             </View>
           </TouchableOpacity>
           <View style={styles.fabMenuDivider} />

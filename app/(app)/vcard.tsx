@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Image, Dimensions } from "react-native";
 
-const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316","#92400E"];
+const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316","#92400E","#0EA5E9"];
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const COLOR_DOT_SIZE = (SCREEN_WIDTH - 60 - 5 * 8) / 6;
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as Icons from "lucide-react-native";
@@ -168,11 +170,11 @@ export default function VCardScreen() {
 
         {/* Couleur */}
         <Text style={[styles.label, { marginTop: 20 }]}>{t("card.color").toUpperCase()}</Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 8 }}>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8, justifyContent: "center" }}>
           {COLORS.map((c) => (
             <TouchableOpacity
               key={c}
-              style={[{ width: 32, height: 32, borderRadius: 16, backgroundColor: c, borderWidth: color === c ? 3 : 1, borderColor: color === c ? theme.text : theme.border }]}
+              style={[{ width: COLOR_DOT_SIZE, height: COLOR_DOT_SIZE, borderRadius: COLOR_DOT_SIZE / 2, backgroundColor: c, borderWidth: color === c ? 3 : 1, borderColor: color === c ? theme.text : theme.border }]}
               onPress={() => setColor(c)}
             />
           ))}

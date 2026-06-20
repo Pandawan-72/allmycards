@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect , useMemo } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Modal } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Modal, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as Icons from "lucide-react-native";
@@ -14,7 +14,9 @@ import { consumePendingScanResult } from "@/src/lib/scannerBridge";
 import { useTheme } from "@/src/contexts/ThemeContext";
 import { isPINEnabled } from "@/src/lib/pin";
 
-const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316","#92400E"];
+const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#111827","#EC4899","#6366F1","#14B8A6","#F97316","#92400E","#0EA5E9"];
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const COLOR_DOT_SIZE = (SCREEN_WIDTH - 60 - 5 * 8) / 6;
 
 export default function CardScreen() {
   const { theme, isDark } = useTheme();
@@ -49,6 +51,7 @@ export default function CardScreen() {
   const [phone, setPhone] = useState(existing?.phone || "");
   const [website, setWebsite] = useState(existing?.website || "");
   const [isProtected, setIsProtected] = useState(existing?.isProtected || false);
+  const [useLetterLogo, setUseLetterLogo] = useState(existing?.useLetterLogo || false);
   const [frontImage, setFrontImage] = useState<string | null>(existing?.frontImage || null);
   const [backImage, setBackImage] = useState<string | null>(existing?.backImage || null);
   const [showCatPicker, setShowCatPicker] = useState(false);
@@ -92,6 +95,7 @@ export default function CardScreen() {
         notes: notes || null,
         expiresAt: expiresAt || null,
         isProtected,
+        useLetterLogo,
         phone: phone || null,
         website: website || null,
       };
@@ -188,9 +192,21 @@ export default function CardScreen() {
             <Text style={styles.cardPreviewCat}>{t("categories." + cat.label)}</Text>
           </View>
           {name ? (
-            <BrandLogo cardName={name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={16} />
+            <BrandLogo cardName={name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={10} useLetterLogo={useLetterLogo} letterColor={color} />
           ) : null}
         </View>
+
+        {name ? (
+          <TouchableOpacity
+            style={styles.letterLogoRow}
+            onPress={() => setUseLetterLogo(!useLetterLogo)}
+          >
+            <View style={[styles.checkbox, useLetterLogo && { backgroundColor: theme.accent, borderColor: theme.accent }]}>
+              {useLetterLogo ? <Icons.Check color="#fff" size={14} strokeWidth={3} /> : null}
+            </View>
+            <Text style={styles.letterLogoLabel}>{t("card.useLetterLogo")}</Text>
+          </TouchableOpacity>
+        ) : null}
 
         {/* Nom */}
         <Text style={styles.label}>{t("card.name")}</Text>
@@ -469,6 +485,9 @@ function makeStyles(theme: any) {
   cardPreview: { borderRadius: 20, padding: 24, marginBottom: 24, minHeight: 100, justifyContent: "flex-end" },
   cardPreviewName: { fontSize: 22, fontWeight: "900", color: "#fff" },
   cardPreviewCat: { fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 },
+  letterLogoRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20, marginTop: -12 },
+  checkbox: { width: 20, height: 20, borderRadius: 5, borderWidth: 1.5, borderColor: theme.border, alignItems: "center", justifyContent: "center" },
+  letterLogoLabel: { fontSize: 13, color: theme.textMuted },
   label: { fontSize: 12, color: theme.textMuted, fontWeight: "700", letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" },
   input: {
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
@@ -491,8 +510,8 @@ function makeStyles(theme: any) {
     borderRadius: 14, padding: 14, marginBottom: 12,
   },
   pickerText: { fontSize: 15, color: theme.text },
-  colorRow: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 20 },
-  colorDot: { width: 32, height: 32, borderRadius: 16 },
+  colorRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 20, justifyContent: "center" },
+  colorDot: { width: COLOR_DOT_SIZE, height: COLOR_DOT_SIZE, borderRadius: COLOR_DOT_SIZE / 2 },
   colorDotSelected: { borderWidth: 3, borderColor: theme.text },
   scanBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10,

@@ -8,10 +8,12 @@ import { AuthProvider } from "@/src/contexts/AuthContext";
 import { CardsProvider } from "@/src/contexts/CardsContext";
 import { LanguageProvider } from "@/src/contexts/LanguageContext";
 import { ThemeProvider } from "@/src/contexts/ThemeContext";
+import { useBrandFonts } from "@/src/hooks/use-brand-fonts";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [brandFontsLoaded] = useBrandFonts();
 
   useEffect(() => {
     SplashScreen.hideAsync();
