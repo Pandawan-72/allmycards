@@ -28,13 +28,14 @@ export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, ro
   const FallbackIcon = (Icons as any)[fallbackIcon] || Icons.CreditCard;
 
   const domain = findBrandDomain(cardName);
+  // Si la marque n'est pas dans brands.ts, on passe le nom nu (sans TLD) à
+  // logoCache.ts qui teste en cascade tous les TLD candidats (.com, .fr, etc.).
   const guessedDomain: string | null = (!domain && cardName.trim().length >= 2)
     ? cardName.trim()
         .toLowerCase()
         .normalize("NFD")
         .replace(/[̀-ͯ]/g, "")
         .replace(/[^a-z0-9]/g, "")
-      + ".com"
     : null;
   const resolvedDomain = domain || guessedDomain;
 
