@@ -1,12 +1,14 @@
 // BrandLogo.tsx — Affiche le logo officiel d'une marque via logo.dev (img.logo.dev),
-// avec repli automatique sur l'icône de catégorie + couleur si le logo
-// n'est pas disponible ou la requête échoue. Peut aussi afficher l'initiale
-// du nom (mode "Lettre Logo") quand le logo automatique ne correspond pas
-// à la bonne enseigne (ex: rachats de marques, faux positifs de matching).
-import { useState } from "react";
+// avec cache sur disque (logoCache.ts) pour éviter les appels réseau répétés.
+// Repli automatique sur l'icône de catégorie + couleur si le logo n'est pas
+// disponible. Peut aussi afficher l'initiale du nom (mode "Lettre Logo").
+// Pour les marques absentes de brands.ts, on devine le domaine probable
+// (ex: "Décathlon" → "decathlon.com") et Logo.dev tente de le résoudre.
+import { useState, useEffect } from "react";
 import { View, Image, Text, StyleSheet } from "react-native";
 import * as Icons from "lucide-react-native";
 import { findBrandDomain } from "@/src/data/brands";
+import { getCachedLogoUri } from "@/src/utils/logoCache";
 
 const LOGODEV_TOKEN = process.env.EXPO_PUBLIC_LOGODEV_TOKEN;
 
@@ -21,8 +23,35 @@ type Props = {
 };
 
 export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, rounded = 10, useLetterLogo = false, letterColor }: Props) {
+  const [localUri, setLocalUri] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const FallbackIcon = (Icons as any)[fallbackIcon] || Icons.CreditCard;
+
+  const domain = findBrandDomain(cardName);
+  const guessedDomain: string | null = (!domain && cardName.trim().length >= 2)
+    ? cardName.trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]/g, "")
+      + ".com"
+    : null;
+  const resolvedDomain = domain || guessedDomain;
+
+  useEffect(() => {
+    if (useLetterLogo || !resolvedDomain || !LOGODEV_TOKEN) return;
+    let canceled = false;
+    setLocalUri(null);
+    setFailed(false);
+
+    getCachedLogoUri(resolvedDomain, LOGODEV_TOKEN, Math.round(size * 2)).then((uri) => {
+      if (canceled) return;
+      if (uri) setLocalUri(uri);
+      else setFailed(true);
+    });
+
+    return () => { canceled = true; };
+  }, [resolvedDomain, LOGODEV_TOKEN, size, useLetterLogo]);
 
   if (useLetterLogo) {
     const letter = (cardName || "").trim().charAt(0).toUpperCase() || "?";
@@ -33,9 +62,7 @@ export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, ro
     );
   }
 
-  const domain = findBrandDomain(cardName);
-
-  if (!domain || !LOGODEV_TOKEN || failed) {
+  if (!resolvedDomain || !LOGODEV_TOKEN || failed) {
     return (
       <View style={[styles.fallback, { width: size, height: size, borderRadius: rounded, backgroundColor: fallbackColor + "22" }]}>
         <FallbackIcon color={fallbackColor} size={size * 0.55} />
@@ -43,12 +70,17 @@ export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, ro
     );
   }
 
-  const uri = `https://img.logo.dev/${domain}?token=${LOGODEV_TOKEN}&size=${Math.round(size * 2)}&format=png&theme=light`;
+  if (!localUri) {
+    // Chargement en cours : affiche un placeholder de la même taille.
+    return (
+      <View style={[styles.fallback, { width: size, height: size, borderRadius: rounded, backgroundColor: fallbackColor + "11" }]} />
+    );
+  }
 
   return (
     <View style={[styles.wrap, { width: size, height: size, borderRadius: rounded, backgroundColor: "#ffffff" }]}>
       <Image
-        source={{ uri }}
+        source={{ uri: localUri }}
         style={{ width: size - 2, height: size - 2, borderRadius: rounded }}
         resizeMode="contain"
         onError={() => setFailed(true)}
