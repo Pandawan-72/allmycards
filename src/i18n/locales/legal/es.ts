@@ -27,9 +27,9 @@ const LEGAL_ES = {
     intro: "Estas condiciones rigen el uso de All My Cards.",
     sections: [
       { title: "1. Aceptación", body: "Al usar la App, acepta estas condiciones." },
-      { title: "2. Versión gratuita y Pro", body: "Gratis: hasta 5 tarjetas. Pro (5,99 € pago único): tarjetas ilimitadas, protección PIN, filtros de categoría, alertas de caducidad, copia de seguridad y restauración, compartir tarjeta." },
+      { title: "2. Versión gratuita y Pro", body: "Gratis: hasta 5 tarjetas. Pro (3,99 € pago único): tarjetas ilimitadas, protección PIN, filtros de categoría, alertas de caducidad, copia de seguridad y restauración, compartir tarjeta." },
       { title: "3. Prueba gratuita de 15 días", body: "Al iniciar sesión por primera vez, cada usuario obtiene una prueba gratuita de 15 días con acceso Pro completo." },
-      { title: "4. Compra única Pro", body: "El acceso Pro está disponible mediante un pago único de 5,99 € en Google Play. Sin suscripción, sin cargos recurrentes." },
+      { title: "4. Compra única Pro", body: "El acceso Pro está disponible mediante un pago único de 3,99 € en Google Play. Sin suscripción, sin cargos recurrentes." },
       { title: "5. Restauración", body: "Use el botón Restaurar compras en la configuración con la misma cuenta de Google Play." },
       { title: "6. Reembolsos", body: "Los reembolsos son gestionados por Google Play según su política." },
       { title: "7. Uso aceptable", body: "No eludir limitaciones, no aplicar ingeniería inversa ni usar la App ilegalmente." },

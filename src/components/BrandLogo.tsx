@@ -20,9 +20,12 @@ type Props = {
   rounded?: number;
   useLetterLogo?: boolean;
   letterColor?: string;
+  // Si true, désactive complètement la résolution Logo.dev — les vCards
+  // sont des cartes de visite personnelles, pas des enseignes commerciales.
+  isVCard?: boolean;
 };
 
-export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, rounded = 10, useLetterLogo = false, letterColor }: Props) {
+export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, rounded = 10, useLetterLogo = false, letterColor, isVCard = false }: Props) {
   const [localUri, setLocalUri] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const FallbackIcon = (Icons as any)[fallbackIcon] || Icons.CreditCard;
@@ -40,7 +43,7 @@ export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, ro
   const resolvedDomain = domain || guessedDomain;
 
   useEffect(() => {
-    if (useLetterLogo || !resolvedDomain || !LOGODEV_TOKEN) return;
+    if (useLetterLogo || isVCard || !resolvedDomain || !LOGODEV_TOKEN) return;
     let canceled = false;
     setLocalUri(null);
     setFailed(false);
@@ -63,7 +66,7 @@ export function BrandLogo({ cardName, fallbackIcon, fallbackColor, size = 40, ro
     );
   }
 
-  if (!resolvedDomain || !LOGODEV_TOKEN || failed) {
+  if (isVCard || !resolvedDomain || !LOGODEV_TOKEN || failed) {
     return (
       <View style={[styles.fallback, { width: size, height: size, borderRadius: rounded, backgroundColor: fallbackColor + "22" }]}>
         <FallbackIcon color={fallbackColor} size={size * 0.55} />

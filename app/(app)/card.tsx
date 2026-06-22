@@ -195,7 +195,7 @@ export default function CardScreen() {
               <Text style={styles.cardPreviewCat}>{t("categories." + cat.label)}</Text>
             </View>
             {name ? (
-              <BrandLogo cardName={name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={10} useLetterLogo={useLetterLogo} letterColor={color} />
+              <BrandLogo cardName={name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={64} rounded={10} useLetterLogo={useLetterLogo} letterColor={color} isVCard={categoryId === "businesscard"} />
             ) : null}
           </View>
           <TouchableOpacity

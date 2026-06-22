@@ -8,7 +8,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import { configureRC, fetchOfferingPackages, isRevenueCatSupported, purchaseRCPackage, restorePurchasesRC, RCPackageInfo } from "@/src/lib/revenuecat";
 import { useTheme } from "@/src/contexts/ThemeContext";
 
-const LIFETIME_PRICE = "5,99 €";
+const LIFETIME_PRICE = "3,99 €";
 
 export default function Paywall() {
   const { theme } = useTheme();

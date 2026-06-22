@@ -7,22 +7,66 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_REVENUECAT_API_KEY": "goog_DtNfVTJWrotbaTYtRhnBgjNiWwg",
+        "EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID": "all_my_cards_pro",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "463162671102-4686q7agl1tlfmtp27st5780in496p6f.apps.googleusercontent.com",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAC0lir-RteBpitEvJDJGaHN3yhd5NPSMQ",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "all-my-costs.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "all-my-costs",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "all-my-costs.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "463162671102",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:463162671102:web:6739991848936a755e8aaf",
+        "EXPO_PUBLIC_LOGODEV_TOKEN": "pk_QJDylgRXT6mCNO7WRvBHLg"
+      }
     },
     "preview": {
       "distribution": "internal",
       "channel": "preview",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_REVENUECAT_API_KEY": "goog_DtNfVTJWrotbaTYtRhnBgjNiWwg",
+        "EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID": "all_my_cards_pro",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "463162671102-4686q7agl1tlfmtp27st5780in496p6f.apps.googleusercontent.com",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAC0lir-RteBpitEvJDJGaHN3yhd5NPSMQ",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "all-my-costs.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "all-my-costs",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "all-my-costs.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "463162671102",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:463162671102:web:6739991848936a755e8aaf",
+        "EXPO_PUBLIC_LOGODEV_TOKEN": "pk_QJDylgRXT6mCNO7WRvBHLg"
+      }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
-      "android": { "buildType": "app-bundle" }
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_REVENUECAT_API_KEY": "goog_DtNfVTJWrotbaTYtRhnBgjNiWwg",
+        "EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID": "all_my_cards_pro",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "463162671102-4686q7agl1tlfmtp27st5780in496p6f.apps.googleusercontent.com",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAC0lir-RteBpitEvJDJGaHN3yhd5NPSMQ",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "all-my-costs.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "all-my-costs",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "all-my-costs.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "463162671102",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:463162671102:web:6739991848936a755e8aaf",
+        "EXPO_PUBLIC_LOGODEV_TOKEN": "pk_QJDylgRXT6mCNO7WRvBHLg"
+      }
     }
   },
   "submit": {
     "production": {
-      "android": { "track": "internal" }
+      "android": {
+        "track": "internal"
+      }
     }
   }
 }

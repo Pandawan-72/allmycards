@@ -90,7 +90,7 @@ function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?:
             </View>
           </View>
           <View style={styles.cardLogoCenter} pointerEvents="none">
-            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={68} rounded={10} useLetterLogo={card.useLetterLogo} letterColor={card.color || cat.color} />
+            <BrandLogo cardName={card.name} fallbackIcon={cat.icon} fallbackColor="#ffffff" size={Math.round(CARD_H * 0.73)} rounded={10} useLetterLogo={card.useLetterLogo} letterColor={card.color || cat.color} isVCard={!!card.barcodeValue?.startsWith("BEGIN:VCARD")} />
           </View>
           <View style={styles.cardColoredOverlay}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>

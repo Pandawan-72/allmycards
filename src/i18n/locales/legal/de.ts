@@ -27,9 +27,9 @@ const LEGAL_DE = {
     intro: "Diese Nutzungsbedingungen regeln die Nutzung von All My Cards.",
     sections: [
       { title: "1. Annahme", body: "Durch die Nutzung der App akzeptieren Sie diese Bedingungen." },
-      { title: "2. Kostenlose und Pro-Version", body: "Kostenlos: bis zu 5 Karten. Pro (5,99 € Einmalkauf): unbegrenzte Karten, PIN-Schutz, Kategoriefilter, Ablaufbenachrichtigungen, Sicherung & Wiederherstellung, Kartenfreigabe." },
+      { title: "2. Kostenlose und Pro-Version", body: "Kostenlos: bis zu 5 Karten. Pro (3,99 € Einmalkauf): unbegrenzte Karten, PIN-Schutz, Kategoriefilter, Ablaufbenachrichtigungen, Sicherung & Wiederherstellung, Kartenfreigabe." },
       { title: "3. 15 Tage kostenlose Testversion", body: "Bei der ersten Anmeldung erhält jeder Nutzer eine 15-tägige kostenlose Testversion mit vollem Pro-Zugang." },
-      { title: "4. Pro-Einmalkauf", body: "Pro-Zugang ist über einen Einmalkauf von 5,99 € bei Google Play verfügbar. Kein Abonnement, keine wiederkehrenden Gebühren." },
+      { title: "4. Pro-Einmalkauf", body: "Pro-Zugang ist über einen Einmalkauf von 3,99 € bei Google Play verfügbar. Kein Abonnement, keine wiederkehrenden Gebühren." },
       { title: "5. Wiederherstellung", body: "Verwenden Sie die Schaltfläche Käufe wiederherstellen in den Einstellungen mit demselben Google Play-Konto." },
       { title: "6. Rückerstattungen", body: "Rückerstattungen werden von Google Play gemäß deren Richtlinien abgewickelt." },
       { title: "7. Akzeptable Nutzung", body: "Keine Umgehung von Einschränkungen, kein Reverse Engineering oder illegale Nutzung der App." },

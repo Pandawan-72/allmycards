@@ -27,9 +27,9 @@ const LEGAL_NL = {
     intro: "Deze voorwaarden regelen het gebruik van All My Cards.",
     sections: [
       { title: "1. Aanvaarding", body: "Door de App te gebruiken, accepteert u deze voorwaarden." },
-      { title: "2. Gratis en Pro-versie", body: "Gratis: tot 5 kaarten. Pro (€ 5,99 eenmalige aankoop): onbeperkte kaarten, PIN-beveiliging, categoriefilters, verloopmeldingen, back-up en herstel, kaart delen." },
+      { title: "2. Gratis en Pro-versie", body: "Gratis: tot 5 kaarten. Pro (€ 3,99 eenmalige aankoop): onbeperkte kaarten, PIN-beveiliging, categoriefilters, verloopmeldingen, back-up en herstel, kaart delen." },
       { title: "3. 15 dagen gratis proefperiode", body: "Bij de eerste aanmelding krijgt elke gebruiker een gratis proefperiode van 15 dagen met volledige Pro-toegang." },
-      { title: "4. Pro eenmalige aankoop", body: "Pro-toegang is beschikbaar via een eenmalige aankoop van € 5,99 op Google Play. Geen abonnement, geen terugkerende kosten." },
+      { title: "4. Pro eenmalige aankoop", body: "Pro-toegang is beschikbaar via een eenmalige aankoop van € 3,99 op Google Play. Geen abonnement, geen terugkerende kosten." },
       { title: "5. Herstel", body: "Gebruik de knop Aankopen herstellen in de instellingen met hetzelfde Google Play-account." },
       { title: "6. Terugbetalingen", body: "Terugbetalingen worden afgehandeld door Google Play volgens hun beleid." },
       { title: "7. Aanvaardbaar gebruik", body: "Geen beperkingen omzeilen, geen reverse engineering of illegaal gebruik van de App." },

@@ -27,9 +27,9 @@ const LEGAL_EN = {
     intro: "These Terms of Use govern your use of All My Cards.",
     sections: [
       { title: "1. Acceptance", body: "By using the App, you accept these Terms." },
-      { title: "2. Free and Pro versions", body: "Free: up to 5 cards. Pro (€5.99 one-time): unlimited cards, PIN protection, category filters, expiry alerts, backup & restore, card sharing." },
+      { title: "2. Free and Pro versions", body: "Free: up to 5 cards. Pro (€3.99 one-time): unlimited cards, PIN protection, category filters, expiry alerts, backup & restore, card sharing." },
       { title: "3. 15-day free trial", body: "On first login, each user gets a 15-day free trial with full Pro access." },
-      { title: "4. Pro one-time purchase", body: "Pro access is available via a one-time purchase of €5.99 on Google Play. No subscription, no recurring charges." },
+      { title: "4. Pro one-time purchase", body: "Pro access is available via a one-time purchase of €3.99 on Google Play. No subscription, no recurring charges." },
       { title: "5. Restore", body: "Use the Restore Purchases button in settings with the same Google Play account." },
       { title: "6. Refunds", body: "Refunds are handled by Google Play according to their policy." },
       { title: "7. Acceptable use", body: "Do not circumvent limitations, reverse engineer, or use the App illegally." },
