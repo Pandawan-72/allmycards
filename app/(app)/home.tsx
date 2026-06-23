@@ -242,13 +242,21 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <View style={{ flex: 1, alignItems: "center" }}>
-          <Image source={isDark ? require("../../assets/images/logo-sombre.png") : require("../../assets/images/logo-allmycards.png")} style={{ width: 240, height: 60 }} resizeMode="contain" />
-          {firstName ? <Text style={styles.greeting}>{t("auth.welcomeName", { name: firstName })}</Text> : null}
+        <View style={styles.headerBrandRow}>
+          <Image source={isDark ? require("../../assets/images/logo-sombre.png") : require("../../assets/images/logo-allmycards.png")} style={{ width: 180, height: 44 }} resizeMode="contain" />
         </View>
-        <TouchableOpacity onPress={() => router.push("/(app)/settings")} style={styles.iconBtn}>
-          <Icons.Settings color={theme.text} size={20} strokeWidth={2} />
-        </TouchableOpacity>
+        <View style={styles.headerActionsRow}>
+          {firstName ? (
+            <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+              <Icons.Star color="#15803D" fill="#15803D" size={13} />
+              <Text style={[styles.greeting, { marginHorizontal: 5 }]} numberOfLines={1}>{t("auth.welcomeName", { name: firstName })}</Text>
+              <Icons.Star color="#15803D" fill="#15803D" size={13} />
+            </View>
+          ) : <View style={{ flex: 1 }} />}
+          <TouchableOpacity onPress={() => router.push("/(app)/settings")} style={styles.iconBtn}>
+            <Icons.Settings color={theme.text} size={20} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -475,10 +483,12 @@ function makeStyles(theme: any) {
   return StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   header: {
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+    flexDirection: "column",
     paddingHorizontal: 20, paddingTop: 4, paddingBottom: 6,
   },
-  greeting: { fontSize: 13, color: theme.textMuted, marginTop: 2, textAlign: "center" },
+  headerBrandRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
+  headerActionsRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 8 },
+  greeting: { flexShrink: 1, fontSize: 15, fontWeight: "700", color: theme.text, letterSpacing: -0.2 },
   iconBtn: {
     width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center",
     backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,

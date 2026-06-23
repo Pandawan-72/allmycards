@@ -47,7 +47,7 @@ const NL = {
     fillAll: "Alle velden zijn verplicht.",
     fillCreds: "Voer uw inloggegevens in.",
     googleFailed: "Google-aanmelding mislukt.",
-    welcomeName: "Hallo, {{name}} 👋",
+    welcomeName: "Welkom, {{name}}",
   },
   home: {
     longPressHint: "Lang indrukken om een kaart te bewerken of te verwijderen",
@@ -202,7 +202,7 @@ const NL = {
     feature8: "vCard visitekaartje",
     feature9: "Donkere modus",
     feature10: "Favoriete kaarten",
-    buyLifetime: "Kopen — € 5,99",
+    buyLifetime: "Kopen — € 3,99",
     restore: "Aankopen herstellen",
     once: "Eenmalige aankoop, levenslange toegang",
     alreadyPro: "U bent al Pro!",

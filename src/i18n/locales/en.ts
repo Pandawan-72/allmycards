@@ -47,7 +47,7 @@ const EN = {
     fillAll: "All fields are required.",
     fillCreds: "Please enter your credentials.",
     googleFailed: "Google sign-in failed.",
-    welcomeName: "Hello, {{name}} 👋",
+    welcomeName: "Welcome, {{name}}",
   },
   home: {
     longPressHint: "Long press to edit or delete a card",
@@ -202,7 +202,7 @@ const EN = {
     feature8: "vCard business card",
     feature9: "Dark mode",
     feature10: "Favorite cards",
-    buyLifetime: "Buy — €5.99",
+    buyLifetime: "Buy — €3,99",
     restore: "Restore purchases",
     once: "One-time purchase, lifetime access",
     alreadyPro: "You're already Pro!",

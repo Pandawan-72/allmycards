@@ -47,7 +47,7 @@ const DE = {
     fillAll: "Alle Felder sind erforderlich.",
     fillCreds: "Bitte geben Sie Ihre Anmeldedaten ein.",
     googleFailed: "Google-Anmeldung fehlgeschlagen.",
-    welcomeName: "Hallo, {{name}} 👋",
+    welcomeName: "Willkommen, {{name}}",
   },
   home: {
     longPressHint: "Lange drücken, um eine Karte zu bearbeiten oder zu löschen",
@@ -202,7 +202,7 @@ const DE = {
     feature8: "vCard-Visitenkarte",
     feature9: "Dunkelmodus",
     feature10: "Favoriten-Karten",
-    buyLifetime: "Kaufen — 5,99 €",
+    buyLifetime: "Kaufen — 3,99 €",
     restore: "Käufe wiederherstellen",
     once: "Einmaliger Kauf, lebenslanger Zugang",
     alreadyPro: "Sie sind bereits Pro!",

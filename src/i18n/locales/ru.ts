@@ -47,7 +47,7 @@ const RU = {
     fillAll: "Все поля обязательны.",
     fillCreds: "Введите ваши учётные данные.",
     googleFailed: "Ошибка входа через Google.",
-    welcomeName: "Привет, {{name}} 👋",
+    welcomeName: "Добро пожаловать, {{name}}",
   },
   home: {
     longPressHint: "Удерживайте карту для редактирования или удаления",
@@ -202,7 +202,7 @@ const RU = {
     feature8: "vCard визитка",
     feature9: "Тёмный режим",
     feature10: "Избранные карты",
-    buyLifetime: "Купить — 5,99 €",
+    buyLifetime: "Купить — 3,99 €",
     restore: "Восстановить покупки",
     once: "Разовая покупка, пожизненный доступ",
     alreadyPro: "Вы уже Pro!",

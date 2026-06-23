@@ -47,7 +47,7 @@ const ES = {
     fillAll: "Todos los campos son obligatorios.",
     fillCreds: "Por favor, introduce tus credenciales.",
     googleFailed: "Error al iniciar sesión con Google.",
-    welcomeName: "Hola, {{name}} 👋",
+    welcomeName: "Bienvenido, {{name}}",
   },
   home: {
     longPressHint: "Mantén pulsado para editar o eliminar una tarjeta",
@@ -202,7 +202,7 @@ const ES = {
     feature8: "Tarjeta de visita vCard",
     feature9: "Modo oscuro",
     feature10: "Tarjetas favoritas",
-    buyLifetime: "Comprar — 5,99 €",
+    buyLifetime: "Comprar — 3,99 €",
     restore: "Restaurar compras",
     once: "Compra única, acceso de por vida",
     alreadyPro: "¡Ya eres Pro!",

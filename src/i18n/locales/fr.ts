@@ -47,7 +47,7 @@ const FR = {
     fillAll: "Tous les champs sont requis.",
     fillCreds: "Veuillez saisir vos identifiants.",
     googleFailed: "Connexion Google échouée.",
-    welcomeName: "Bonjour, {{name}} 👋",
+    welcomeName: "Bienvenue, {{name}}",
   },
   home: {
     longPressHint: "Appui long pour éditer ou supprimer une carte",
@@ -212,7 +212,7 @@ const FR = {
     feature8: "Carte de visite vCard",
     feature9: "Mode sombre",
     feature10: "Cartes favorites",
-    buyLifetime: "Acheter — 5,99 €",
+    buyLifetime: "Acheter — 3,99 €",
     restore: "Restaurer mes achats",
     once: "Achat unique, accès à vie",
     alreadyPro: "Vous êtes déjà Pro !",
