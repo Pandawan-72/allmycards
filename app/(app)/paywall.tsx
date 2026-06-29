@@ -15,7 +15,7 @@ export default function Paywall() {
   const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
-  const { user, refreshUser } = useAuth();
+  const { isPro } = useAuth();
   const [busy, setBusy] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -24,13 +24,13 @@ export default function Paywall() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!isRevenueCatSupported() || !user?.user_id) return;
-      await configureRC(user.user_id);
+      if (!isRevenueCatSupported()) return;
+      await configureRC();
       const pkgs = await fetchOfferingPackages();
       if (!cancelled) setPackages(pkgs);
     })();
     return () => { cancelled = true; };
-  }, [user?.user_id]);
+  }, ["local_user"]);
 
   const onPurchase = async () => {
     setErr(null); setBusy(true);
@@ -40,8 +40,7 @@ export default function Paywall() {
         if (!pkg) throw new Error("Offre non disponible.");
         const res = await purchaseRCPackage(pkg.rcPackage);
         if (res.userCancelled) return;
-        await refreshUser();
-        router.replace("/(app)/home");
+                router.replace("/(app)/home");
       }
     } catch (e: any) {
       setErr(e?.message || "Erreur lors de l'achat.");
@@ -54,15 +53,13 @@ export default function Paywall() {
     setErr(null); setRestoring(true);
     try {
       if (isRevenueCatSupported()) await restorePurchasesRC();
-      await refreshUser();
-    } catch (e: any) {
+          } catch (e: any) {
       setErr(e?.message || "Erreur");
     } finally {
       setRestoring(false);
     }
   };
 
-  const isPro = !!user?.pro?.is_pro;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>

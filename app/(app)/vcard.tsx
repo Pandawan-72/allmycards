@@ -49,8 +49,7 @@ export default function VCardScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { cards, addCard, updateCard, deleteCard } = useCards();
-  const { user } = useAuth();
-  const isPro = !!user?.pro?.is_pro;
+  const { isPro } = useAuth();
 
   const existing = id ? cards.find((c) => c.id === id) : null;
   const parsed = existing?.barcodeValue?.startsWith("BEGIN:VCARD")
@@ -75,9 +74,6 @@ export default function VCardScreen() {
 
   useEffect(() => {
     isPINEnabled().then(setPinDefined);
-    if (!user?.pro?.is_pro) {
-      router.replace("/(app)/paywall");
-    }
   }, []);
 
   useFocusEffect(useCallback(() => {

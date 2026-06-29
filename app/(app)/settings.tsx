@@ -21,13 +21,12 @@ export default function Settings() {
   const { theme, isDark, toggleTheme } = useTheme();
   const styles = makeStyles(theme);
   const router = useRouter();
-  const { user, logout, refreshUser } = useAuth();
+  const { isPro } = useAuth();
   const { cards, replaceAllCards } = useCards();
   const [restoring, setRestoring] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
 
-  const isPro = !!user?.pro?.is_pro;
   const { lang, setLang } = useLanguage();
   const { t } = useTranslation();
   const [showLang, setShowLang] = useState(false);
@@ -38,7 +37,7 @@ export default function Settings() {
   }, []));
 
   const proLabel = (() => {
-    const p = user?.pro?.plan;
+    const p = "lifetime";
     if (p === "lifetime") return t("paywall.once");
     if (p === "trialing") return t("paywall.trialBanner", {hours: 0});
     if (p === "expired") return "Expiré";
@@ -50,7 +49,7 @@ export default function Settings() {
     setRestoring(true);
     try {
       if (isRevenueCatSupported()) await restorePurchasesRC();
-      await refreshUser();
+      
     } finally {
       setRestoring(false);
     }
@@ -98,7 +97,7 @@ export default function Settings() {
   };
 
   const onLogout = async () => {
-    await logout();
+    
     router.replace("/(auth)/sign-in");
   };
 
@@ -115,11 +114,11 @@ export default function Settings() {
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarTxt}>{(user?.name || "?").charAt(0).toUpperCase()}</Text>
+            <Text style={styles.avatarTxt}>{"?"}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{user?.name}</Text>
-            <Text style={styles.email}>{user?.email}</Text>
+            <Text style={styles.name}>{""}</Text>
+            <Text style={styles.email}>{""}</Text>
           </View>
         </View>
 

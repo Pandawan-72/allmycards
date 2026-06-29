@@ -39,7 +39,7 @@ export default function Display() {
   const { t } = useTranslation();
   const { id, view } = useLocalSearchParams<{ id: string; view?: string }>();
   const { cards } = useCards();
-  const { user } = useAuth();
+  const { isPro } = useAuth();
   const card = cards.find((c) => c.id === id);
   const [isLandscape, setIsLandscape] = useState(false);
   const [pinUnlocked, setPinUnlocked] = useState(false);
@@ -52,7 +52,6 @@ export default function Display() {
       (cardShareRef as any).current = null;
     };
   }, []);
-  const isPro = !!user?.pro?.is_pro;
 
   useEffect(() => {
     const sub = Dimensions.addEventListener("change", ({ window }) => {
@@ -186,7 +185,7 @@ export default function Display() {
             <QRCode value={card.barcodeValue || " "} size={barcodeW} />
           ) : (
             <View style={{ transform: [{ scale: barcodeW / 380 }] }}>
-              <Barcode value={card.barcodeValue || "0"} format={{"ean13":"EAN13","ean8":"EAN8","upc":"UPC","code128":"CODE128","code39":"CODE39"}[card.barcodeType] || "CODE128"} singleBarWidth={2} height={100} maxWidth={280} />
+              <Barcode value={card.barcodeValue || "0"} format={{"ean13":"EAN13","ean8":"EAN8","upc":"UPC","code128":"CODE128","code39":"CODE39","none":"CODE128"}[card.barcodeType as string] || "CODE128"} singleBarWidth={2} height={100} maxWidth={280} />
             </View>
           )}
         </TouchableOpacity>
@@ -241,7 +240,7 @@ export default function Display() {
             <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: "#fff", fontSize: 13, fontWeight: "800", flexShrink: 1, marginRight: 6 }}>{card.name}</Text>
             <View style={{ backgroundColor: "rgba(255,255,255,0.95)", borderRadius: 4, paddingHorizontal: 4, paddingVertical: 2, flexDirection: "row", alignItems: "center", gap: 3, flexShrink: 0 }}>
               <Image source={require("../../assets/images/logo-allmycards.png")} style={{ width: 55, height: 14 }} resizeMode="contain" />
-              <Text numberOfLines={1} style={{ color: theme.textMuted, fontSize: 10, fontWeight: "700" }}>· {(user?.name || "").split(" ")[0].slice(0, 8)}</Text>
+              <Text numberOfLines={1} style={{ color: theme.textMuted, fontSize: 10, fontWeight: "700" }}>· All My Cards</Text>
             </View>
           </View>
         </View>

@@ -122,7 +122,7 @@ export default function Home() {
   const styles = makeStyles(theme);
   const router = useRouter();
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { isPro } = useAuth();
   const { cards, deleteCard } = useCards();
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -131,36 +131,15 @@ export default function Home() {
   const [pendingCard, setPendingCard] = useState<Card | null>(null);
   const [showPin, setShowPin] = useState(false);
 
-  const isPro = !!user?.pro?.is_pro;
-  const isTrialing = user?.pro?.plan === "trialing";
-  const trialExpired = user?.pro?.plan === "expired";
 
-  const trialHoursLeft = (() => {
-    const te = user?.pro?.trial_end;
-    if (!te || !isTrialing) return 0;
-    return Math.max(0, Math.ceil((new Date(te).getTime() - Date.now()) / 3600000));
-  })();
 
-  const trialDaysLeft = Math.ceil(trialHoursLeft / 24);
+
 
   const lockedCardIds = useMemo(() => {
     if (isPro) return new Set<string>();
     return new Set(cards.slice(FREE_CARD_LIMIT).map((c) => c.id));
   }, [cards, isPro]);
 
-  useEffect(() => {
-    if (isTrialing && trialDaysLeft <= 2 && trialDaysLeft > 0) {
-      Alert.alert(
-        t("paywall.trialEndingTitle"),
-        t("paywall.trialEndingBody"),
-        [
-          { text: t("common.later"), style: "cancel" },
-          { text: t("paywall.goProNow"), onPress: () => router.push("/(app)/paywall") },
-        ]
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const filtered = useMemo(() => {
     let result = cards;
@@ -174,7 +153,7 @@ export default function Home() {
     });
   }, [cards, search, selectedCat]);
 
-  const firstName = (user?.name || "").trim().split(/\s+/)[0] || "";
+  const firstName = "";
 
   const [showFabMenu, setShowFabMenu] = useState(false);
   const fabMenuAnim = React.useRef(new Animated.Value(0)).current;
@@ -266,22 +245,8 @@ export default function Home() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}
         ListHeaderComponent={
           <View>
-            {isTrialing && trialHoursLeft > 0 ? (
-              <TouchableOpacity onPress={() => router.push("/(app)/paywall")} style={styles.trialBanner}>
-                <Icons.Sparkles color={theme.accent} size={16} />
-                <Text style={styles.trialBannerText}>{t("home.trialDaysLeft", { count: trialDaysLeft })}</Text>
-                <Icons.ChevronRight color={theme.accent} size={16} />
-              </TouchableOpacity>
-            ) : null}
-            {trialExpired ? (
-              <TouchableOpacity onPress={() => router.push("/(app)/paywall")} style={[styles.trialBanner, { backgroundColor: "#FEF2F2", borderColor: theme.danger }]}>
-                <Icons.AlertCircle color={theme.danger} size={16} />
-                <Text style={[styles.trialBannerText, { color: theme.danger }]}>{t("paywall.trialExpired")}</Text>
-                <Text style={{ color: theme.danger, fontWeight: "800" }}>5,99 €</Text>
-              </TouchableOpacity>
-            ) : null}
 
-            {isPro && !isTrialing && !trialExpired ? (
+            {isPro ? (
               <View style={[styles.trialBanner, styles.proActivatedBanner]}>
                 <Icons.BadgeCheck color={theme.accent} size={16} />
                 <Text style={styles.proActivatedBannerText}>{t("home.proUnlocked")}</Text>

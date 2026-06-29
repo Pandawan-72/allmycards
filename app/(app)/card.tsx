@@ -25,8 +25,7 @@ export default function CardScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { cards, addCard, updateCard, deleteCard } = useCards();
-  const { user } = useAuth();
-  const isPro = !!user?.pro?.is_pro;
+  const { isPro } = useAuth();
 
   const existing = id ? cards.find((c) => c.id === id) : null;
 
@@ -101,7 +100,7 @@ export default function CardScreen() {
         phone: phone || null,
         website: website || null,
       };
-      let savedCard: Card | undefined = existing;
+      let savedCard: Card | undefined = existing ?? undefined;
       if (existing) {
         await updateCard(existing.id, data);
       } else {
@@ -109,7 +108,7 @@ export default function CardScreen() {
       }
       if (isPro && expiresAt && savedCard) {
         const hasPermission = await requestNotificationPermission();
-        if (hasPermission) await scheduleExpirationAlert(savedCard.id, name.trim(), expiresAt, parseInt(alertDays) || 2);
+        if (hasPermission) await scheduleExpirationAlert(savedCard.id, name.trim(), new Date(expiresAt), parseInt(alertDays) || 2);
       } else if (savedCard && !expiresAt) {
         await cancelExpirationAlert(savedCard.id);
       }

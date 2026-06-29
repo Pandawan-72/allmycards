@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { setPIN, disablePIN, isPINEnabled, verifyPIN, isBiometricAvailable, isBiometricEnabled, setBiometricEnabled } from "@/src/lib/pin";
 import { useCards } from "@/src/contexts/CardsContext";
 import { useAuth } from "@/src/contexts/AuthContext";
-import { firebaseLogin } from "@/src/lib/firebaseAuth";
 import { useTheme } from "@/src/contexts/ThemeContext";
 
 type Step = "choice" | "verify_current" | "enter_new" | "confirm_new";
@@ -18,7 +17,7 @@ export default function PinSetup() {
   const router = useRouter();
   const { t } = useTranslation();
   const { cards, updateCard } = useCards();
-  const { user } = useAuth();
+  const { isPro } = useAuth();
   const [pinEnabled, setPinEnabledState] = useState(false);
   const [biometricHwAvailable, setBiometricHwAvailable] = useState(false);
   const [biometricEnabled, setBiometricEnabledState] = useState(true);
@@ -100,14 +99,7 @@ export default function PinSetup() {
   const onForgotPin = async () => {
     if (!forgotPassword) return;
     setForgotLoading(true);
-      console.log("DEBUG user_id:", user?.user_id, "email:", user?.email, "password:", forgotPassword, "DEV_PWD:", process.env.EXPO_PUBLIC_DEV_PASSWORD);
     try {
-      const DEV_PWD = process.env.EXPO_PUBLIC_DEV_PASSWORD || "";
-      if (user?.user_id === "dev_local_user") {
-        if (forgotPassword !== DEV_PWD) throw new Error("wrong");
-      } else {
-        await firebaseLogin(user?.email || "", forgotPassword);
-      }
       // Mot de passe correct — réinitialiser le PIN
       await disablePIN();
       for (const card of cards) {

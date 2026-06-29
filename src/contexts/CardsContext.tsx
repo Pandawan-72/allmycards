@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 import { storage } from "@/src/utils/storage";
-import { useAuth } from "@/src/contexts/AuthContext";
 
 export type BarcodeType = "qr" | "ean13" | "ean8" | "code128" | "code39" | "upc" | "aztec" | "pdf417" | "none";
 
@@ -44,8 +43,7 @@ function uid() {
 }
 
 export function CardsProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-  const uidKey = user?.user_id;
+  const uidKey = "local_user";
 
   const [loading, setLoading] = useState(true);
   const [cards, setCards] = useState<Card[]>([]);
