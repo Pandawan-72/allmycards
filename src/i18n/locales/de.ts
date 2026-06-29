@@ -165,6 +165,7 @@ const DE = {
     account: "Konto",
     preferences: "Einstellungen",
     proPlan: "Pro-Plan",
+    proActive: "Pro-Zugang aktiv", proInactive: "Pro-Zugang inaktiv", googlePlayAccount: "Verknüpftes Google Play-Konto",
     logout: "Abmelden",
     version: "Version",
     language: "Sprache",

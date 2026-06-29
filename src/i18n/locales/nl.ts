@@ -165,6 +165,7 @@ const NL = {
     account: "Account",
     preferences: "Voorkeuren",
     proPlan: "Pro-plan",
+    proActive: "Pro-toegang actief", proInactive: "Pro-toegang inactief", googlePlayAccount: "Gekoppeld Google Play-account",
     logout: "Afmelden",
     version: "Versie",
     language: "Taal",

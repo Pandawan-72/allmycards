@@ -96,10 +96,6 @@ export default function Settings() {
     ]);
   };
 
-  const onLogout = async () => {
-    
-    router.replace("/(auth)/sign-in");
-  };
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
@@ -113,12 +109,12 @@ export default function Settings() {
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
         <View style={styles.profileCard}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarTxt}>{"?"}</Text>
+          <View style={[styles.avatar, { backgroundColor: isPro ? theme.accent : "#374151" }]}>
+            <Icons.Crown color="#fff" size={22} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{""}</Text>
-            <Text style={styles.email}>{""}</Text>
+            <Text style={styles.name}>{isPro ? t("settings.proActive") : t("settings.proInactive")}</Text>
+            <Text style={styles.email}>{t("settings.googlePlayAccount")}</Text>
           </View>
         </View>
 
@@ -217,17 +213,6 @@ export default function Settings() {
           <View style={styles.rowIcon}><Icons.FileText color={theme.text} size={18} /></View>
           <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{t("legal.termsTitle")}</Text></View>
           <Icons.ChevronRight color={theme.textSubtle} size={18} />
-        </TouchableOpacity>
-
-        
-
-        <TouchableOpacity onPress={onLogout} style={[styles.row, { marginTop: 20 }]}>
-          <View style={[styles.rowIcon, { backgroundColor: "#FEE2E2" }]}>
-            <Icons.LogOut color={theme.danger} size={18} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.rowTitle, { color: theme.danger }]}>{t("settings.logout")}</Text>
-          </View>
         </TouchableOpacity>
 
 

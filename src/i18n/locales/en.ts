@@ -165,6 +165,7 @@ const EN = {
     account: "Account",
     preferences: "Preferences",
     proPlan: "Pro Plan",
+    proActive: "Pro access active", proInactive: "Pro access inactive", googlePlayAccount: "Associated Google Play account",
     logout: "Sign out",
     version: "Version",
     language: "Language",

@@ -165,6 +165,7 @@ const ES = {
     account: "Cuenta",
     preferences: "Preferencias",
     proPlan: "Plan Pro",
+    proActive: "Acceso Pro activo", proInactive: "Acceso Pro inactivo", googlePlayAccount: "Cuenta de Google Play asociada",
     logout: "Cerrar sesión",
     version: "Versión",
     language: "Idioma",

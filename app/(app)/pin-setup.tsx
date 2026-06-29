@@ -1,4 +1,5 @@
 import { useState, useEffect , useMemo } from "react";
+import { restorePurchasesRC, isRevenueCatSupported } from "@/src/lib/revenuecat";
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Modal, TextInput, ActivityIndicator, Switch } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -28,7 +29,6 @@ export default function PinSetup() {
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showForgot, setShowForgot] = useState(false);
-  const [forgotPassword, setForgotPassword] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
 
   useEffect(() => {
@@ -97,22 +97,31 @@ export default function PinSetup() {
   const onDelete = () => { setInput(prev => prev.slice(0, -1)); setError(false); setErrorMsg(""); };
 
   const onForgotPin = async () => {
-    if (!forgotPassword) return;
     setForgotLoading(true);
     try {
-      // Mot de passe correct — réinitialiser le PIN
+      // Vérification via restauration d'achat Google Play (RevenueCat)
+      // Si l'utilisateur a bien acheté Pro, la restauration réussit et on
+      // autorise la réinitialisation du PIN.
+      if (!isRevenueCatSupported()) {
+        Alert.alert("Non disponible", "Cette fonctionnalité nécessite une connexion Google Play.");
+        return;
+      }
+      const entitled = await restorePurchasesRC();
+      if (!entitled) {
+        Alert.alert("Vérification échouée", "Impossible de vérifier votre achat Google Play. Assurez-vous d\'être connecté avec le bon compte.");
+        return;
+      }
       await disablePIN();
       for (const card of cards) {
         if (card.isProtected) await updateCard(card.id, { isProtected: false });
       }
       setShowForgot(false);
-      setForgotPassword("");
       setPinEnabledState(false);
       Alert.alert("PIN réinitialisé", "Votre code PIN a été supprimé. Vous pouvez en créer un nouveau.", [
         { text: "OK", onPress: () => { reset(); setStep("choice"); } }
       ]);
     } catch {
-      Alert.alert("Erreur", "Mot de passe incorrect.");
+      Alert.alert("Erreur", "Impossible de vérifier votre achat. Réessayez.");
     } finally {
       setForgotLoading(false);
     }
@@ -236,25 +245,16 @@ export default function PinSetup() {
           <View style={{ backgroundColor: theme.bg, borderRadius: 20, padding: 24, gap: 14 }}>
             <Text style={{ fontSize: 18, fontWeight: "900", color: theme.text }}>Code PIN oublié ?</Text>
             <Text style={{ fontSize: 14, color: theme.textMuted, lineHeight: 20 }}>
-              Entrez votre mot de passe de connexion pour réinitialiser votre PIN. Toutes vos cartes protégées seront déverrouillées.
+              Votre achat Google Play sera vérifié pour confirmer votre identité. Toutes vos cartes protégées seront déverrouillées.
             </Text>
-            <TextInput
-              style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 14, padding: 14, fontSize: 15, color: theme.text }}
-              placeholder="Mot de passe"
-              placeholderTextColor={theme.textSubtle}
-              value={forgotPassword}
-              onChangeText={setForgotPassword}
-              secureTextEntry
-              autoCapitalize="none"
-            />
             <TouchableOpacity
               style={{ backgroundColor: theme.cardBg, borderRadius: 14, padding: 16, alignItems: "center" }}
               onPress={onForgotPin}
               disabled={forgotLoading}
             >
-              {forgotLoading ? <ActivityIndicator color="#fff" /> : <Text style={{ color: "#fff", fontWeight: "800", fontSize: 15 }}>Réinitialiser le PIN</Text>}
+              {forgotLoading ? <ActivityIndicator color="#fff" /> : <Text style={{ color: "#fff", fontWeight: "800", fontSize: 15 }}>Vérifier via Google Play</Text>}
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setShowForgot(false); setForgotPassword(""); }} style={{ alignItems: "center" }}>
+            <TouchableOpacity onPress={() => { setShowForgot(false); }} style={{ alignItems: "center" }}>
               <Text style={{ color: theme.textMuted, fontWeight: "600" }}>Annuler</Text>
             </TouchableOpacity>
           </View>

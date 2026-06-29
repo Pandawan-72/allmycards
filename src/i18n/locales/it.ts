@@ -165,6 +165,7 @@ const IT = {
     account: "Account",
     preferences: "Preferenze",
     proPlan: "Piano Pro",
+    proActive: "Accesso Pro attivo", proInactive: "Accesso Pro inattivo", googlePlayAccount: "Account Google Play associato",
     logout: "Disconnetti",
     version: "Versione",
     language: "Lingua",

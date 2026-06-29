@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, Dimensions, Image, Modal, Animated, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Icons from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -120,6 +120,7 @@ function CardItem({ card, locked, onPress, onLongPress }: { card: Card; locked?:
 export default function Home() {
   const { theme, isDark } = useTheme();
   const styles = makeStyles(theme);
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t } = useTranslation();
   const { isPro } = useAuth();
@@ -391,7 +392,7 @@ export default function Home() {
       ) : null}
 
       {showFabMenu ? (
-        <Animated.View style={[styles.fabMenu, {
+        <Animated.View style={[styles.fabMenu, { bottom: Math.max(insets.bottom + 84, 100) }, {
           opacity: fabMenuAnim,
           transform: [{ translateY: fabMenuAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }]
         }]}>
@@ -437,7 +438,7 @@ export default function Home() {
         </Animated.View>
       ) : null}
 
-      <TouchableOpacity style={styles.fab} onPress={showFabMenu ? closeFabMenu : onAdd}>
+      <TouchableOpacity style={[styles.fab, { bottom: Math.max(insets.bottom + 12, 24) }]} onPress={showFabMenu ? closeFabMenu : onAdd}>
         <Icons.Plus color="#fff" size={28} strokeWidth={2.5} />
       </TouchableOpacity>
     </SafeAreaView>

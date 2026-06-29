@@ -165,6 +165,7 @@ const RU = {
     account: "Аккаунт",
     preferences: "Настройки",
     proPlan: "Pro-план",
+    proActive: "Pro-доступ активен", proInactive: "Pro-доступ неактивен", googlePlayAccount: "Связанный аккаунт Google Play",
     logout: "Выйти",
     version: "Версия",
     language: "Язык",
